@@ -32,7 +32,9 @@ function jss() {
 
 
 //JavaScript File
-//Note: only supports strings
+//Note: only supports strings inside arrays
+//E.g. save(["hello","world"],"name1")
+//E.g. load("name1")
 var jsf1 = {
 	save: function(data,name) {
     	var storage = localStorage.jsfStorage.split("JSFSTORAGE")
@@ -47,6 +49,18 @@ var jsf1 = {
 		if(storageNames.indexOf(name) == -1) {
 			localStorage.jsfStorage += "JSFSTORAGE" + newData
 			localStorage.jsfStorageNames += "JSFSTORAGE" + name
+			console.log("Saving successful")
+		}
+		else {
+			storage[storageNames.indexOf(name)] = newData
+			i = 1
+			localStorage.jsfStorage = "JSFPLACEHOLDER"
+			console.log(localStorage.jsfStorage)
+			while(i < storage.length) {
+				localStorage.jsfStorage += "JSFSTORAGE" + storage[i]
+				i += 1
+			}
+			console.log("Saving successful")
 		}
     },
 	load: function(name) {
@@ -59,12 +73,17 @@ var jsf1 = {
 			data = storage[storageNames.indexOf(name)]
 			newData = data.split("JSF_STORAGE")
 		}
+		else {
+			console.log("Error: file not found")
+			return(undefined)
+		}
 		var newData2 = []
 		var i = 1
 		while(i < newData.length) {
 			newData2.push(newData[i])
 			i+=1
 		}
+		console.log("Loading successful")
 		return(newData2)
     }
 }
