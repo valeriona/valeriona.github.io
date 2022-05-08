@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+<style>
+#game {position:fixed;left:0px;top:0px;width:100%;height:100%;}
+#gun {position:fixed;left:0px;top:0px;width:100%;height:100%;}
+#enemies {position:fixed;left:0px;top:0px;}
+#items {position:fixed;left:0px;top:0px;}
+#credits {color:#FF0000;position:absolute;top:30px;left:50px;font-family:arial;font-size:40px;}
+#name {color:#FF0000;position:absolute;top:30px;left:550px;font-family:arial;font-size:35px;}
+#kills {color:#FF0000;position:absolute;top:32px;left:800px;font-family:arial;font-size:30px;}
+#itemsCollected {color:#FF0000;position:absolute;top:32px;left:940px;font-family:arial;font-size:30px;}
+#weapon {color:#FF0000;position:absolute;top:32px;left:1230px;font-family:arial;font-size:30px;}
+#map {position:fixed;left:0px;top:0px;width:200%;height:200%;}
+#bullets {left:0px;top:0px;position:fixed;width:200%;height:200%;}
+#gui {position:fixed;left:0px;bottom:0px;height:100px;width:100%;background-color:black;}
+</style>
+</head>
+
+<body>
+<canvas id="game" width="1000" height="1000"></canvas>
+<img src="map.png" id="map">
+
+
+<div id="enemies"></div>
+<div id="items"></div>
+<div id="bullets"></div>
+<img src="gun.png" id="gun" onclick="shoot()" ondragstart="return false;" ondrop="return false;">
+
+
+<div id="gui">
+<span id="credits"><b>CyberChill Development</b></span>
+<span id="name"><b>Gun Game 2</b></span>
+<span id="kills">0</span>
+<span id="itemsCollected">0</span>
+<span id="weapon">1: Pistol | 2: Sniper</span>
+</div>
+
+</body>
+
+<script>
+var w = document.getElementById("game").offsetWidth
+var h = document.getElementById("game").offsetHeight
+
+window.addEventListener("mousemove",function(event) {
+	window.mouseX = event.clientX
+	window.mouseY = event.clientY
+})
+
+document.onkeypress = function (e) {
+    e = e || window.event;
+    if(e.keyCode == 49) {
+		document.getElementById("gun").src = "gun.png"
+	}
+	else if(e.keyCode == 50) {
+		document.getElementById("gun").src = "scope.png"
+	}
+};
+
+//Set width and height to 100 in the canvas to allow percentages
+//Use 4th and 5th parameter in drawImage for scaling - broken
+//var game = document.getElementById("game").getContext("2d")
+
+
+//MAPS
+
+//Maps,Items,ItemWidths,ItemHeights,ItemPositions,NumberOfItems,NumberOfKills
+var mapDetails = [
+	[
+		["bankBasic1.png","bankBasic2.png","bankBasic3.png"],
+		[
+			["meFon.png","meFon.png","meFon.png","meFon.png"],
+			["bigBucks.png","bigBucks.png","bigBucks.png","bigBucks.png","bigBucks.png","bigBucks.png","bigBucks.png","bigBucks.png","bigBucks.png","bigBucks.png"],
+			[]
+		],
+		[
+			[30,30,30,30],
+			[60,60,60,60,60,60,60,60,60,60],
+			[]
+		],
+		[
+			[60,60,60,60],
+			[60,60,60,60,60,60,60,60,60,60],
+			[]
+		],
+		[
+			[10,30,50,80],
+			[5,20,10,80,30,50,60,70,25,38],
+			[]
+		],
+		[4,10,0],
+		[4,20,40]
+	]
+]
+
+var mapIndex1 = Math.floor(Math.random() * mapDetails.length)
+var mapIndex2 = 0
+
+mapSetup()
+function mapSetup() {
+	document.getElementById("map").src = mapDetails[mapIndex1][0][mapIndex2]
+	var i  = 0
+	while(i < mapDetails[mapIndex1][1][mapIndex2].length) {
+		generateItem(mapDetails[mapIndex1][1][mapIndex2][i],mapDetails[mapIndex1][2][mapIndex2][i],mapDetails[mapIndex1][3][mapIndex2][i],mapDetails[mapIndex1][4][mapIndex2][i])
+		i+=1
+	}
+}
+
+function bullet(x,y) {
+	if(Math.floor(Math.random()*3) == 1) {
+		var bullets = document.getElementById("bullets")
+		var bill = document.createElement("img")
+		bill.style.width = "10px"
+		bill.style.height = "10px"
+		bill.style.position = "absolute"
+		bill.style.left = x
+		bill.style.top = y
+		bill.src = "bullet.png"
+		bullets.append(bill)
+	}
+}
+
+
+
+
+document.getElementById("game").width = w
+document.getElementById("game").height = h
+sessionStorage.ezKills = "0"
+sessionStorage.sussyCounter1 = "0"
+sessionStorage.sussyMoveX = "0"
+sessionStorage.itemsCollected = "0"
+var img = new Image();
+img.src = "map.png";
+img.addEventListener("load",function() {
+	//game.drawImage(img,0,0);
+	setInterval(gaem,10)
+})
+
+function generateEnemy(enemies1) {
+	var opacities = ["0.05","0.1","0.2","0.3","0.4","0.5","0.6","0.7","0.8","0.9","1"]
+	var yPositions = [(h/2-100).toString()]
+	var enemies = document.getElementById("enemies")
+	var enemy = document.createElement("img")
+	enemy.style.width = "100px"
+	enemy.style.height = "100px"
+	enemy.style.position = "absolute"
+	enemy.style.left = (Math.floor(Math.random()*(w-400)+(200))).toString() + "px"
+	enemy.style.top = yPositions[Math.floor(Math.random()*yPositions.length)] + "px"
+	enemy.src = "enemy.png"
+	enemy.style.opacity = opacities[Math.floor(Math.random()*opacities.length)]
+	enemies.append(enemy)
+	bullet(enemy.style.left,enemy.style.top)
+}
+
+function generateItem(item1,w1,h1,xPercent) {
+	var items = document.getElementById("items")
+	var item = document.createElement("img")
+	item.style.width =  w1.toString() + "px"
+	item.style.height = h1.toString() + "px"
+	item.style.position = "absolute"
+	item.style.left = (w*(xPercent/100)).toString() + "px"
+	item.style.top = (h/2-h1).toString() + "px"
+	item.src = item1
+	items.append(item)
+}
+
+function gaem() {
+	//game.drawImage(img,w-window.mouseX-w,h-window.mouseY-h);
+	document.getElementById("map").style.left = (w-window.mouseX-w).toString() + "px"
+	if(window.mouseY < h-(h*0.333333334)) {
+		document.getElementById("map").style.top = (h-window.mouseY-h).toString() + "px"
+	}
+	document.getElementById("enemies").style.left = (w-window.mouseX-w/2).toString() + "px"
+	if(window.mouseY < h-(h*0.333333334)) {
+		document.getElementById("enemies").style.top = (h-window.mouseY-h/2).toString() + "px"
+	}
+	document.getElementById("items").style.left = (w-window.mouseX-w/2).toString() + "px"
+	if(window.mouseY < h-(h*0.333333334)) {
+		document.getElementById("items").style.top = (h-window.mouseY-h/2).toString() + "px"
+	}
+	document.getElementById("bullets").style.left = (w-window.mouseX-w/2).toString() + "px"
+	if(window.mouseY < h-(h*0.333333334)) {
+		document.getElementById("bullets").style.top = (h-window.mouseY-h/2).toString() + "px"
+	}
+	document.getElementById("kills").innerHTML = "Kills: " + sessionStorage.ezKills
+	document.getElementById("itemsCollected").innerHTML = "Items Collected: " + sessionStorage.itemsCollected
+	moveSussyBakas()
+	if(Number(sessionStorage.ezKills) >= mapDetails[mapIndex1][6][mapIndex2]) {
+		if(Number(sessionStorage.itemsCollected) >= mapDetails[mapIndex1][5][mapIndex2]) {
+			sessionStorage.ezKills = "0"
+			sessionStorage.sussyCounter1 = "0"
+			sessionStorage.sussyMoveX = "0"
+			sessionStorage.itemsCollected = "0"
+			console.log("y")
+			document.getElementById("enemies").innerHTML = ""
+			document.getElementById("items").innerHTML = ""
+			if(mapIndex2 < mapDetails[mapIndex1][0].length-1) {
+				mapIndex2 += 1
+			}
+			else {
+				mapIndex1 = Math.floor(Math.random() * mapDetails.length)
+				mapIndex2 = 0
+			}
+			generateEnemy()
+			generateEnemy()
+			mapSetup()
+		}
+	}
+	//bullet()
+	leBullets()
+}
+
+generateEnemy()
+generateEnemy()
+
+function generateRandomMoves(amount) {
+	var i = 0
+	var sauce1 = []
+	while(i < amount) {
+		sauce1.push(((Math.random()*4)-2).toString())
+		i+=1
+	}
+	return(sauce1)
+}
+
+function moveSussyBakas() {
+	
+	var enemies = document.getElementById("enemies").children
+	var enemies1 = document.getElementById("enemies")
+	sessionStorage.sussyCounter1 = (Number(sessionStorage.sussyCounter1)+1).toString()
+	var mX = Number(sessionStorage.sussyMoveX)
+	var x1 = 0
+	var y1 = 0
+	var i = 0
+	if(sessionStorage.sussyCounter1 == "50") {
+		sessionStorage.sussyMoveX = generateRandomMoves(enemies.length)
+	}
+	while(i < enemies.length) {
+		var x1 = Number(enemies[i].style.left.split("px")[0])
+		var y1 = Number(enemies[i].style.top.split("px")[0])
+		mX = Number(sessionStorage.sussyMoveX.split(",")[i])
+		if(enemies[i].src.indexOf("deadEnemy.png") == -1 && (x1 > 200) && (x1 < w-200)) {
+			enemies[i].style.left = (Number(enemies[i].style.left.split("px")[0])+mX).toString() + "px"
+			//bullet()
+		}
+		else {
+			if(x1 < (200)) {enemies[i].style.left = (Number(enemies[i].style.left.split("px")[0])+10).toString() + "px"}
+			if(x1 > (w-200)) {enemies[i].style.left = (Number(enemies[i].style.left.split("px")[0])-10).toString() + "px"}
+		}
+		i += 1
+	}
+	if(sessionStorage.sussyCounter1 == "50") {
+		sessionStorage.sussyCounter1 = "0"
+	}
+	
+}
+
+function shoot() {
+	var enemies = document.getElementById("enemies").children
+	var enemies1 = document.getElementById("enemies")
+	var x = w/2
+	var y = h/2
+	var x1 = 0
+	var y1 = 0
+	var i = 0
+	while(i < enemies.length) {
+		x1 = Number(enemies[i].style.left.split("px")[0])+Number(enemies1.style.left.split("px")[0])
+		y1 = Number(enemies[i].style.top.split("px")[0])+Number(enemies1.style.top.split("px")[0])
+		if(x > x1 && x < x1 + 100 && y > y1 && y < y1 + 100 && enemies[i].src.indexOf("deadEnemy.png") == -1) {
+			enemies[i].src = "deadEnemy.png"
+			sessionStorage.ezKills = (Number(sessionStorage.ezKills)+1).toString()
+			generateEnemy()
+		}
+		i += 1
+	}
+
+
+
+	var bullets = document.getElementById("bullets").children
+	var bullets1 = document.getElementById("bullets")
+	var i = 0
+	while(i < bullets.length) {
+		x1 = Number(bullets[i].style.left.split("px")[0])+Number(bullets1.style.left.split("px")[0])
+		y1 = Number(bullets[i].style.top.split("px")[0])+Number(bullets1.style.top.split("px")[0])
+		if(x > x1 && x < x1 + Number(bullets[i].style.left.split("px")[0]) && y > y1 && y < y1 + Number(bullets[i].style.left.split("px")[0])) {
+			bullets[i].remove()
+			i = 1000
+		}
+		i += 1
+	}
+
+	var items = document.getElementById("items").children
+	var items1 = document.getElementById("items")
+	var i = 0
+	while(i < items.length) {
+		x1 = Number(items[i].style.left.split("px")[0])+Number(items1.style.left.split("px")[0])
+		y1 = Number(items[i].style.top.split("px")[0])+Number(items1.style.top.split("px")[0])
+		if(x > x1 && x < x1 + 100 && y > y1 && y < y1 + 100) {
+			items[i].remove()
+			sessionStorage.itemsCollected = (Number(sessionStorage.itemsCollected) + 1).toString()
+			i = 1000
+		}
+		i += 1
+	}
+
+
+}
+
+function leBullets() {
+	var bullets = document.getElementById("bullets").children
+	var i = 0
+	while(i < bullets.length) {
+		bullets[i].style.width = (Number(bullets[i].style.width.split("px")[0])+1).toString() + "px"
+		bullets[i].style.height = (Number(bullets[i].style.height.split("px")[0])+1).toString() + "px"
+		if(bullets[i].style.width == "500px") {
+			document.getElementById("gun").src = "gameover.png"
+		}
+		i += 1
+	}
+}
+
+</script>
+
+</html>
