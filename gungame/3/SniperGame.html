@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+<style>
+#game {position:fixed;left:0px;top:0px;width:100%;height:100%;}
+#gun {position:fixed;left:0px;top:0px;width:100%;height:100%;}
+#enemies {position:fixed;left:0px;top:0px;}
+#credits {color:#FF0000;position:fixed;left:50px;top:50px;font-family:arial;font-size:40px;}
+#name {color:#FF0000;position:fixed;left:50px;top:120px;font-family:arial;font-size:35px;}
+#kills {color:#FF0000;position:fixed;left:50px;top:180px;font-family:arial;font-size:30px;}
+#timer {color:#FF0000;position:fixed;left:50px;top:230px;font-family:arial;font-size:30px;}
+#map {position:fixed;left:0px;top:0px;width:200%;height:200%;}
+#bullets {left:0px;top:0px;position:fixed;width:200%;height:200%;}
+</style>
+</head>
+
+<body>
+<canvas id="game" width="1000" height="1000"></canvas>
+<img src="map.png" id="map">
+
+<div id="enemies"></div>
+<div id="bullets"></div>
+<img src="gun.png" id="gun" onclick="shoot()" ondragstart="return false;" ondrop="return false;">
+<span id="credits"><b>CyberChill Development</b></span>
+<span id="name"><b>Sniper Game 3</b></span>
+<span id="kills">0</span>
+<span id="timer">60</span>
+
+</body>
+
+<script>
+
+window.addEventListener("mousemove",function(event) {
+	window.mouseX = event.clientX
+	window.mouseY = event.clientY
+})
+
+//Set width and height to 100 in the canvas to allow percentages
+//Use 4th and 5th parameter in drawImage for scaling - broken
+//var game = document.getElementById("game").getContext("2d")
+
+
+//MAPS
+
+var maps = ["map.png"]
+document.getElementById("map").src = maps[Math.floor(Math.random()*maps.length)]
+
+function bullet(x,y) {
+	if(Math.floor(Math.random()*3) == 1) {
+		var bullets = document.getElementById("bullets")
+		var bill = document.createElement("img")
+		bill.style.width = "10px"
+		bill.style.height = "10px"
+		bill.style.position = "absolute"
+		bill.style.left = x
+		bill.style.top = y
+		bill.src = "bullet.png"
+		bullets.append(bill)
+	}
+}
+
+
+
+var w = document.getElementById("game").offsetWidth
+var h = document.getElementById("game").offsetHeight
+document.getElementById("game").width = w
+document.getElementById("game").height = h
+sessionStorage.ezKills = "0"
+sessionStorage.sussyCounter1 = "0"
+sessionStorage.sussyMoveX = "0"
+sessionStorage.timer = "60"
+var img = new Image();
+img.src = "map.png";
+img.addEventListener("load",function() {
+	//game.drawImage(img,0,0);
+	setInterval(gaem,10)
+})
+
+function generateEnemy(enemies1) {
+	var opacities = ["0.05","0.1","0.2","0.3","0.4","0.5","0.6","0.7","0.8","0.9","1"]
+	var yPositions = [(h/2-100).toString()]
+	var enemies = document.getElementById("enemies")
+	var enemy = document.createElement("img")
+	enemy.style.width = "100px"
+	enemy.style.height = "100px"
+	enemy.style.position = "absolute"
+	enemy.style.left = (Math.floor(Math.random()*(w-400)+(200))).toString() + "px"
+	enemy.style.top = yPositions[Math.floor(Math.random()*yPositions.length)] + "px"
+	enemy.src = "enemy.png"
+	enemy.style.opacity = opacities[Math.floor(Math.random()*opacities.length)]
+	enemies.append(enemy)
+	bullet(enemy.style.left,enemy.style.top)
+}
+
+function gaem() {
+	//game.drawImage(img,w-window.mouseX-w,h-window.mouseY-h);
+	document.getElementById("map").style.left = (w-window.mouseX-w).toString() + "px"
+	document.getElementById("map").style.top = (h-window.mouseY-h).toString() + "px"
+	document.getElementById("enemies").style.left = (w-window.mouseX-w/2).toString() + "px"
+	document.getElementById("enemies").style.top = (h-window.mouseY-h/2).toString() + "px"
+	document.getElementById("bullets").style.left = (w-window.mouseX-w/2).toString() + "px"
+	document.getElementById("bullets").style.top = (h-window.mouseY-h/2).toString() + "px"
+	document.getElementById("kills").innerHTML = "Kills: " + sessionStorage.ezKills
+	moveSussyBakas()
+	document.getElementById("timer").innerHTML = "Time: " + (Math.round(Number(sessionStorage.timer))).toString()
+	sessionStorage.timer = Number(sessionStorage.timer) - (1/100)
+	if(Number(sessionStorage.timer) < 0) {
+		if(Number(sessionStorage.ezKills) >= 20) {
+			location.reload();
+		}
+		else {
+			document.getElementById("gun").src = "gameover.png"
+		}
+	}
+	//bullet()
+	leBullets()
+}
+
+generateEnemy()
+generateEnemy()
+
+function generateRandomMoves(amount) {
+	var i = 0
+	var sauce1 = []
+	while(i < amount) {
+		sauce1.push(((Math.random()*4)-2).toString())
+		i+=1
+	}
+	return(sauce1)
+}
+
+function moveSussyBakas() {
+	
+	var enemies = document.getElementById("enemies").children
+	var enemies1 = document.getElementById("enemies")
+	sessionStorage.sussyCounter1 = (Number(sessionStorage.sussyCounter1)+1).toString()
+	var mX = Number(sessionStorage.sussyMoveX)
+	var x1 = 0
+	var y1 = 0
+	var i = 0
+	if(sessionStorage.sussyCounter1 == "50") {
+		sessionStorage.sussyMoveX = generateRandomMoves(enemies.length)
+	}
+	while(i < enemies.length) {
+		var x1 = Number(enemies[i].style.left.split("px")[0])
+		var y1 = Number(enemies[i].style.top.split("px")[0])
+		mX = Number(sessionStorage.sussyMoveX.split(",")[i])
+		if(enemies[i].src.indexOf("deadEnemy.png") == -1 && (x1 > 200) && (x1 < w-200)) {
+			enemies[i].style.left = (Number(enemies[i].style.left.split("px")[0])+mX).toString() + "px"
+			//bullet()
+		}
+		else {
+			if(x1 < (200)) {enemies[i].style.left = (Number(enemies[i].style.left.split("px")[0])+10).toString() + "px"}
+			if(x1 > (w-200)) {enemies[i].style.left = (Number(enemies[i].style.left.split("px")[0])-10).toString() + "px"}
+		}
+		i += 1
+	}
+	if(sessionStorage.sussyCounter1 == "50") {
+		sessionStorage.sussyCounter1 = "0"
+	}
+	
+}
+
+function shoot() {
+	var enemies = document.getElementById("enemies").children
+	var enemies1 = document.getElementById("enemies")
+	var x = w/2
+	var y = h/2
+	var x1 = 0
+	var y1 = 0
+	var i = 0
+	while(i < enemies.length) {
+		x1 = Number(enemies[i].style.left.split("px")[0])+Number(enemies1.style.left.split("px")[0])
+		y1 = Number(enemies[i].style.top.split("px")[0])+Number(enemies1.style.top.split("px")[0])
+		if(x > x1 && x < x1 + 100 && y > y1 && y < y1 + 100 && enemies[i].src.indexOf("deadEnemy.png") == -1) {
+			enemies[i].src = "deadEnemy.png"
+			sessionStorage.ezKills = (Number(sessionStorage.ezKills)+1).toString()
+			generateEnemy()
+		}
+		i += 1
+	}
+
+
+
+	var bullets = document.getElementById("bullets").children
+	var bullets1 = document.getElementById("bullets")
+	var i = 0
+	while(i < bullets.length) {
+		x1 = Number(bullets[i].style.left.split("px")[0])+Number(bullets1.style.left.split("px")[0])
+		y1 = Number(bullets[i].style.top.split("px")[0])+Number(bullets1.style.top.split("px")[0])
+		if(x > x1 && x < x1 + Number(bullets[i].style.left.split("px")[0]) && y > y1 && y < y1 + Number(bullets[i].style.left.split("px")[0]) && bullets[i].src.indexOf("deadEnemy.png") == -1) {
+			bullets[i].remove()
+			i = 1000
+		}
+		i += 1
+	}
+}
+
+function leBullets() {
+	var bullets = document.getElementById("bullets").children
+	var i = 0
+	while(i < bullets.length) {
+		bullets[i].style.width = (Number(bullets[i].style.width.split("px")[0])+1).toString() + "px"
+		bullets[i].style.height = (Number(bullets[i].style.height.split("px")[0])+1).toString() + "px"
+		if(bullets[i].style.width == "500px") {
+			document.getElementById("gun").src = "gameover.png"
+		}
+		i += 1
+	}
+}
+
+</script>
+
+</html>
