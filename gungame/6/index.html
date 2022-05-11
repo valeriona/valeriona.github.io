@@ -17,7 +17,7 @@
 #map {position:fixed;left:0px;top:0px;width:200%;height:200%;}
 #bullets {left:0px;top:0px;position:fixed;width:200%;height:200%;}
 #gui {position:fixed;left:0px;bottom:0px;height:100px;width:100%;background-color:black;}
-#katana {position:fixed;left:0px;top:0px;width:100px;height:100%;}
+#katana {position:fixed;left:0px;top:0px;width:100px;height:100%;display:none;}
 </style>
 </head>
 
@@ -38,7 +38,7 @@
 <span id="name"><b>Gun Game 3</b></span>
 <span id="kills">0</span>
 <span id="itemsCollected">0</span>
-<span id="weapon">1: Pistol | 2: Sniper</span>
+<span id="weapon">1: Pistol | 2: Sniper | 3 (hold): Katana</span>
 </div>
 
 </body>
@@ -59,6 +59,22 @@ document.onkeypress = function (e) {
 	}
 	else if(e.keyCode == 50) {
 		document.getElementById("gun").src = "scope.png"
+	}
+};
+
+
+document.onkeydown = function (e) {
+    e = e || window.event;
+    if(e.keyCode == 51) {
+		document.getElementById("katana").style.display = "block"
+	}
+};
+
+
+document.onkeyup = function (e) {
+    e = e || window.event;
+    if(e.keyCode == 51) {
+		document.getElementById("katana").style.display = "none"
 	}
 };
 
@@ -171,7 +187,7 @@ function generateItem(item1,w1,h1,xPercent) {
 function gaem() {
 	bullet((Math.floor(Math.random()*(w-400))+200).toString()+"px",(Math.floor(Math.random()*(h/8))).toString() + "px")
 	//game.drawImage(img,w-window.mouseX-w,h-window.mouseY-h);
-	document.getElementById("katana").style.left = (window.mouseX-50).toString() + "px"
+	document.getElementById("katana").style.left = (window.mouseX-25).toString() + "px"
 	document.getElementById("katana").style.top = (window.mouseY-h*0.8).toString() + "px"
 
 	document.getElementById("map").style.left = (w-window.mouseX-w).toString() + "px"
@@ -283,7 +299,7 @@ function shoot() {
 	}
 
 
-	x = window.mouseX - 50
+	x = window.mouseX - 25
 	y = window.mouseY -  h/2 + h*0.2
 	var bullets = document.getElementById("bullets").children
 	var bullets1 = document.getElementById("bullets")
