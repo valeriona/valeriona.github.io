@@ -1,5 +1,5 @@
-<button style="position:fixed;height:100%;width:50%;left:0px;top:0px;" onclick="sessionStorage.button1='true'" onmousedown="this.backgroundColor='green'" onmouseup="this.backgroundColor='red'">Button 1</button>
-<button style="position:fixed;height:100%;width:50%;right:0px;top:0px;" onclick="sessionStorage.button2='true'" onmousedown="this.backgroundColor='green'" onmouseup="this.backgroundColor='red'">Button 2</button>
+<button style="position:fixed;height:100%;width:50%;left:0px;top:0px;" ontouchstart="sessionStorage.button1='true';this.backgroundColor='green'" ontouchend"this.backgroundColor='red'">Button 1</button>
+<button style="position:fixed;height:100%;width:50%;right:0px;top:0px;" ontouchstart="sessionStorage.button2='true';this.backgroundColor='green'" ontouchend="this.backgroundColor='red'">Button 2</button>
 
 <script>
 sessionStorage.button1='false'
