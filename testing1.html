@@ -1,0 +1,11 @@
+<button onclick="sessionStorage.button1='true'">Button 1</button>
+<button onclick="sessionStorage.button2='true'">Button 2</button>
+
+<script>
+setTimeout(function() {
+ if(sessionStorage.button1=='true' && sessionStorage.button2=='true') {
+  alert("both inputs are accepted") 
+ }
+ else {alert("sadly only one input was accepted")}
+},5000)
+</script>
