@@ -2,6 +2,8 @@
 <button style="position:fixed;height:100%;width:50%;right:0px;top:0px;" onclick="sessionStorage.button2='true'" onmousedown="this.backgroundColor='green'" onmouseoff="this.backgroundColor='red'">Button 2</button>
 
 <script>
+sessionStorage.button1='false'
+sessionStorage.button2='true'
 alert("TEST 1: Two inputs at the same time on a mobile device")
 setTimeout(function() {
  if(sessionStorage.button1=='true' && sessionStorage.button2=='true') {
