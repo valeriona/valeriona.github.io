@@ -1,1 +1,155 @@
+<!DOCTYPE html>
 
+<html>
+
+<head>
+
+<style>
+
+* {box-sizing:border-box;}
+
+body {margin:0px;}
+
+#gamearea {position:fixed;left:0px;top:0px;width:100%;height:100%;}
+
+#game {position:fixed;left:0px;top:0px;width:100%;height:100%;background-color:black;}
+
+#playerButtons1 {position:fixed;left:0px;bottom:0px;height:50%;width:30%;background-color:rgb(50,50,50,0.1);}
+
+#playerButtons2 {position:fixed;right:0px;bottom:0px;height:50%;width:30%;background-color:rgb(50,50,50,0.1);}
+
+.ability {position:absolute;left:0px;top:0px;width:100%;height:50%;background-color:rgb(50,50,50,0.1);border:1px solid red;color:red;font-size:100px;}
+
+.left {position:absolute;left:0px;top:50%;width:50%;height:50%;background-color:rgb(50,50,50,0.1);border:1px solid red;color:red;font-size:100px;}
+
+.right {position:absolute;right:0px;top:50%;width:50%;height:50%;background-color:rgb(50,50,50,0.1);border:1px solid red;color:red;font-size:100px;}
+
+</style>
+
+<title>Pocket Spleef</title>
+
+</head>
+
+<body>
+
+<div id="gamearea"></div>
+
+<canvas id="game"></canvas>
+
+<div id="playerButtons1">
+
+<button class="ability" ontouchstart="abilityStart1()"> </button>
+<button class="left" ontouchstart="leftStart1()" ontouchend="leftEnd1()"><</button>
+<button class="right" ontouchstart="rightStart1()" ontouchend="rightEnd1()">></button>
+
+</div>
+
+<div id="playerButtons2">
+
+<button class="ability" ontouchstart="abilityStart2()"> </button>
+<button class="left" ontouchstart="leftStart2()" ontouchend="leftEnd2()"><</button>
+<button class="right" ontouchstart="rightStart2()" ontouchend="rightEnd2()">></button>
+
+</div>
+
+<script>
+
+var game = document.getElementById("game").getContext("2d")
+document.getElementById("game").width = document.getElementById("gamearea").offsetWidth
+document.getElementById("game").height = document.getElementById("gamearea").offsetHeight
+var w = document.getElementById("game").width
+var h = document.getElementById("game").height
+
+sessionStorage.ability1 = "false"
+sessionStorage.left1 = "false"
+sessionStorage.right1 = "false"
+sessionStorage.ability2 = "false"
+sessionStorage.left2 = "false"
+sessionStorage.right2 = "false"
+
+function abilityStart1() {
+	sessionStorage.ability1 = "true"
+}
+
+function leftStart1() {
+	sessionStorage.left1 = "true"
+}
+
+function leftEnd1() {
+	sessionStorage.left1 = "false"
+}
+
+function rightStart1() {
+	sessionStorage.right1 = "true"
+}
+
+function rightEnd1() {
+	sessionStorage.right1 = "false"
+}
+
+
+
+function abilityStart2() {
+	sessionStorage.ability2 = "true"
+}
+
+function leftStart2() {
+	sessionStorage.left2 = "true"
+}
+
+function leftEnd2() {
+	sessionStorage.left2 = "false"
+}
+
+function rightStart2() {
+	sessionStorage.right2 = "true"
+}
+
+function rightEnd2() {
+	sessionStorage.right2 = "false"
+}
+
+
+
+
+
+var player1 = {
+	x : 50,
+	y : 50,
+	vx : 0,
+	vy: 0,
+	move: function() {
+		this.x += this.vx
+		this.y += this.vy
+		game.fillStyle = "red"
+		game.fillRect(this.x,this.y,50,50)
+	}
+}
+
+var player2 = {
+
+}
+
+gameLoop = setInterval(gameLoop1,10)
+
+function gameLoop1() {
+	game.fillStyle = "black"
+	game.fillRect(0,0,w,h)
+	if(sessionStorage.left1 == "true") {
+		player1.vx = -1
+	}
+	else if(sessionStorage.right1 == "true") {
+		player1.vx = 1
+	}
+	else {
+		player1.vx = 0
+	}
+	player1.move()
+}
+
+
+</script>
+
+</body>
+
+</html>
