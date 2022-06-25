@@ -113,16 +113,46 @@ function rightEnd2() {
 
 
 
+
+//Images
+
+function loadImage(image) {
+	var img = new Image();
+	img.addEventListener('load', function() {
+	}, false);
+	img.src = image;
+	return(img)
+}
+
+//game.drawImage(image,x,y,w,h)
+
+//Note: Don't make two seperate colors for the same character for each player - but create variations in color for different characters
+
+
+
+
+
+
+
+
+
+
+
+var charactersLeft = ["character1left.png"]
+var charactersRight = ["character1right.png"]
+
+var character1 = loadImage("character1right.png")
+
 var player1 = {
 	x : 50,
 	y : 50,
 	vx : 0,
 	vy: 0,
+	character : "character1right",
 	move: function() {
 		this.x += this.vx
 		this.y += this.vy
-		game.fillStyle = "red"
-		game.fillRect(this.x,this.y,50,50)
+		game.drawImage(character1,this.x,this.y,50,50)
 	}
 }
 
