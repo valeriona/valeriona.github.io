@@ -166,14 +166,21 @@ function gameLoop1() {
 	game.fillStyle = "black"
 	game.fillRect(0,0,w,h)
 	if(sessionStorage.left1 == "true") {
-		player1.vx = -3
+		if(player1.vx > -3) {
+			player1.vx -= 0.1
+		}
 	}
 	else if(sessionStorage.right1 == "true") {
-		player1.vx = 3
+		if(player1.vx < 3) {
+			player1.vx += 0.1
+		}
 	}
 	else {
 		if(player1.vx > 0) {
 			player1.vx -= 0.1
+		}
+		else if(player1.vx < 0) {
+			player1.vx += 0.1
 		}
 	}
 	player1.move()
