@@ -46,9 +46,9 @@ body {margin:0px;}
 
 <div id="playerButtons2">
 
-<button class="ability" ontouchstart="abilityStart2()"> </button>
-<button class="left" ontouchstart="leftStart2()" ontouchend="leftEnd2()"><</button>
-<button class="right" ontouchstart="rightStart2()" ontouchend="rightEnd2()">></button>
+<button class="ability" ontouchstart="abilityStart2()" onmousedown="abilityStart2()"> </button>
+<button class="left" ontouchstart="leftStart2()" ontouchend="leftEnd2()"" onmousedown="leftStart2()" onmouseup="leftEnd2()"><</button>
+<button class="right" ontouchstart="rightStart2()" ontouchend="rightEnd2()" onmousedown="rightStart2()" onmouseup="rightEnd2()">></button>
 
 </div>
 
@@ -189,7 +189,7 @@ class player {
 			}
 		}
 		else if(sessionStorage["right"+(this.id).toString()] == "true") {
-			if(player1.vx < 3) {
+			if(this.vx < 3) {
 				this.vx = truncate(this.vx + 0.3,1)
 				this.direction = "right"
 			}
@@ -198,7 +198,7 @@ class player {
 			if(this.vx > 0) {
 				this.vx = truncate(this.vx - 0.1,1)
 			}
-			else if(player1.vx < 0) {
+			else if(this.vx < 0) {
 				this.vx = truncate(this.vx + 0.1,1)
 			}
 		}
@@ -273,6 +273,8 @@ var platforms = generatePlatforms()
 
 var player1 = new player(50,50,30,30,0,0,100,1,"right",loadImage("character1left.png"),loadImage("character1right.png"))
 
+var player2 = new player(w-80,50,30,30,0,0,100,2,"left",loadImage("character1left.png"),loadImage("character1right.png"))
+
 gameLoop = setInterval(gameLoop1,10)
 
 function truncate(n,m) {
@@ -289,8 +291,12 @@ function gameLoop1() {
 	game.fillStyle = "black"
 	game.fillRect(0,0,w,h)
 	drawPlatforms(platforms)
+	
 	player1.velocity()
 	player1.move()
+	
+	player2.velocity()
+	player2.move()
 }
 
 
