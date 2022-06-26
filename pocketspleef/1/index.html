@@ -41,7 +41,7 @@ body {margin:0px;}
 
 <div id="playerButtons1">
 
-<button class="ability" ontouchstart="abilityStart1()" onmousedown="abilityStart1()"> </button>
+<button class="ability" ontouchstart="abilityStart1()" ontouchend="abilityEnd1()" onmousedown="abilityStart1()" onmouseup="abilityEnd1()"> </button>
 <button class="left" ontouchstart="leftStart1()" ontouchend="leftEnd1()" onmousedown="leftStart1()" onmouseup="leftEnd1()"><</button>
 <button class="right" ontouchstart="rightStart1()" ontouchend="rightEnd1()" onmousedown="rightStart1()" onmouseup="rightEnd1()">></button>
 
@@ -49,7 +49,7 @@ body {margin:0px;}
 
 <div id="playerButtons2">
 
-<button class="ability" ontouchstart="abilityStart2()" onmousedown="abilityStart2()"> </button>
+<button class="ability" ontouchstart="abilityStart2()" ontouchend="abilityEnd2()" onmousedown="abilityStart2()" onmouseup="abilityEnd2()"> </button>
 <button class="left" ontouchstart="leftStart2()" ontouchend="leftEnd2()"" onmousedown="leftStart2()" onmouseup="leftEnd2()"><</button>
 <button class="right" ontouchstart="rightStart2()" ontouchend="rightEnd2()" onmousedown="rightStart2()" onmouseup="rightEnd2()">></button>
 
@@ -74,6 +74,10 @@ function abilityStart1() {
 	sessionStorage.ability1 = "true"
 }
 
+function abilityEnd1() {
+	sessionStorage.ability1 = "false"
+}
+
 function leftStart1() {
 	sessionStorage.left1 = "true"
 }
@@ -94,6 +98,10 @@ function rightEnd1() {
 
 function abilityStart2() {
 	sessionStorage.ability2 = "true"
+}
+
+function abilityEnd2() {
+	sessionStorage.ability2 = "false"
 }
 
 function leftStart2() {
