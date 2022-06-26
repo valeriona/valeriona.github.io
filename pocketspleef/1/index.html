@@ -252,8 +252,8 @@ function generatePlatforms() {
 	while(i2 < h-100) {
 		i = 0
 		i2 += 50
-		while(i < w) {
-			i += Math.floor(Math.random()*200)+50
+		while(i < w - 300) {
+			i += Math.floor(Math.random()*200)+100
 			platforms.push(new platform(i,i2,30,5,20,"normal"))
 		}
 	}
