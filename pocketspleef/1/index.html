@@ -145,7 +145,7 @@ var charactersLeft = ["character1left.png"]
 var charactersRight = ["character1right.png"]
 
 class player {
-	constructor(x,y,w,h,vx,vy,jumptimeout,id,direction,characterleft,characterright,health,damageblocks,abilitytimeout,character) {
+	constructor(x,y,w,h,vx,vy,jumptimeout,id,direction,characterleft,characterright,health,damageblocks,abilitytimeout,character,hittimeout) {
 		this.x = x;
 		this.y = y;
 		this.vx = vx;
@@ -161,6 +161,7 @@ class player {
 		this.damageblocks = damageblocks
 		this.abilitytimeout = abilitytimeout
 		this.character = character
+		this.hittimeout = hittimeout
 	}
 	move() {
 		if(this.abilitytimeout <= 150) {
@@ -172,6 +173,14 @@ class player {
 		}
 		else {
 			game.drawImage(this.characterright,this.x,this.y,this.w,this.h)
+		}
+		
+		
+		
+		game.fillStyle = "red"
+		game.fillRect(0,(this.id-1)*20,this.health*3,10)
+		if(this.health <= 0) {
+			console.log(this.id)
 		}
 	}
 	platformCollide(platforms) {
@@ -191,27 +200,31 @@ class player {
 		return(false)
 	}
 	damageBlockCollide() {
-		var i0 = 0
-		var i = 0
-		var damageblock;
-		while(i0 < players.length) {
-			if(i0 != this.id-1) {
-				i = 0
-				while(i < players[i0].damageblocks.length) {
-					damageblock = players[i0].damageblocks[i]
-					if(this.x >= (damageblock.x - this.w) && this.x <= (damageblock.x + damageblock.w) && (this.y + this.h) >= damageblock.y && this.y <= (damageblock.y + damageblock.h)) {
-						damageblock.x = -10000000
-						this.health -= damageblock.damage
-						console.log(this.health)
-						return(true)
+		if(this.hittimeout == 0) {
+			var i0 = 0
+			var i = 0
+			var damageblock;
+			while(i0 < players.length) {
+				if(i0 != this.id-1) {
+					i = 0
+					while(i < players[i0].damageblocks.length) {
+						damageblock = players[i0].damageblocks[i]
+						if(this.x >= (damageblock.x - this.w) && this.x <= (damageblock.x + damageblock.w) && (this.y + this.h) >= damageblock.y && this.y <= (damageblock.y + damageblock.h)) {
+							damageblock.x = -10000000
+							this.health -= damageblock.damage
+							this.hittimeout = 150
+							return(true)
+						}
+						i += 1
 					}
-					i += 1
 				}
+				i0 += 1
 			}
-			i0 += 1
+			return(false)
 		}
-		return(false)
-		
+		else {
+			return(false)
+		}
 	}
 	input() {
 		if(this.abilitytimeout <= 150) {
@@ -292,6 +305,10 @@ class player {
 		}
 		
 		this.damageBlockCollide()
+		
+		if(this.hittimeout > 0) {
+			this.hittimeout -= 1
+		}
 	}
 }
 
@@ -344,9 +361,9 @@ function drawPlatforms(platforms) {
 
 var platforms = generatePlatforms()
 
-var player1 = new player(150,50,30,30,0,0,100,1,"right",loadImage("character1left.png"),loadImage("character1right.png"),100,[],0,"character1")
+var player1 = new player(150,50,30,30,0,0,100,1,"right",loadImage("character1left.png"),loadImage("character1right.png"),100,[],0,"character1",0)
 
-var player2 = new player(w-180,50,30,30,0,0,100,2,"left",loadImage("character1left.png"),loadImage("character1right.png"),100,[],0,"character1")
+var player2 = new player(w-180,50,30,30,0,0,100,2,"left",loadImage("character1left.png"),loadImage("character1right.png"),100,[],0,"character1",0)
 
 var players = [player1,player2]
 
