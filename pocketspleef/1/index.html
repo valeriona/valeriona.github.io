@@ -8,7 +8,8 @@
 
 <style>
 
-* {box-sizing:border-box;user-select: none;touch-action: manipulation;}
+* {box-sizing:border-box;user-select: none;touch-action: manipulation;outline:none;}
+
 
 body {margin:0px;}
 
@@ -144,7 +145,7 @@ var charactersLeft = ["character1left.png"]
 var charactersRight = ["character1right.png"]
 
 class player {
-	constructor(x,y,w,h,vx,vy,jumptimeout,id,direction,characterleft,characterright) {
+	constructor(x,y,w,h,vx,vy,jumptimeout,id,direction,characterleft,characterright,health,damageblocks,abilitytimeout,character) {
 		this.x = x;
 		this.y = y;
 		this.vx = vx;
@@ -156,10 +157,16 @@ class player {
 		this.direction = direction;
 		this.characterleft = characterleft;
 		this.characterright = characterright;
+		this.health = health
+		this.damageblocks = damageblocks
+		this.abilitytimeout = abilitytimeout
+		this.character = character
 	}
 	move() {
-		this.x += this.vx
-		this.y += this.vy
+		if(this.abilitytimeout <= 150) {
+			this.x += this.vx
+			this.y += this.vy
+		}
 		if(this.direction == "left") {
 			game.drawImage(this.characterleft,this.x,this.y,this.w,this.h)
 		}
@@ -183,56 +190,108 @@ class player {
 		}
 		return(false)
 	}
-	velocity() {
-		if(sessionStorage["left"+(this.id).toString()] == "true") {
-			if(this.vx > -3) {
-				this.vx = truncate(this.vx - 0.3,1)
-				this.direction = "left"
+	damageBlockCollide() {
+		var i0 = 0
+		var i = 0
+		var damageblock;
+		while(i0 < players.length) {
+			if(i0 != this.id-1) {
+				i = 0
+				while(i < players[i0].damageblocks.length) {
+					damageblock = players[i0].damageblocks[i]
+					if(this.x >= (damageblock.x - this.w) && this.x <= (damageblock.x + damageblock.w) && (this.y + this.h) >= damageblock.y && this.y <= (damageblock.y + damageblock.h)) {
+						damageblock.x = -10000000
+						this.health -= damageblock.damage
+						console.log(this.health)
+						return(true)
+					}
+					i += 1
+				}
 			}
+			i0 += 1
 		}
-		else if(sessionStorage["right"+(this.id).toString()] == "true") {
-			if(this.vx < 3) {
-				this.vx = truncate(this.vx + 0.3,1)
-				this.direction = "right"
+		return(false)
+		
+	}
+	input() {
+		if(this.abilitytimeout <= 150) {
+			if(sessionStorage["left"+(this.id).toString()] == "true") {
+				if(this.vx > -3) {
+					this.vx = truncate(this.vx - 0.3,1)
+					this.direction = "left"
+				}
 			}
-		}
-		else {
-			if(this.vx > 0) {
-				this.vx = truncate(this.vx - 0.1,1)
+			else if(sessionStorage["right"+(this.id).toString()] == "true") {
+				if(this.vx < 3) {
+					this.vx = truncate(this.vx + 0.3,1)
+					this.direction = "right"
+				}
 			}
-			else if(this.vx < 0) {
-				this.vx = truncate(this.vx + 0.1,1)
+			else {
+				if(this.vx > 0) {
+					this.vx = truncate(this.vx - 0.1,1)
+				}
+				else if(this.vx < 0) {
+					this.vx = truncate(this.vx + 0.1,1)
+				}
 			}
-		}
-		if(this.platformCollide(platforms) == false) {
-			if(this.vy <= 3) {
-				this.vy += 0.3
+			if(this.platformCollide(platforms) == false) {
+				if(this.vy <= 3) {
+					this.vy += 0.3
+				}
 			}
-		}
-		else {
-			if(this.vy > 0) {
-				this.vy = 0
+			else {
+				if(this.vy > 0) {
+					this.vy = 0
+				}
+				this.vy -= 0.1
 			}
-			this.vy -= 0.1
+			
+			if(this.platformCollide(platforms) == true && this.jumptimeout > 0) {
+				if(this.jumpTimeout == 100) {
+					this.vy = 0
+				}
+				if(this.jumptimeout > this.jumptimeout/2) {
+					if(this.vy >= -5) {
+						this.vy -= 5
+					}
+					else {
+						this.vy = -5
+					}
+				}
+				this.jumptimeout -= 1
+			}
+			if(this.jumptimeout <= 0) {
+				this.jumptimeout = 100
+			}
 		}
 		
-		if(this.platformCollide(platforms) == true && this.jumptimeout > 0) {
-			if(this.jumpTimeout == 100) {
-				this.vy = 0
+		if(sessionStorage["ability"+(this.id).toString()] == "true" && this.abilitytimeout == 0) {
+			if(this.direction == "left") {
+				this.damageblocks.push(new damageBlock(this.x-this.w,this.y,this.w,this.h,50))
 			}
-			if(this.jumptimeout > this.jumptimeout/2) {
-				if(this.vy >= -5) {
-					this.vy -= 5
-				}
-				else {
-					this.vy = -5
+			else {
+				this.damageblocks.push(new damageBlock(this.x-this.w,this.y,this.w,this.h,50))
+			}
+			this.abilitytimeout = 300
+			sessionStorage["ability"+(this.id).toString()] = "false"
+		}
+		if(this.abilitytimeout > 0) {
+			this.abilitytimeout -= 1
+			if(this.abilitytimeout > 150) {
+				if(this.character == "character1") {
+					this.damageblocks.pop()
+					if(this.direction == "left") {
+						this.damageblocks.push(new damageBlock(this.x-this.w,this.y,this.w,this.h,50))
+					}
+					else {
+						this.damageblocks.push(new damageBlock(this.x+this.w,this.y,this.w,this.h,50))
+					}
 				}
 			}
-			this.jumptimeout -= 1
 		}
-		if(this.jumptimeout <= 0) {
-			this.jumptimeout = 100
-		}
+		
+		this.damageBlockCollide()
 	}
 }
 
@@ -244,6 +303,18 @@ class platform {
 		this.h = h
 		this.health = health
 		this.type = type
+	}
+}
+
+class damageBlock {
+	constructor(x,y,w,h,damage) {
+		this.x = x
+		this.y = y
+		this.w = w
+		this.h = h
+		this.damage = damage
+		game.fillStyle = "red"
+		game.fillRect(x,y,w,h)
 	}
 }
 
@@ -273,9 +344,11 @@ function drawPlatforms(platforms) {
 
 var platforms = generatePlatforms()
 
-var player1 = new player(150,50,30,30,0,0,100,1,"right",loadImage("character1left.png"),loadImage("character1right.png"))
+var player1 = new player(150,50,30,30,0,0,100,1,"right",loadImage("character1left.png"),loadImage("character1right.png"),100,[],0,"character1")
 
-var player2 = new player(w-180,50,30,30,0,0,100,2,"left",loadImage("character1left.png"),loadImage("character1right.png"))
+var player2 = new player(w-180,50,30,30,0,0,100,2,"left",loadImage("character1left.png"),loadImage("character1right.png"),100,[],0,"character1")
+
+var players = [player1,player2]
 
 gameLoop = setInterval(gameLoop1,10)
 
@@ -294,11 +367,12 @@ function gameLoop1() {
 	game.fillRect(0,0,w,h)
 	drawPlatforms(platforms)
 	
-	player1.velocity()
-	player1.move()
-	
-	player2.velocity()
-	player2.move()
+	var i = 0
+	while(i < players.length) {
+		players[i].input()
+		players[i].move()
+		i += 1
+	}
 }
 
 
