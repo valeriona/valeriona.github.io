@@ -176,6 +176,9 @@ class player {
 			this.x += this.vx
 			this.y += this.vy
 		}
+		else {
+			this.damageblocks = []
+		}
 		if(this.direction == "left") {
 			game.drawImage(this.characterleft,this.x,this.y,this.w,this.h)
 		}
@@ -217,11 +220,13 @@ class player {
 					i = 0
 					while(i < players[i0].damageblocks.length) {
 						damageblock = players[i0].damageblocks[i]
-						if(this.x >= (damageblock.x - this.w) && this.x <= (damageblock.x + damageblock.w) && (this.y + this.h) >= damageblock.y && this.y <= (damageblock.y + damageblock.h)) {
-							players[i0].damageblocks[i].x = -10000000
-							this.health -= damageblock.damage
-							this.hittimeout = 151
-							return(true)
+						if(damageblock != "removed") {
+							if(this.x >= (damageblock.x - this.w) && this.x <= (damageblock.x + damageblock.w) && (this.y + this.h) >= damageblock.y && this.y <= (damageblock.y + damageblock.h)) {
+								players[i0].damageblocks[i] = "removed"
+								this.health -= damageblock.damage
+								this.hittimeout = 151
+								return(true)
+							}
 						}
 						i += 1
 					}
