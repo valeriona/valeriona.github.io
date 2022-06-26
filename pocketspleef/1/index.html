@@ -218,7 +218,7 @@ class player {
 					while(i < players[i0].damageblocks.length) {
 						damageblock = players[i0].damageblocks[i]
 						if(this.x >= (damageblock.x - this.w) && this.x <= (damageblock.x + damageblock.w) && (this.y + this.h) >= damageblock.y && this.y <= (damageblock.y + damageblock.h)) {
-							damageblock.x = -10000000
+							players[i0].damageblocks[i].x = -10000000
 							this.health -= damageblock.damage
 							this.hittimeout = 151
 							return(true)
