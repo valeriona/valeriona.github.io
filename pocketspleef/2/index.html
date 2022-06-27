@@ -54,7 +54,7 @@ body {margin:0px;}
 <button class="ability" ontouchstart="abilityStart2()" ontouchend="abilityEnd2()" onmousedown="abilityStart2()" onmouseup="abilityEnd2()">X</button>
 <button class="left" ontouchstart="leftStart2()" ontouchend="leftEnd2()" onmousedown="leftStart2()" onmouseup="leftEnd2()"><</button>
 <button class="right" ontouchstart="rightStart2()" ontouchend="rightEnd2()" onmousedown="rightStart2()" onmouseup="rightEnd2()">></button>
-<button id="bot" ontouchstart="botToggleStart()" onmousedown="botToggleStart()" ontouchend="botToggleEnd()" onmouseup="botToggleEnd()"><b>BOT</b></button>
+<button id="bot" onclick="botToggleStart()" onmousedown="botToggleStart()"  onmouseup="botToggleEnd()"><b>BOT</b></button>
 
 </div>
 
@@ -127,6 +127,7 @@ function rightEnd2() {
 
 function botToggleStart() {
 	if(sessionStorage.toggled == "false") {
+		console.log("yes")
 		if(sessionStorage.bot == "true") {
 			sessionStorage.bot = "false"
 			sessionStorage.ability2 = "false"
