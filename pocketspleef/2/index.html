@@ -1,1 +1,483 @@
+<!DOCTYPE html>
 
+<html>
+
+<head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+
+<style>
+
+* {box-sizing:border-box;user-select: none;touch-action: manipulation;outline:none;font-family:arial;}
+
+
+body {margin:0px;}
+
+#gamearea {position:fixed;left:0px;top:0px;width:100%;height:100%;}
+
+#game {position:fixed;left:0px;top:0px;width:100%;height:100%;background-color:black;}
+
+#playerButtons1 {position:fixed;left:0px;bottom:0px;height:50%;width:30%;background-color:rgb(50,50,50,0.1);}
+
+#playerButtons2 {position:fixed;right:0px;bottom:0px;height:50%;width:30%;background-color:rgb(50,50,50,0.1);}
+
+.ability {position:absolute;left:0px;top:0px;width:100%;height:50%;background-color:rgb(50,50,50,0.3);border:none;color:white;font-size:50px;}
+
+.left {position:absolute;left:0px;top:50%;width:50%;height:50%;background-color:rgb(50,0,0,0.3);border:none;color:white;font-size:50px;}
+
+.right {position:absolute;right:0px;top:50%;width:50%;height:50%;background-color:rgb(0,0,50,0.3);border:none;color:white;font-size:50px;}
+
+#bot {position:fixed;top:0px;right:0px;width:5%;height:5%;background-color:rgb(255,255,255);border:none;color:black;font-size:30px;}
+
+</style>
+
+<title>Pocket Spleef</title>
+
+</head>
+
+<body>
+
+<div id="gamearea"></div>
+
+<canvas id="game"></canvas>
+
+<div id="playerButtons1">
+
+<button class="ability" ontouchstart="abilityStart1()" ontouchend="abilityEnd1()" onmousedown="abilityStart1()" onmouseup="abilityEnd1()">X</button>
+<button class="left" ontouchstart="leftStart1()" ontouchend="leftEnd1()" onmousedown="leftStart1()" onmouseup="leftEnd1()"><</button>
+<button class="right" ontouchstart="rightStart1()" ontouchend="rightEnd1()" onmousedown="rightStart1()" onmouseup="rightEnd1()">></button>
+
+</div>
+
+<div id="playerButtons2">
+
+<button class="ability" ontouchstart="abilityStart2()" ontouchend="abilityEnd2()" onmousedown="abilityStart2()" onmouseup="abilityEnd2()">X</button>
+<button class="left" ontouchstart="leftStart2()" ontouchend="leftEnd2()" onmousedown="leftStart2()" onmouseup="leftEnd2()"><</button>
+<button class="right" ontouchstart="rightStart2()" ontouchend="rightEnd2()" onmousedown="rightStart2()" onmouseup="rightEnd2()">></button>
+<button id="bot" ontouchstart="botStart()" onmousedown="botStart()" ontouchend="botEnd()" onmouseup="botEnd()"><b>BOT</b></button>
+
+</div>
+
+<script>
+
+var game = document.getElementById("game").getContext("2d")
+document.getElementById("game").width = document.getElementById("gamearea").offsetWidth
+document.getElementById("game").height = document.getElementById("gamearea").offsetHeight
+var w = document.getElementById("game").width
+var h = document.getElementById("game").height
+
+sessionStorage.ability1 = "false"
+sessionStorage.left1 = "false"
+sessionStorage.right1 = "false"
+sessionStorage.ability2 = "false"
+sessionStorage.left2 = "false"
+sessionStorage.right2 = "false"
+sessionStorage.bot = "false"
+
+function abilityStart1() {
+	sessionStorage.ability1 = "true"
+}
+
+function abilityEnd1() {
+	sessionStorage.ability1 = "false"
+}
+
+function leftStart1() {
+	sessionStorage.left1 = "true"
+}
+
+function leftEnd1() {
+	sessionStorage.left1 = "false"
+}
+
+function rightStart1() {
+	sessionStorage.right1 = "true"
+}
+
+function rightEnd1() {
+	sessionStorage.right1 = "false"
+}
+
+
+
+function abilityStart2() {
+	sessionStorage.ability2 = "true"
+}
+
+function abilityEnd2() {
+	sessionStorage.ability2 = "false"
+}
+
+function leftStart2() {
+	sessionStorage.left2 = "true"
+}
+
+function leftEnd2() {
+	sessionStorage.left2 = "false"
+}
+
+function rightStart2() {
+	sessionStorage.right2 = "true"
+}
+
+function rightEnd2() {
+	sessionStorage.right2 = "false"
+}
+
+function botStart() {
+	sessionStorage.bot = "true"
+}
+
+function botEnd() {
+	sessionStorage.bot = "false"
+}
+
+
+
+
+
+//Images
+
+function loadImage(image) {
+	var img = new Image();
+	img.addEventListener('load', function() {
+	}, false);
+	img.src = image;
+	return(img)
+}
+
+//game.drawImage(image,x,y,w,h)
+
+//Note: Don't make two seperate colors for the same character for each player - but create variations in color for different characters
+
+
+
+
+
+
+
+
+
+var maps = ["map1.png"]
+var characters = ["character1"]
+var charactersLeft = ["character1left.png"]
+var charactersRight = ["character1right.png"]
+
+class player {
+	constructor(x,y,w,h,vx,vy,jumptimeout,id,direction,characterleft,characterright,health,damageblocks,abilitytimeout,character,hittimeout) {
+		this.x = x;
+		this.y = y;
+		this.vx = vx;
+		this.vy = vy;
+		this.w = w;
+		this.h = h;
+		this.jumptimeout = jumptimeout;
+		this.id = id;
+		this.direction = direction;
+		this.characterleft = characterleft;
+		this.characterright = characterright;
+		this.health = health
+		this.damageblocks = damageblocks
+		this.abilitytimeout = abilitytimeout
+		this.character = character
+		this.hittimeout = hittimeout
+	}
+	move() {
+		if(this.abilitytimeout <= 150) {
+			this.x += this.vx
+			this.y += this.vy
+			this.damageblocks = []
+
+			if(this.x >= w - this.w) {
+				this.vx = -10
+				this.health -= 34
+			}
+
+			else if(this.x <= 0) {
+				this.vx = 10
+				this.health -= 34
+			}
+
+			else if(this.y <= 0) {
+				this.vy = 10
+				this.health -= 34
+			}
+
+			else if(this.y >= h - this.h) {
+				this.vy = -1*h*0.03
+				this.health -= 34
+			}
+		}
+		if(this.direction == "left") {
+			game.drawImage(this.characterleft,this.x,this.y,this.w,this.h)
+		}
+		else {
+			game.drawImage(this.characterright,this.x,this.y,this.w,this.h)
+		}
+		
+		
+		
+		game.fillStyle = "white"
+		game.fillRect(0,(this.id-1)*20,this.health*3,10)
+		if(this.health <= 0) {
+			clearInterval(gameLoop)
+			setup();
+		}
+	}
+	platformCollide(platforms) {
+		var i = 0
+		var platform;
+		while(i < platforms.length) {
+			platform = platforms[i]
+			if(this.x >= (platform.x - this.w) && this.x <= (platform.x + platform.w) && (this.y + this.h) >= platform.y && this.y <= (platform.y + platform.h)) {
+				platform.health -= 1
+				if(platform.health <= 0) {
+					platform.x = -10000000
+				}
+				return(true)
+			}
+			i += 1
+		}
+		return(false)
+	}
+	damageBlockCollide() {
+		if(this.hittimeout == 0) {
+			var i0 = 0
+			var i = 0
+			var damageblock;
+			while(i0 < players.length) {
+				if(i0 != this.id-1) {
+					i = 0
+					while(i < players[i0].damageblocks.length) {
+						damageblock = players[i0].damageblocks[i]
+						if(damageblock != "removed") {
+							if(this.x >= (damageblock.x - this.w) && this.x <= (damageblock.x + damageblock.w) && (this.y + this.h) >= damageblock.y && this.y <= (damageblock.y + damageblock.h)) {
+								players[i0].damageblocks[i] = "removed"
+								this.health -= damageblock.damage
+								this.vx = Number(sessionStorage.ran1)
+								this.vy = Number(sessionStorage.ran2)
+								this.hittimeout = 151
+								return(true)
+							}
+						}
+						i += 1
+					}
+				}
+				i0 += 1
+			}
+			return(false)
+		}
+		else {
+			return(false)
+		}
+	}
+	input() {
+		if(this.abilitytimeout <= 150) {
+			if(sessionStorage["left"+(this.id).toString()] == "true") {
+				if(this.vx > -3) {
+					this.vx = truncate(this.vx - 0.3,1)
+					this.direction = "left"
+				}
+			}
+			else if(sessionStorage["right"+(this.id).toString()] == "true") {
+				if(this.vx < 3) {
+					this.vx = truncate(this.vx + 0.3,1)
+					this.direction = "right"
+				}
+			}
+			else {
+				if(this.vx > 0) {
+					this.vx = truncate(this.vx - 0.1,1)
+				}
+				else if(this.vx < 0) {
+					this.vx = truncate(this.vx + 0.1,1)
+				}
+			}
+			if(this.platformCollide(platforms) == false) {
+				if(this.vy <= 3) {
+					this.vy += 0.3
+				}
+			}
+			else {
+				if(this.vy > 0) {
+					this.vy = 0
+				}
+				this.vy -= 0.1
+			}
+			
+			if(this.platformCollide(platforms) == true && this.jumptimeout > 0) {
+				if(this.jumpTimeout == 100) {
+					this.vy = 0
+				}
+				if(this.jumptimeout > this.jumptimeout/2) {
+					if(this.vy >= -5) {
+						this.vy -= 5
+					}
+					else {
+						this.vy = -5
+					}
+				}
+				this.jumptimeout -= 1
+			}
+			if(this.jumptimeout <= 0) {
+				this.jumptimeout = 100
+			}
+		}
+		
+		if(sessionStorage["ability"+(this.id).toString()] == "true" && this.abilitytimeout == 0) {
+			if(this.direction == "left") {
+				this.damageblocks.push(new damageBlock(this.x,this.y,this.w,this.h,50,this.characterleft))
+			}
+			else {
+				this.damageblocks.push(new damageBlock(this.x,this.y,this.w,this.h,50,this.characterright))
+			}
+			sessionStorage.ran1 = Math.floor(Math.random()*24)-12
+			sessionStorage.ran2 = Math.floor(Math.random()*24)-12
+			this.abilitytimeout = 300
+			sessionStorage["ability"+(this.id).toString()] = "false"
+		}
+		if(this.abilitytimeout > 0) {
+			this.abilitytimeout -= 1
+			if(this.abilitytimeout > 150) {
+				if(this.character == "character1") {
+					this.damageblocks.pop()
+					if(this.direction == "left") {
+						if(this.abilitytimeout > 280) {
+							this.damageblocks.push(new damageBlock(this.x-((300-this.abilitytimeout)*this.w*0.05),this.y,this.w,this.h,50,this.characterleft))
+						}
+						else {
+							this.damageblocks.push(new damageBlock(this.x-this.w,this.y,this.w,this.h,50,this.characterleft))
+						}
+					}
+					else {
+						if(this.abilitytimeout > 280) {
+							this.damageblocks.push(new damageBlock(this.x+((300-this.abilitytimeout)*this.w*0.05),this.y,this.w,this.h,50,this.characterright))
+						}
+						else {
+							this.damageblocks.push(new damageBlock(this.x+this.w,this.y,this.w,this.h,50,this.characterright))
+						}
+					}
+				}
+			}
+		}
+		
+		this.damageBlockCollide()
+		
+		if(this.hittimeout > 0) {
+			this.hittimeout -= 1
+		}
+	}
+}
+
+class platform {
+	constructor(x,y,w,h,health,type) {
+		this.x = x
+		this.y = y
+		this.w = w
+		this.h = h
+		this.health = health
+		this.type = type
+	}
+}
+
+class damageBlock {
+	constructor(x,y,w,h,damage,image) {
+		this.x = x
+		this.y = y
+		this.w = w
+		this.h = h
+		this.damage = damage
+		game.drawImage(image,x,y,w,h)
+	}
+}
+
+function generatePlatforms() {
+	var platforms = []
+	var i = 0
+	var i2 = 50
+	while(i2 < h-100) {
+		i = 0
+		i2 += 50
+		while(i < w - 200) {
+			i += Math.floor(Math.random()*200)+50
+			platforms.push(new platform(i,i2,30,5,20,"normal"))
+		}
+	}
+	return(platforms)
+}
+
+function drawPlatforms(platforms) {
+	var i = 0
+	while(i < platforms.length) {
+		game.fillStyle = "black"
+		game.fillRect(platforms[i].x-1,platforms[i].y-1,platforms[i].w+2,platforms[i].h+2)
+
+		game.fillStyle = "white"
+		game.fillRect(platforms[i].x,platforms[i].y,platforms[i].w,platforms[i].h)
+		i += 1
+	}
+}
+
+var platforms;
+
+var randomMap;
+
+var randomCharacter1;
+var player1;
+
+var randomCharacter2;
+var player2;
+
+var players;
+
+function setup() {
+
+	platforms = generatePlatforms()
+
+	randomMap = loadImage(maps[Math.floor(Math.random()*maps.length)])
+
+	randomCharacter1 = Math.floor(Math.random()*charactersLeft.length)
+	player1 = new player(150,50,30,30,0,0,100,1,"right",loadImage(charactersLeft[randomCharacter1]),loadImage(charactersRight[randomCharacter1]),100,[],0,characters[randomCharacter1],0)
+
+	randomCharacter2 = Math.floor(Math.random()*charactersLeft.length)
+	player2 = new player(w-180,50,30,30,0,0,100,2,"left",loadImage(charactersLeft[randomCharacter2]),loadImage(charactersRight[randomCharacter2]),100,[],0,characters[randomCharacter2],0)
+
+	players = [player1,player2]
+
+	gameLoop = setInterval(gameLoop1,10)
+
+}
+
+
+
+setup();
+
+
+
+function truncate(n,m) {
+	if(n >= 0) {
+		return(Math.floor(n*10**m)/(10**m))
+	}
+	else {
+		n = n * -1
+		return((Math.floor(n*10**m)/(10**m))*-1)
+	}
+}
+
+function gameLoop1() {
+	game.drawImage(randomMap,0,0,w,h)
+	drawPlatforms(platforms)
+	
+	var i = 0
+	while(i < players.length) {
+		players[i].input()
+		players[i].move()
+		i += 1
+	}
+}
+
+</script>
+
+</body>
+
+</html>
