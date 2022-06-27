@@ -176,6 +176,26 @@ class player {
 			this.x += this.vx
 			this.y += this.vy
 			this.damageblocks = []
+
+			if(this.x >= w - this.w) {
+				this.vx = -10
+				this.health -= 50
+			}
+
+			else if(this.x <= 0) {
+				this.vx = 10
+				this.health -= 50
+			}
+
+			else if(this.y <= 0) {
+				this.vy = 10
+				this.health -= 50
+			}
+
+			else if(this.y >= h - this.h) {
+				this.vy = -15
+				this.health -= 50
+			}
 		}
 		if(this.direction == "left") {
 			game.drawImage(this.characterleft,this.x,this.y,this.w,this.h)
@@ -222,6 +242,8 @@ class player {
 							if(this.x >= (damageblock.x - this.w) && this.x <= (damageblock.x + damageblock.w) && (this.y + this.h) >= damageblock.y && this.y <= (damageblock.y + damageblock.h)) {
 								players[i0].damageblocks[i] = "removed"
 								this.health -= damageblock.damage
+								this.vx += Math.floor(Math.random()*3)-6
+								this.vy += Math.floor(Math.random()*3)-6
 								this.hittimeout = 151
 								return(true)
 							}
@@ -349,7 +371,7 @@ class damageBlock {
 function generatePlatforms() {
 	var platforms = []
 	var i = 0
-	var i2 = 0
+	var i2 = 50
 	while(i2 < h-100) {
 		i = 0
 		i2 += 50
