@@ -242,8 +242,8 @@ class player {
 							if(this.x >= (damageblock.x - this.w) && this.x <= (damageblock.x + damageblock.w) && (this.y + this.h) >= damageblock.y && this.y <= (damageblock.y + damageblock.h)) {
 								players[i0].damageblocks[i] = "removed"
 								this.health -= damageblock.damage
-								this.vx += Math.floor(Math.random()*3)-6
-								this.vy += Math.floor(Math.random()*3)-6
+								this.vx = Number(sessionStorage.ran1)
+								this.vy = Number(sessionStorage.ran2)
 								this.hittimeout = 151
 								return(true)
 							}
@@ -314,11 +314,13 @@ class player {
 		
 		if(sessionStorage["ability"+(this.id).toString()] == "true" && this.abilitytimeout == 0) {
 			if(this.direction == "left") {
-				this.damageblocks.push(new damageBlock(this.x-this.w,this.y,this.w,this.h,50))
+				this.damageblocks.push(new damageBlock(this.x,this.y,this.w,this.h,50,this.characterleft))
 			}
 			else {
-				this.damageblocks.push(new damageBlock(this.x-this.w,this.y,this.w,this.h,50))
+				this.damageblocks.push(new damageBlock(this.x,this.y,this.w,this.h,50,this.characterright))
 			}
+			sessionStorage.ran1 = Math.floor(Math.random()*3)-6
+			sessionStorage.ran2 = Math.floor(Math.random()*3)-6
 			this.abilitytimeout = 300
 			sessionStorage["ability"+(this.id).toString()] = "false"
 		}
@@ -328,10 +330,20 @@ class player {
 				if(this.character == "character1") {
 					this.damageblocks.pop()
 					if(this.direction == "left") {
-						this.damageblocks.push(new damageBlock(this.x-this.w,this.y,this.w,this.h,50))
+						if(this.abilitytimeout > 280) {
+							this.damageblocks.push(new damageBlock(this.x-((300-this.abilitytimeout)*this.w*0.05),this.y,this.w,this.h,50,this.characterleft))
+						}
+						else {
+							this.damageblocks.push(new damageBlock(this.x-this.w,this.y,this.w,this.h,50,this.characterleft))
+						}
 					}
 					else {
-						this.damageblocks.push(new damageBlock(this.x+this.w,this.y,this.w,this.h,50))
+						if(this.abilitytimeout > 280) {
+							this.damageblocks.push(new damageBlock(this.x+((300-this.abilitytimeout)*this.w*0.05),this.y,this.w,this.h,50,this.characterright))
+						}
+						else {
+							this.damageblocks.push(new damageBlock(this.x+this.w,this.y,this.w,this.h,50,this.characterright))
+						}
 					}
 				}
 			}
@@ -357,14 +369,13 @@ class platform {
 }
 
 class damageBlock {
-	constructor(x,y,w,h,damage) {
+	constructor(x,y,w,h,damage,image) {
 		this.x = x
 		this.y = y
 		this.w = w
 		this.h = h
 		this.damage = damage
-		game.fillStyle = "red"
-		game.fillRect(x,y,w,h)
+		game.drawImage(image,x,y,w,h)
 	}
 }
 
