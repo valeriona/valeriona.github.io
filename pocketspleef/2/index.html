@@ -27,7 +27,7 @@ body {margin:0px;}
 
 .right {position:absolute;right:0px;top:50%;width:50%;height:50%;background-color:rgb(0,0,50,0.3);border:none;color:white;font-size:50px;}
 
-#bot {position:fixed;top:0px;right:0px;width:15%;height:15%;background-color:rgb(255,255,255);border:none;color:black;font-size:30px;}
+#bot {position:fixed;top:0px;right:0px;width:100px;height:50px;;background-color:rgb(255,255,255);border:none;color:black;font-size:30px;}
 
 </style>
 
@@ -54,7 +54,7 @@ body {margin:0px;}
 <button class="ability" ontouchstart="abilityStart2()" ontouchend="abilityEnd2()" onmousedown="abilityStart2()" onmouseup="abilityEnd2()">X</button>
 <button class="left" ontouchstart="leftStart2()" ontouchend="leftEnd2()" onmousedown="leftStart2()" onmouseup="leftEnd2()"><</button>
 <button class="right" ontouchstart="rightStart2()" ontouchend="rightEnd2()" onmousedown="rightStart2()" onmouseup="rightEnd2()">></button>
-<button id="bot" ontouchstart="botStart()" onmousedown="botStart()" ontouchend="botEnd()" onmouseup="botEnd()"><b>BOT</b></button>
+<button id="bot" ontouchstart="botToggle()" onmousedown="botToggle()"><b>BOT</b></button>
 
 </div>
 
@@ -124,13 +124,16 @@ function rightEnd2() {
 	sessionStorage.right2 = "false"
 }
 
-function botStart() {
-	sessionStorage.bot = "true"
+function botToggle() {
+	if(sessionStorage.bot == "true") {
+		sessionStorage.bot = "false"
+	}
+	else {
+		sessionStorage.bot = "true"
+	}
 }
 
-function botEnd() {
-	sessionStorage.bot = "false"
-}
+
 
 
 
@@ -418,6 +421,25 @@ function drawPlatforms(platforms) {
 	}
 }
 
+function bot(players) {
+	if(sessionStorage.bot == "true") {
+		var player1 = players[0]
+		var player2 = players[1]
+		
+		console.log(player2.x)
+		if(player1.x < player2.x) {
+			sessionStorage.right2 = "false"
+			sessionStorage.left2 = "true"
+		}
+		else {
+			sessionStorage.left2 = "false"
+			sessionStorage.right2 = "true"
+		}
+		
+		sessionStorage.ability2 = "true"
+	}
+}
+
 var platforms;
 
 var randomMap;
@@ -431,6 +453,13 @@ var player2;
 var players;
 
 function setup() {
+
+	sessionStorage.ability1 = "false"
+	sessionStorage.left1 = "false"
+	sessionStorage.right1 = "false"
+	sessionStorage.ability2 = "false"
+	sessionStorage.left2 = "false"
+	sessionStorage.right2 = "false"
 
 	platforms = generatePlatforms()
 
@@ -467,7 +496,7 @@ function truncate(n,m) {
 function gameLoop1() {
 	game.drawImage(randomMap,0,0,w,h)
 	drawPlatforms(platforms)
-	
+	bot(players)
 	var i = 0
 	while(i < players.length) {
 		players[i].input()
