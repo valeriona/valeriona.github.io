@@ -209,7 +209,8 @@ class player {
 		game.fillStyle = "white"
 		game.fillRect(0,(this.id-1)*20,this.health*3,10)
 		if(this.health <= 0) {
-			location.reload(true);
+			clearInterval(gameLoop)
+			setup();
 		}
 	}
 	platformCollide(platforms) {
@@ -406,19 +407,41 @@ function drawPlatforms(platforms) {
 	}
 }
 
-var platforms = generatePlatforms()
+var platforms;
 
-var randomMap = loadImage(maps[Math.floor(Math.random()*maps.length)])
+var randomMap;
 
-var randomCharacter1 = Math.floor(Math.random()*charactersLeft.length)
-var player1 = new player(150,50,30,30,0,0,100,1,"right",loadImage(charactersLeft[randomCharacter1]),loadImage(charactersRight[randomCharacter1]),100,[],0,characters[randomCharacter1],0)
+var randomCharacter1;
+var player1;
 
-var randomCharacter2 = Math.floor(Math.random()*charactersLeft.length)
-var player2 = new player(w-180,50,30,30,0,0,100,2,"left",loadImage(charactersLeft[randomCharacter2]),loadImage(charactersRight[randomCharacter2]),100,[],0,characters[randomCharacter2],0)
+var randomCharacter2;
+var player2;
 
-var players = [player1,player2]
+var players;
 
-gameLoop = setInterval(gameLoop1,10)
+function setup() {
+
+	platforms = generatePlatforms()
+
+	randomMap = loadImage(maps[Math.floor(Math.random()*maps.length)])
+
+	randomCharacter1 = Math.floor(Math.random()*charactersLeft.length)
+	player1 = new player(150,50,30,30,0,0,100,1,"right",loadImage(charactersLeft[randomCharacter1]),loadImage(charactersRight[randomCharacter1]),100,[],0,characters[randomCharacter1],0)
+
+	randomCharacter2 = Math.floor(Math.random()*charactersLeft.length)
+	player2 = new player(w-180,50,30,30,0,0,100,2,"left",loadImage(charactersLeft[randomCharacter2]),loadImage(charactersRight[randomCharacter2]),100,[],0,characters[randomCharacter2],0)
+
+	players = [player1,player2]
+
+	gameLoop = setInterval(gameLoop1,10)
+
+}
+
+
+
+setup();
+
+
 
 function truncate(n,m) {
 	if(n >= 0) {
@@ -441,7 +464,6 @@ function gameLoop1() {
 		i += 1
 	}
 }
-
 
 </script>
 
