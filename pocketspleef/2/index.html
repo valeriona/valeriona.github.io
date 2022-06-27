@@ -54,7 +54,7 @@ body {margin:0px;}
 <button class="ability" ontouchstart="abilityStart2()" ontouchend="abilityEnd2()" onmousedown="abilityStart2()" onmouseup="abilityEnd2()">X</button>
 <button class="left" ontouchstart="leftStart2()" ontouchend="leftEnd2()" onmousedown="leftStart2()" onmouseup="leftEnd2()"><</button>
 <button class="right" ontouchstart="rightStart2()" ontouchend="rightEnd2()" onmousedown="rightStart2()" onmouseup="rightEnd2()">></button>
-<button id="bot" onclick="botToggleStart()" onmousedown="botToggleStart()"  onmouseup="botToggleEnd()"><b>BOT</b></button>
+<button id="bot" onclick="botToggleStart()"><b>BOT</b></button>
 
 </div>
 
@@ -73,7 +73,6 @@ sessionStorage.ability2 = "false"
 sessionStorage.left2 = "false"
 sessionStorage.right2 = "false"
 sessionStorage.bot = "false"
-sessionStorage.toggled = "false"
 
 function abilityStart1() {
 	sessionStorage.ability1 = "true"
@@ -126,24 +125,16 @@ function rightEnd2() {
 }
 
 function botToggleStart() {
-	if(sessionStorage.toggled == "false") {
-		if(sessionStorage.bot == "true") {
-			sessionStorage.bot = "false"
-			sessionStorage.ability2 = "false"
-			sessionStorage.left2 = "false"
-			sessionStorage.right2 = "false"
-		}
-		else {
-			sessionStorage.bot = "true"
-		}
-		sessionStorage.toggled = "true"
+	if(sessionStorage.bot == "true") {
+		sessionStorage.bot = "false"
+		sessionStorage.ability2 = "false"
+		sessionStorage.left2 = "false"
+		sessionStorage.right2 = "false"
+	}
+	else {
+		sessionStorage.bot = "true"
 	}
 }
-
-function botToggleEnd() {
-	sessionStorage.toggled = "false"
-}
-
 
 
 
@@ -472,7 +463,6 @@ function setup() {
 	sessionStorage.ability2 = "false"
 	sessionStorage.left2 = "false"
 	sessionStorage.right2 = "false"
-	sessionStorage.toggled = "false"
 
 	platforms = generatePlatforms()
 
