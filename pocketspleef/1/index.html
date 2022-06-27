@@ -21,11 +21,11 @@ body {margin:0px;}
 
 #playerButtons2 {position:fixed;right:0px;bottom:0px;height:50%;width:30%;background-color:rgb(50,50,50,0.1);}
 
-.ability {position:absolute;left:0px;top:0px;width:100%;height:50%;background-color:rgb(50,50,50,0.1);border:1px solid red;color:red;font-size:100px;}
+.ability {position:absolute;left:0px;top:0px;width:100%;height:50%;background-color:rgb(50,50,50,0.3);border:none;color:white;font-size:100px;}
 
-.left {position:absolute;left:0px;top:50%;width:50%;height:50%;background-color:rgb(50,50,50,0.1);border:1px solid red;color:red;font-size:100px;}
+.left {position:absolute;left:0px;top:50%;width:50%;height:50%;background-color:rgb(50,0,0,0.3);border:none;color:white;font-size:100px;}
 
-.right {position:absolute;right:0px;top:50%;width:50%;height:50%;background-color:rgb(50,50,50,0.1);border:1px solid red;color:red;font-size:100px;}
+.right {position:absolute;right:0px;top:50%;width:50%;height:50%;background-color:rgb(0,0,50,0.3);border:none;color:white;font-size:100px;}
 
 </style>
 
@@ -41,7 +41,7 @@ body {margin:0px;}
 
 <div id="playerButtons1">
 
-<button class="ability" ontouchstart="abilityStart1()" ontouchend="abilityEnd1()" onmousedown="abilityStart1()" onmouseup="abilityEnd1()"> </button>
+<button class="ability" ontouchstart="abilityStart1()" ontouchend="abilityEnd1()" onmousedown="abilityStart1()" onmouseup="abilityEnd1()">X</button>
 <button class="left" ontouchstart="leftStart1()" ontouchend="leftEnd1()" onmousedown="leftStart1()" onmouseup="leftEnd1()"><</button>
 <button class="right" ontouchstart="rightStart1()" ontouchend="rightEnd1()" onmousedown="rightStart1()" onmouseup="rightEnd1()">></button>
 
@@ -49,8 +49,8 @@ body {margin:0px;}
 
 <div id="playerButtons2">
 
-<button class="ability" ontouchstart="abilityStart2()" ontouchend="abilityEnd2()" onmousedown="abilityStart2()" onmouseup="abilityEnd2()"> </button>
-<button class="left" ontouchstart="leftStart2()" ontouchend="leftEnd2()"" onmousedown="leftStart2()" onmouseup="leftEnd2()"><</button>
+<button class="ability" ontouchstart="abilityStart2()" ontouchend="abilityEnd2()" onmousedown="abilityStart2()" onmouseup="abilityEnd2()">X</button>
+<button class="left" ontouchstart="leftStart2()" ontouchend="leftEnd2()" onmousedown="leftStart2()" onmouseup="leftEnd2()"><</button>
 <button class="right" ontouchstart="rightStart2()" ontouchend="rightEnd2()" onmousedown="rightStart2()" onmouseup="rightEnd2()">></button>
 
 </div>
@@ -147,8 +147,8 @@ function loadImage(image) {
 
 
 
-
-
+var maps = ["map1.png"]
+var characters = ["character1"]
 var charactersLeft = ["character1left.png"]
 var charactersRight = ["character1right.png"]
 
@@ -206,10 +206,10 @@ class player {
 		
 		
 		
-		game.fillStyle = "red"
+		game.fillStyle = "white"
 		game.fillRect(0,(this.id-1)*20,this.health*3,10)
 		if(this.health <= 0) {
-			console.log(this.id)
+			location.reload();
 		}
 	}
 	platformCollide(platforms) {
@@ -397,7 +397,10 @@ function generatePlatforms() {
 function drawPlatforms(platforms) {
 	var i = 0
 	while(i < platforms.length) {
-		game.fillStyle = "red"
+		game.fillStyle = "black"
+		game.fillRect(platforms[i].x-1,platforms[i].y-1,platforms[i].w+2,platforms[i].h+2)
+
+		game.fillStyle = "white"
 		game.fillRect(platforms[i].x,platforms[i].y,platforms[i].w,platforms[i].h)
 		i += 1
 	}
@@ -405,9 +408,13 @@ function drawPlatforms(platforms) {
 
 var platforms = generatePlatforms()
 
-var player1 = new player(150,50,30,30,0,0,100,1,"right",loadImage("character1left.png"),loadImage("character1right.png"),100,[],0,"character1",0)
+var randomMap = loadImage(maps[Math.floor(Math.random()*maps.length)])
 
-var player2 = new player(w-180,50,30,30,0,0,100,2,"left",loadImage("character1left.png"),loadImage("character1right.png"),100,[],0,"character1",0)
+var randomCharacter1 = Math.floor(Math.random()*charactersLeft.length)
+var player1 = new player(150,50,30,30,0,0,100,1,"right",loadImage(charactersLeft[randomCharacter1]),loadImage(charactersRight[randomCharacter1]),100,[],0,characters[randomCharacter1],0)
+
+var randomCharacter2 = Math.floor(Math.random()*charactersLeft.length)
+var player2 = new player(w-180,50,30,30,0,0,100,2,"left",loadImage(charactersLeft[randomCharacter2]),loadImage(charactersRight[randomCharacter2]),100,[],0,characters[randomCharacter2],0)
 
 var players = [player1,player2]
 
@@ -424,8 +431,7 @@ function truncate(n,m) {
 }
 
 function gameLoop1() {
-	game.fillStyle = "black"
-	game.fillRect(0,0,w,h)
+	game.drawImage(randomMap,0,0,w,h)
 	drawPlatforms(platforms)
 	
 	var i = 0
