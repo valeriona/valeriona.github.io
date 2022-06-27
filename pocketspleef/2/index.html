@@ -54,7 +54,7 @@ body {margin:0px;}
 <button class="ability" ontouchstart="abilityStart2()" ontouchend="abilityEnd2()" onmousedown="abilityStart2()" onmouseup="abilityEnd2()">X</button>
 <button class="left" ontouchstart="leftStart2()" ontouchend="leftEnd2()" onmousedown="leftStart2()" onmouseup="leftEnd2()"><</button>
 <button class="right" ontouchstart="rightStart2()" ontouchend="rightEnd2()" onmousedown="rightStart2()" onmouseup="rightEnd2()">></button>
-<button id="bot" ontouchstart="botToggle()" onmousedown="botToggle()"><b>BOT</b></button>
+<button id="bot" ontouchstart="botToggleStart()" onmousedown="botToggleStart()" ontouchend="botToggleEnd()" onmouseup="botToggleEnd()"><b>BOT</b></button>
 
 </div>
 
@@ -73,6 +73,7 @@ sessionStorage.ability2 = "false"
 sessionStorage.left2 = "false"
 sessionStorage.right2 = "false"
 sessionStorage.bot = "false"
+sessionStorage.toggled = "false"
 
 function abilityStart1() {
 	sessionStorage.ability1 = "true"
@@ -124,15 +125,21 @@ function rightEnd2() {
 	sessionStorage.right2 = "false"
 }
 
-function botToggle() {
-	if(sessionStorage.bot == "true") {
-		sessionStorage.bot = "false"
-	}
-	else {
-		sessionStorage.bot = "true"
+function botToggleStart() {
+	if(sessionStorage.toggled == "false") {
+		if(sessionStorage.bot == "true") {
+			sessionStorage.bot = "false"
+		}
+		else {
+			sessionStorage.bot = "true"
+		}
+		sessionStorage.toggled = "true"
 	}
 }
 
+function botToggleEnd() {
+	sessionStorage.toggled = "true"
+}
 
 
 
@@ -425,8 +432,6 @@ function bot(players) {
 	if(sessionStorage.bot == "true") {
 		var player1 = players[0]
 		var player2 = players[1]
-		//console.log(player1.x)
-		//console.log(player2.x)
 		if(player1.x < player2.x) {
 			sessionStorage.right2 = "false"
 			sessionStorage.left2 = "true"
@@ -460,6 +465,7 @@ function setup() {
 	sessionStorage.ability2 = "false"
 	sessionStorage.left2 = "false"
 	sessionStorage.right2 = "false"
+	sessionStorage.toggled = "false"
 
 	platforms = generatePlatforms()
 
@@ -496,13 +502,13 @@ function truncate(n,m) {
 function gameLoop1() {
 	game.drawImage(randomMap,0,0,w,h)
 	drawPlatforms(platforms)
-	bot(players)
 	var i = 0
 	while(i < players.length) {
 		players[i].input()
 		players[i].move()
 		i += 1
 	}
+	bot(players)
 }
 
 </script>
