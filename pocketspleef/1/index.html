@@ -319,8 +319,8 @@ class player {
 			else {
 				this.damageblocks.push(new damageBlock(this.x,this.y,this.w,this.h,50,this.characterright))
 			}
-			sessionStorage.ran1 = Math.floor(Math.random()*3)-6
-			sessionStorage.ran2 = Math.floor(Math.random()*3)-6
+			sessionStorage.ran1 = Math.floor(Math.random()*6)-3
+			sessionStorage.ran2 = Math.floor(Math.random()*6)-3
 			this.abilitytimeout = 300
 			sessionStorage["ability"+(this.id).toString()] = "false"
 		}
