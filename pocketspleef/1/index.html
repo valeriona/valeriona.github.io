@@ -209,7 +209,7 @@ class player {
 		game.fillStyle = "white"
 		game.fillRect(0,(this.id-1)*20,this.health*3,10)
 		if(this.health <= 0) {
-			location.reload();
+			location.reload(true);
 		}
 	}
 	platformCollide(platforms) {
