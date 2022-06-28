@@ -162,7 +162,7 @@ function loadImage(image) {
 
 
 
-var maps = ["map1.png"]
+var maps = ["map1.png","map2.png","map3.png"]
 var characters = ["character1"]
 var charactersLeft = ["character1left.png"]
 var charactersRight = ["character1right.png"]
@@ -212,6 +212,10 @@ class player {
 				this.health -= 34
 			}
 		}
+		else {
+			this.vx = 0
+			this.vy = 0
+		}
 		if(this.direction == "left") {
 			game.drawImage(this.characterleft,this.x,this.y,this.w,this.h)
 		}
@@ -254,15 +258,13 @@ class player {
 					i = 0
 					while(i < players[i0].damageblocks.length) {
 						damageblock = players[i0].damageblocks[i]
-						if(damageblock != "removed") {
-							if(this.x >= (damageblock.x - this.w) && this.x <= (damageblock.x + damageblock.w) && (this.y + this.h) >= damageblock.y && this.y <= (damageblock.y + damageblock.h)) {
-								players[i0].damageblocks[i] = "removed"
-								this.health -= damageblock.damage
-								this.vx = Number(sessionStorage.ran1)
-								this.vy = Number(sessionStorage.ran2)
-								this.hittimeout = 151
-								return(true)
-							}
+						if(this.x >= (damageblock.x - this.w) && this.x <= (damageblock.x + damageblock.w) && (this.y + this.h) >= damageblock.y && this.y <= (damageblock.y + damageblock.h)) {
+							players[i0].damageblocks[i].x = -1000000
+							this.health -= damageblock.damage
+							this.vx = Number(sessionStorage.ran1)
+							this.vy = Number(sessionStorage.ran2)
+							this.hittimeout = 151
+							return(true)
 						}
 						i += 1
 					}
@@ -331,9 +333,11 @@ class player {
 		if(sessionStorage["ability"+(this.id).toString()] == "true" && this.abilitytimeout == 0) {
 			if(this.direction == "left") {
 				this.damageblocks.push(new damageBlock(this.x,this.y,this.w,this.h,50,this.characterleft))
+				this.damageblocks[0].draw()
 			}
 			else {
 				this.damageblocks.push(new damageBlock(this.x,this.y,this.w,this.h,50,this.characterright))
+				this.damageblocks[0].draw()
 			}
 			sessionStorage.ran1 = Math.floor(Math.random()*24)-12
 			sessionStorage.ran2 = Math.floor(Math.random()*24)-12
@@ -344,21 +348,28 @@ class player {
 			this.abilitytimeout -= 1
 			if(this.abilitytimeout > 150) {
 				if(this.character == "character1") {
-					this.damageblocks.pop()
 					if(this.direction == "left") {
 						if(this.abilitytimeout > 280) {
-							this.damageblocks.push(new damageBlock(this.x-((300-this.abilitytimeout)*this.w*0.05),this.y,this.w,this.h,50,this.characterleft))
+							this.damageblocks[0].x = this.x-((300-this.abilitytimeout)*this.w*0.05)
+							this.damageblocks[0].y = this.y
+							this.damageblocks[0].draw()
 						}
 						else {
-							this.damageblocks.push(new damageBlock(this.x-this.w,this.y,this.w,this.h,50,this.characterleft))
+							this.damageblocks[0].x = this.x-this.w
+							this.damageblocks[0].y = this.y
+							this.damageblocks[0].draw()
 						}
 					}
 					else {
 						if(this.abilitytimeout > 280) {
-							this.damageblocks.push(new damageBlock(this.x+((300-this.abilitytimeout)*this.w*0.05),this.y,this.w,this.h,50,this.characterright))
+							this.damageblocks[0].x = this.x+((300-this.abilitytimeout)*this.w*0.05)
+							this.damageblocks[0].y = this.y
+							this.damageblocks[0].draw()
 						}
 						else {
-							this.damageblocks.push(new damageBlock(this.x+this.w,this.y,this.w,this.h,50,this.characterright))
+							this.damageblocks[0].x = this.x+this.w
+							this.damageblocks[0].y = this.y
+							this.damageblocks[0].draw()
 						}
 					}
 				}
@@ -391,7 +402,10 @@ class damageBlock {
 		this.w = w
 		this.h = h
 		this.damage = damage
-		game.drawImage(image,x,y,w,h)
+		this.image = image
+	}
+	draw() {
+		game.drawImage(this.image,this.x,this.y,this.w,this.h)
 	}
 }
 
