@@ -413,11 +413,29 @@ function generatePlatforms() {
 function drawPlatforms(platforms) {
 	var i = 0
 	while(i < platforms.length) {
-		game.fillStyle = "black"
-		game.fillRect(platforms[i].x-1,platforms[i].y-1,platforms[i].w+2,platforms[i].h+2)
-
-		game.fillStyle = "white"
-		game.fillRect(platforms[i].x,platforms[i].y,platforms[i].w,platforms[i].h)
+		//game.fillStyle = "black"
+		//game.fillRect(platforms[i].x-1,platforms[i].y-1,platforms[i].w+2,platforms[i].h+2)
+		
+		//game.fillStyle = "white"
+		//game.fillRect(platforms[i].x,platforms[i].y,platforms[i].w,platforms[i].h)
+		if(platforms[i].health >= 20) {
+			game.drawImage(platformStages[0],platforms[i].x,platforms[i].y,platforms[i].w,platforms[i].h)
+		}
+		else if(platforms[i].health >= 15) {
+			game.drawImage(platformStages[1],platforms[i].x,platforms[i].y,platforms[i].w,platforms[i].h)
+		}
+		else if(platforms[i].health >= 10) {
+			game.drawImage(platformStages[2],platforms[i].x,platforms[i].y,platforms[i].w,platforms[i].h)
+		}
+		else if(platforms[i].health >= 5) {
+			game.drawImage(platformStages[3],platforms[i].x,platforms[i].y,platforms[i].w,platforms[i].h)
+		}
+		else if(platforms[i].health >= 3) {
+			game.drawImage(platformStages[4],platforms[i].x,platforms[i].y,platforms[i].w,platforms[i].h)
+		}
+		else if(platforms[i].health >= 1) {
+			game.drawImage(platformStages[4],platforms[i].x,platforms[i].y,platforms[i].w,platforms[i].h)
+		}
 		i += 1
 	}
 }
@@ -442,6 +460,8 @@ function bot(players) {
 		document.getElementById("bot").style.backgroundColor = "#FFAAAA"
 	}
 }
+
+var platformStages = [loadImage("platform1.png"),loadImage("platform2.png"),loadImage("platform3.png"),loadImage("platform4.png"),loadImage("platform5.png"),loadImage("platform6.png")]
 
 var platforms;
 
