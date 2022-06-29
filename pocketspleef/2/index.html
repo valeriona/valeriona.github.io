@@ -237,6 +237,7 @@ while(i < soundtracks.length) {
 }
 //Soundtracks:
 //Soundtrack format: https://docs.google.com/uc?export=open&id=[ID]
+//cyberchillcompany@gmail.com
 //https://drive.google.com/file/d/1Nv8QIFOwcKfjgFz5Xrl9tecRNT0NBxjS/view?usp=sharing 
 //https://drive.google.com/file/d/1iUQvfiCs4KX3_guID5suCkcsUVquRcq8/view?usp=sharing 
 //https://drive.google.com/file/d/1lp0zfDbipoQmXNCcnKAT0hw_xXvIvSR8/view?usp=sharing
@@ -310,6 +311,9 @@ class player {
 		game.fillStyle = "#BBBBBB"
 		game.fillRect(0,10+(this.id-1)*20,(450-this.abilitytimeout)*(2/3),10)
 		if(this.health <= 0) {
+			if(soundtrack) {
+				soundtrack.pause()
+			}
 			clearInterval(gameLoop)
 			setup();
 		}
@@ -588,9 +592,7 @@ function setup() {
 	randomMap = loadImage(randomMap0)
 
 
-	if(soundtrack) {
-		soundtrack.pause()
-	}
+	
 	
 	soundtrack = soundtracks2[maps.indexOf(randomMap0)]
 
