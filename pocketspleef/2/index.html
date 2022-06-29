@@ -29,6 +29,10 @@ body {margin:0px;}
 
 #bot {position:fixed;top:0px;right:0px;width:100px;height:50px;background-color:#FFAAAA;border:none;color:black;font-size:30px;}
 
+#start {position:fixed;left:0px;top:0px;width:100%;height:100%;background-color:black;}
+
+#startbutton {position:fixed;left:50%;width:200px;height:50px;top:50%;margin-left:-100px;margin-top:-25px;color:white;text-align:center;font-family:arial;font-size:40px;background-color:#333333;border-radius:10px;box-shadow:0px 0px 15px red;border:none;}
+
 </style>
 
 <title>Pocket Spleef</title>
@@ -58,6 +62,10 @@ body {margin:0px;}
 
 </div>
 
+<div id="start">
+<button id="startbutton" onclick="setup();document.getElementById('start').remove()">START</button>
+</div>
+
 <script>
 
 var game = document.getElementById("game").getContext("2d")
@@ -73,6 +81,63 @@ sessionStorage.ability2 = "false"
 sessionStorage.left2 = "false"
 sessionStorage.right2 = "false"
 sessionStorage.bot = "false"
+
+
+
+
+
+
+
+document.onkeydown = function (e) {
+    e = e || window.event;
+    if(e.keyCode == 65) {
+		leftStart1()
+	}
+	else if(e.keyCode == 68) {
+		rightStart1()
+	}
+	else if(e.keyCode == 83) {
+		abilityStart1()
+	}
+	else if(e.keyCode == 37) {
+		leftStart2()
+	}
+	else if(e.keyCode == 39) {
+		rightStart2()
+	}
+	else if(e.keyCode == 40) {
+		abilityStart2()
+	}
+};
+
+
+document.onkeyup = function (e) {
+    e = e || window.event;
+    if(e.keyCode == 65) {
+		leftEnd1()
+	}
+	else if(e.keyCode == 68) {
+		rightEnd1()
+	}
+	else if(e.keyCode == 83) {
+		abilityEnd1()
+	}
+	else if(e.keyCode == 37) {
+		leftEnd2()
+	}
+	else if(e.keyCode == 39) {
+		rightEnd2()
+	}
+	else if(e.keyCode == 40) {
+		abilityEnd2()
+	}
+};
+
+
+
+
+
+
 
 function abilityStart1() {
 	sessionStorage.ability1 = "true"
@@ -163,9 +228,23 @@ function loadImage(image) {
 
 
 var maps = ["map1.png","map2.png","map3.png"]
+var soundtracks = ["https://docs.google.com/uc?export=open&id=1Nv8QIFOwcKfjgFz5Xrl9tecRNT0NBxjS","https://docs.google.com/uc?export=open&id=1iUQvfiCs4KX3_guID5suCkcsUVquRcq8","https://docs.google.com/uc?export=open&id=1lp0zfDbipoQmXNCcnKAT0hw_xXvIvSR8"]
+var soundtracks2 = []
+var i = 0
+while(i < soundtracks.length) {
+	soundtracks2.push(new Audio(soundtracks[i]))
+	i += 1
+}
+//Soundtracks:
+//Soundtrack format: https://docs.google.com/uc?export=open&id=[ID]
+//https://drive.google.com/file/d/1Nv8QIFOwcKfjgFz5Xrl9tecRNT0NBxjS/view?usp=sharing 
+//https://drive.google.com/file/d/1iUQvfiCs4KX3_guID5suCkcsUVquRcq8/view?usp=sharing 
+//https://drive.google.com/file/d/1lp0zfDbipoQmXNCcnKAT0hw_xXvIvSR8/view?usp=sharing
+
 var characters = ["character1"]
 var charactersLeft = ["character1left.png"]
 var charactersRight = ["character1right.png"]
+var soundtrack;
 
 class player {
 	constructor(x,y,w,h,vx,vy,jumptimeout,id,direction,characterleft,characterright,health,damageblocks,abilitytimeout,character,hittimeout) {
@@ -187,7 +266,7 @@ class player {
 		this.hittimeout = hittimeout
 	}
 	move() {
-		if(this.abilitytimeout <= 150) {
+		if(this.abilitytimeout <= 300) {
 			this.x += this.vx
 			this.y += this.vy
 			this.damageblocks = []
@@ -227,6 +306,9 @@ class player {
 		
 		game.fillStyle = "white"
 		game.fillRect(0,(this.id-1)*20,this.health*3,10)
+
+		game.fillStyle = "#BBBBBB"
+		game.fillRect(0,10+(this.id-1)*20,(450-this.abilitytimeout)*(2/3),10)
 		if(this.health <= 0) {
 			clearInterval(gameLoop)
 			setup();
@@ -278,7 +360,7 @@ class player {
 		}
 	}
 	input() {
-		if(this.abilitytimeout <= 150) {
+		if(this.abilitytimeout <= 300) {
 			if(sessionStorage["left"+(this.id).toString()] == "true") {
 				if(this.vx > -3) {
 					this.vx = truncate(this.vx - 0.3,1)
@@ -341,16 +423,16 @@ class player {
 			}
 			sessionStorage.ran1 = Math.floor(Math.random()*24)-12
 			sessionStorage.ran2 = Math.floor(Math.random()*24)-12
-			this.abilitytimeout = 300
+			this.abilitytimeout = 450
 			sessionStorage["ability"+(this.id).toString()] = "false"
 		}
 		if(this.abilitytimeout > 0) {
 			this.abilitytimeout -= 1
-			if(this.abilitytimeout > 150) {
+			if(this.abilitytimeout > 300) {
 				if(this.character == "character1") {
 					if(this.direction == "left") {
-						if(this.abilitytimeout > 280) {
-							this.damageblocks[0].x = this.x-((300-this.abilitytimeout)*this.w*0.05)
+						if(this.abilitytimeout > 430) {
+							this.damageblocks[0].x = this.x-((450-this.abilitytimeout)*this.w*0.05)
 							this.damageblocks[0].y = this.y
 							this.damageblocks[0].draw()
 						}
@@ -361,8 +443,8 @@ class player {
 						}
 					}
 					else {
-						if(this.abilitytimeout > 280) {
-							this.damageblocks[0].x = this.x+((300-this.abilitytimeout)*this.w*0.05)
+						if(this.abilitytimeout > 430) {
+							this.damageblocks[0].x = this.x+((450-this.abilitytimeout)*this.w*0.05)
 							this.damageblocks[0].y = this.y
 							this.damageblocks[0].draw()
 						}
@@ -489,6 +571,8 @@ var player2;
 
 var players;
 
+var randomMap0 = ""
+
 function setup() {
 
 	sessionStorage.ability1 = "false"
@@ -500,7 +584,21 @@ function setup() {
 
 	platforms = generatePlatforms()
 
-	randomMap = loadImage(maps[Math.floor(Math.random()*maps.length)])
+	randomMap0 = maps[Math.floor(Math.random()*maps.length)]
+	randomMap = loadImage(randomMap0)
+
+
+	if(soundtrack) {
+		soundtrack.pause()
+	}
+	
+	soundtrack = soundtracks2[maps.indexOf(randomMap0)]
+
+	soundtrack.volume = "0.5"
+	soundtrack.loop = true
+	soundtrack.currentTime = 0
+	soundtrack.play()
+	
 
 	randomCharacter1 = Math.floor(Math.random()*charactersLeft.length)
 	player1 = new player(150,50,30,30,0,0,100,1,"right",loadImage(charactersLeft[randomCharacter1]),loadImage(charactersRight[randomCharacter1]),100,[],0,characters[randomCharacter1],0)
@@ -516,10 +614,6 @@ function setup() {
 
 
 
-setup();
-
-
-
 function truncate(n,m) {
 	if(n >= 0) {
 		return(Math.floor(n*10**m)/(10**m))
@@ -531,6 +625,9 @@ function truncate(n,m) {
 }
 
 function gameLoop1() {
+	if(soundtrack.paused) {
+		soundtrack.play()
+	}
 	game.drawImage(randomMap,0,0,w,h)
 	drawPlatforms(platforms)
 	var i = 0
