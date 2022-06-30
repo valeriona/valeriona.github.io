@@ -31,8 +31,29 @@ body {margin:0px;}
 
 #start {position:fixed;left:0px;top:0px;width:100%;height:100%;background-color:black;}
 
-#startbutton {position:fixed;left:50%;width:200px;height:50px;top:50%;margin-left:-100px;margin-top:-25px;color:white;text-align:center;font-family:arial;font-size:40px;background-color:#333333;border-radius:10px;box-shadow:0px 0px 15px red;border:none;}
+#startbutton {position:fixed;left:50%;width:400px;height:100px;margin-left:-200px;bottom:50px;color:white;text-align:center;font-family:arial;font-size:40px;background-color:#333333;border-radius:10px;box-shadow:0px 0px 15px red;border:none;}
 
+#startbutton:active {box-shadow:0px 0px 35px red;}
+
+#startbutton2 {position:fixed;left:50%;width:400px;height:100px;margin-left:-200px;bottom:250px;color:white;text-align:center;font-family:arial;font-size:40px;background-color:#111111;border-radius:10px;box-shadow:0px 0px 15px red;border:none;}
+
+#startbutton2:active {box-shadow:0px 0px 35px red;}
+
+#player1 {position:fixed;left:25%;width:50px;height:50px;bottom:450px;}
+
+#player2 {position:fixed;right:25%;width:50px;height:50px;bottom:450px;}
+
+#player1previous {position:fixed;left:25%;margin-left:-100px;width:50px;height:50px;bottom:450px;color:white;text-align:center;font-family:arial;font-size:40px;background-color:#555555;border-radius:10px;box-shadow:0px 0px 15px red;border:none;}
+#player1previous:active {box-shadow:0px 0px 25px red;}
+
+#player1next {position:fixed;left:25%;margin-left:100px;width:50px;height:50px;bottom:450px;color:white;text-align:center;font-family:arial;font-size:40px;background-color:#555555;border-radius:10px;box-shadow:0px 0px 15px red;border:none;}
+#player1next:active {box-shadow:0px 0px 25px red;}
+
+#player2previous {position:fixed;right:25%;margin-right:100px;width:50px;height:50px;bottom:450px;color:white;text-align:center;font-family:arial;font-size:40px;background-color:#555555;border-radius:10px;box-shadow:0px 0px 15px red;border:none;}
+#player2previous:active {box-shadow:0px 0px 25px red;}
+
+#player2next {position:fixed;right:25%;margin-right:-100px;width:50px;height:50px;bottom:450px;color:white;text-align:center;font-family:arial;font-size:40px;background-color:#555555;border-radius:10px;box-shadow:0px 0px 15px red;border:none;}
+#player2next:active {box-shadow:0px 0px 25px red;}
 </style>
 
 <title>Pocket Spleef</title>
@@ -63,7 +84,17 @@ body {margin:0px;}
 </div>
 
 <div id="start">
-<button id="startbutton" onclick="setup();document.getElementById('start').remove()">START</button>
+
+<button id="player1previous" onclick="player1previous()"><</button>
+<img src="character1right.png" id="player1">
+<button id="player1next" onclick="player1next()">></button>
+
+<button id="player2previous" onclick="player2previous()"><</button>
+<img src="character1left.png" id="player2">
+<button id="player2next" onclick="player2next()">></button>
+
+<button id="startbutton2" onclick="sessionStorage.mode='normal';setup();document.getElementById('start').style.display = 'none'">START NORMAL MATCH</button>
+<button id="startbutton" onclick="sessionStorage.mode='quickmatch';setup();document.getElementById('start').style.display = 'none'">START QUICK MATCH</button>
 </div>
 
 <script>
@@ -81,6 +112,10 @@ sessionStorage.ability2 = "false"
 sessionStorage.left2 = "false"
 sessionStorage.right2 = "false"
 sessionStorage.bot = "false"
+sessionStorage.mode = "normal"
+sessionStorage.character1 = "character1"
+sessionStorage.character2 = "character1"
+
 
 
 
@@ -242,10 +277,66 @@ while(i < soundtracks.length) {
 //https://drive.google.com/file/d/1iUQvfiCs4KX3_guID5suCkcsUVquRcq8/view?usp=sharing 
 //https://drive.google.com/file/d/1lp0zfDbipoQmXNCcnKAT0hw_xXvIvSR8/view?usp=sharing
 
-var characters = ["character1"]
-var charactersLeft = ["character1left.png"]
-var charactersRight = ["character1right.png"]
+var characters = ["character1","platform1"]
+var charactersLeft = ["character1left.png","platform1.png"]
+var charactersRight = ["character1right.png","platform2.png"]
 var soundtrack;
+
+
+
+
+function player1previous() {
+	var currentIndex = characters.indexOf(sessionStorage.character1)
+	if(currentIndex == 0) {
+		sessionStorage.character1 = characters[characters.length-1]
+		currentIndex = characters.length-1
+	}
+	else {
+		sessionStorage.character1 = characters[currentIndex-1]
+		currentIndex = currentIndex-1
+	}
+	document.getElementById("player1").src = charactersRight[currentIndex]
+}
+
+function player1next() {
+	var currentIndex = characters.indexOf(sessionStorage.character1)
+	if(currentIndex == characters.length-1) {
+		sessionStorage.character1 = characters[0]
+		currentIndex = 0
+	}
+	else {
+		sessionStorage.character1 = characters[currentIndex+1]
+		currentIndex = currentIndex+1
+	}
+	document.getElementById("player1").src = charactersRight[currentIndex]
+}
+
+function player2previous() {
+	var currentIndex = characters.indexOf(sessionStorage.character2)
+	if(currentIndex == 0) {
+		sessionStorage.character2 = characters[characters.length-1]
+		currentIndex = characters.length-1
+	}
+	else {
+		sessionStorage.character2 = characters[currentIndex-1]
+		currentIndex = currentIndex-1
+	}
+	document.getElementById("player2").src = charactersLeft[currentIndex]
+}
+
+function player2next() {
+	var currentIndex = characters.indexOf(sessionStorage.character2)
+	if(currentIndex == characters.length-1) {
+		sessionStorage.character2 = characters[0]
+		currentIndex = 0
+	}
+	else {
+		sessionStorage.character2 = characters[currentIndex+1]
+		currentIndex = currentIndex+1
+	}
+	document.getElementById("player2").src = charactersLeft[currentIndex]
+}
+
 
 class player {
 	constructor(x,y,w,h,vx,vy,jumptimeout,id,direction,characterleft,characterright,health,damageblocks,abilitytimeout,character,hittimeout) {
@@ -325,7 +416,8 @@ class player {
 				soundtrack.pause()
 			}
 			clearInterval(gameLoop)
-			setup();
+			soundtrack.pause()
+			document.getElementById('start').style.display = 'block'
 		}
 	}
 	platformCollide(platforms) {
@@ -427,16 +519,18 @@ class player {
 		}
 		
 		if(sessionStorage["ability"+(this.id).toString()] == "true" && this.abilitytimeout == 0) {
-			if(this.direction == "left") {
-				this.damageblocks.push(new damageBlock(this.x,this.y,this.w,this.h,50,this.characterleft))
-				this.damageblocks[0].draw()
+			if(this.character == "character1") {
+				if(this.direction == "left") {
+					this.damageblocks.push(new damageBlock(this.x,this.y,this.w,this.h,50,this.characterleft))
+					this.damageblocks[0].draw()
+				}
+				else {
+					this.damageblocks.push(new damageBlock(this.x,this.y,this.w,this.h,50,this.characterright))
+					this.damageblocks[0].draw()
+				}
+				sessionStorage.ran1 = Math.floor(Math.random()*24)-12
+				sessionStorage.ran2 = Math.floor(Math.random()*24)-12
 			}
-			else {
-				this.damageblocks.push(new damageBlock(this.x,this.y,this.w,this.h,50,this.characterright))
-				this.damageblocks[0].draw()
-			}
-			sessionStorage.ran1 = Math.floor(Math.random()*24)-12
-			sessionStorage.ran2 = Math.floor(Math.random()*24)-12
 			this.abilitytimeout = 450
 			sessionStorage["ability"+(this.id).toString()] = "false"
 		}
@@ -612,11 +706,17 @@ function setup() {
 	soundtrack.play()
 	
 
-	randomCharacter1 = Math.floor(Math.random()*charactersLeft.length)
-	player1 = new player(150,50,15,15,0,0,100,1,"right",loadImage(charactersLeft[randomCharacter1]),loadImage(charactersRight[randomCharacter1]),100,[],0,characters[randomCharacter1],0)
+	if(sessionStorage.mode == "quickmatch") {
+		randomCharacter1 = Math.floor(Math.random()*charactersLeft.length)
+		player1 = new player(150,50,15,15,0,0,100,1,"right",loadImage(charactersLeft[randomCharacter1]),loadImage(charactersRight[randomCharacter1]),100,[],0,characters[randomCharacter1],0)
 
-	randomCharacter2 = Math.floor(Math.random()*charactersLeft.length)
-	player2 = new player(w-180,50,15,15,0,0,100,2,"left",loadImage(charactersLeft[randomCharacter2]),loadImage(charactersRight[randomCharacter2]),100,[],0,characters[randomCharacter2],0)
+		randomCharacter2 = Math.floor(Math.random()*charactersLeft.length)
+		player2 = new player(w-180,50,15,15,0,0,100,2,"left",loadImage(charactersLeft[randomCharacter2]),loadImage(charactersRight[randomCharacter2]),100,[],0,characters[randomCharacter2],0)
+	}
+	else {
+		player1 = new player(150,50,15,15,0,0,100,1,"right",loadImage(charactersLeft[characters.indexOf(sessionStorage.character1)]),loadImage(charactersRight[characters.indexOf(sessionStorage.character1)]),100,[],0,characters[characters.indexOf(sessionStorage.character1)],0)
+		player2 = new player(w-180,50,15,15,0,0,100,2,"left",loadImage(charactersLeft[characters.indexOf(sessionStorage.character2)]),loadImage(charactersRight[characters.indexOf(sessionStorage.character2)]),100,[],0,characters[characters.indexOf(sessionStorage.character2)],0)
+	}
 
 	players = [player1,player2]
 
