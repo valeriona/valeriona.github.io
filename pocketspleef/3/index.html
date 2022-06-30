@@ -502,9 +502,9 @@ function generatePlatforms() {
 	while(i2 < h-100) {
 		i = 0
 		i2 += 50
-		while(i < w - 200) {
-			i += Math.floor(Math.random()*200)+50
-			platforms.push(new platform(i,i2,30,5,20,"normal"))
+		while(i < w - 100) {
+			i += Math.floor(Math.random()*100)+25
+			platforms.push(new platform(i,i2,15,2.5,20,"normal"))
 		}
 	}
 	return(platforms)
@@ -603,10 +603,10 @@ function setup() {
 	
 
 	randomCharacter1 = Math.floor(Math.random()*charactersLeft.length)
-	player1 = new player(150,50,30,30,0,0,100,1,"right",loadImage(charactersLeft[randomCharacter1]),loadImage(charactersRight[randomCharacter1]),100,[],0,characters[randomCharacter1],0)
+	player1 = new player(150,50,15,15,0,0,100,1,"right",loadImage(charactersLeft[randomCharacter1]),loadImage(charactersRight[randomCharacter1]),100,[],0,characters[randomCharacter1],0)
 
 	randomCharacter2 = Math.floor(Math.random()*charactersLeft.length)
-	player2 = new player(w-180,50,30,30,0,0,100,2,"left",loadImage(charactersLeft[randomCharacter2]),loadImage(charactersRight[randomCharacter2]),100,[],0,characters[randomCharacter2],0)
+	player2 = new player(w-180,50,15,15,0,0,100,2,"left",loadImage(charactersLeft[randomCharacter2]),loadImage(charactersRight[randomCharacter2]),100,[],0,characters[randomCharacter2],0)
 
 	players = [player1,player2]
 
