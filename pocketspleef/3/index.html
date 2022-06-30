@@ -301,7 +301,17 @@ class player {
 		}
 		else {
 			game.drawImage(this.characterright,this.x,this.y,this.w,this.h)
+			
 		}
+		game.font = "15px Arial"
+		game.fillStyle = "black"
+		game.textAlign = "center"
+		game.fillText((this.id).toString(),this.x+this.w/2-1.5,this.y-this.h)
+
+		game.font = "13px Arial"
+		game.fillStyle = "white"
+		game.textAlign = "center"
+		game.fillText((this.id).toString(),this.x+1+this.w/2-0.5,this.y-this.h+1)
 		
 		
 		
