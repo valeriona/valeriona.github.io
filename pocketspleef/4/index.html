@@ -815,7 +815,7 @@ function gameLoop1() {
 	}
 	else if(randomMap00 == "map3") {
 		if(Math.floor(Math.random()*50) == 1) {
-			globaldamageblocks.push(new damageBlock(w+10,Math.floor(Math.random()*h),20,20,10,loadImage("frog.png")))
+			globaldamageblocks.push(new damageBlock(w+10,Math.floor(Math.random()*h*0.5)+h/2,20,20,10,loadImage("frog.png")))
 			frogVX.push(-3)
 			frogVY.push(-3)
 		}
