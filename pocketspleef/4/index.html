@@ -628,7 +628,7 @@ function generatePlatforms() {
 		while(i < w - 100) {
 			
 			i += distances[Math.floor(Math.random()*distances.length)]
-			platforms.push(new platform(i,i2,15,2.5,20,"normal"))
+			platforms.push(new platform(i,i2,15,2.5,12,"normal"))
 		}
 	}
 	return(platforms)
@@ -642,19 +642,19 @@ function drawPlatforms(platforms) {
 		
 		//game.fillStyle = "white"
 		//game.fillRect(platforms[i].x,platforms[i].y,platforms[i].w,platforms[i].h)
-		if(platforms[i].health >= 20) {
+		if(platforms[i].health >= 12) {
 			game.drawImage(platformStages[0],platforms[i].x,platforms[i].y,platforms[i].w,platforms[i].h)
 		}
-		else if(platforms[i].health >= 15) {
+		else if(platforms[i].health >= 10) {
 			game.drawImage(platformStages[1],platforms[i].x,platforms[i].y,platforms[i].w,platforms[i].h)
 		}
-		else if(platforms[i].health >= 10) {
+		else if(platforms[i].health >= 8) {
 			game.drawImage(platformStages[2],platforms[i].x,platforms[i].y,platforms[i].w,platforms[i].h)
 		}
-		else if(platforms[i].health >= 5) {
+		else if(platforms[i].health >= 6) {
 			game.drawImage(platformStages[3],platforms[i].x,platforms[i].y,platforms[i].w,platforms[i].h)
 		}
-		else if(platforms[i].health >= 3) {
+		else if(platforms[i].health >= 4) {
 			game.drawImage(platformStages[4],platforms[i].x,platforms[i].y,platforms[i].w,platforms[i].h)
 		}
 		else if(platforms[i].health >= 1) {
