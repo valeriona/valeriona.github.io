@@ -621,11 +621,13 @@ function generatePlatforms() {
 	var platforms = []
 	var i = 0
 	var i2 = 50
+	var distances = [10,10,10,10,15,40,50,50,60]
 	while(i2 < h-100) {
 		i = 0
 		i2 += 50
 		while(i < w - 100) {
-			i += Math.floor(Math.random()*50)+10
+			
+			i += distances[Math.floor(Math.random()*distances.length)]
 			platforms.push(new platform(i,i2,15,2.5,20,"normal"))
 		}
 	}
