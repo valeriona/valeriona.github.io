@@ -477,6 +477,19 @@ class player {
 				}
 				i0 += 1
 			}
+			i = 0
+			while(i < globaldamageblocks.length) {
+				damageblock = globaldamageblocks[i]
+				if(this.x >= (damageblock.x - this.w) && this.x <= (damageblock.x + damageblock.w) && (this.y + this.h) >= damageblock.y && this.y <= (damageblock.y + damageblock.h)) {
+					damageblock.x = -1000000
+					this.health -= damageblock.damage
+					this.vx = Number(sessionStorage.ran1)
+					this.vy = Number(sessionStorage.ran2)
+					this.hittimeout = 151
+					return(true)
+				}
+				i += 1
+			}
 			return(false)
 		}
 		else {
@@ -701,6 +714,10 @@ var players;
 
 var randomMap0 = ""
 
+var randomMap00 = ""
+
+var globaldamageblocks = []
+
 function setup() {
 
 	sessionStorage.ability1 = "false"
@@ -709,6 +726,8 @@ function setup() {
 	sessionStorage.ability2 = "false"
 	sessionStorage.left2 = "false"
 	sessionStorage.right2 = "false"
+
+	globaldamageblocks = []
 
 	platforms = generatePlatforms()
 
@@ -762,6 +781,21 @@ function gameLoop1() {
 	}
 	game.drawImage(randomMap,0,0,w,h)
 	drawPlatforms(platforms)
+
+	//EVENTS
+	randomMap00 = randomMap0.replace(".png","")
+	if(randomMap00 == "map1") {
+		if(Math.floor(Math.random()*200) == 1) {
+			globaldamageblocks.push(new damageBlock(w,Math.floor(Math.random()*h),w*2,10,50,loadImage("laser.png")))
+		}
+		var i = 0
+		while(i < globaldamageblocks.length) {
+			globaldamageblocks[i].x -= 5
+			globaldamageblocks[i].draw()
+			i += 1
+		}
+	}
+
 	var i = 0
 	while(i < players.length) {
 		players[i].input()
