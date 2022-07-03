@@ -56,6 +56,9 @@ body {margin:0px;}
 
 #player2next {position:fixed;right:25%;margin-right:-100px;width:50px;height:50px;bottom:65%;color:white;text-align:center;font-family:arial;font-size:40px;background-color:#555555;border-radius:10px;box-shadow:0px 0px 15px red;border:none;}
 #player2next:active {box-shadow:0px 0px 25px red;}
+
+#loading {position:fixed;left:0px;top:0px;width:100%;height:100%;background-color:black;color:white;font-family:arial;font-size:10vw;text-align:center;padding-top:25%;display:none;}
+
 </style>
 
 <title>Pocket Spleef</title>
@@ -97,6 +100,10 @@ body {margin:0px;}
 
 <button id="startbutton2" onclick="sessionStorage.mode='normal';setup();document.getElementById('start').style.display = 'none'">START NORMAL MATCH</button>
 <button id="startbutton" onclick="sessionStorage.mode='quickmatch';setup();document.getElementById('start').style.display = 'none'">START QUICK MATCH</button>
+</div>
+
+<div id="loading">
+Loading...
 </div>
 
 <script>
@@ -726,6 +733,8 @@ var frogVX = []
 var frogVY = []
 
 function setup() {
+	
+	document.getElementById("loading").style.display = "block"
 
 	sessionStorage.ability1 = "false"
 	sessionStorage.left1 = "false"
@@ -767,6 +776,8 @@ function setup() {
 
 	players = [player1,player2]
 
+	setTimeout(function() {document.getElementById("loading").style.display = "none";},2000)
+
 	gameLoop = setInterval(gameLoop1,10)
 
 }
@@ -790,57 +801,60 @@ function gameLoop1() {
 	game.drawImage(randomMap,0,0,w,h)
 	drawPlatforms(platforms)
 
-	//EVENTS
-	randomMap00 = randomMap0.replace(".png","")
-	if(randomMap00 == "map1") {
-		if(Math.floor(Math.random()*200) == 1) {
-			globaldamageblocks.push(new damageBlock(w,Math.floor(Math.random()*h),w*2,10,50,loadImage("laser.png")))
-		}
-		var i = 0
-		while(i < globaldamageblocks.length) {
-			globaldamageblocks[i].x -= 5
-			globaldamageblocks[i].draw()
-			if(globaldamageblocks[i].x <= -1*w) {
-				globaldamageblocks[i].x = -10000000
-			}
-			i += 1
-		}
-	}
-	else if(randomMap00 == "map2") {
-		if(Math.floor(Math.random()*100) == 1) {
-			globaldamageblocks.push(new damageBlock(Math.floor(Math.random()*w),-50,50,50,50,loadImage("meteor.png")))
-		}
-		var i = 0
-		while(i < globaldamageblocks.length) {
-			globaldamageblocks[i].y += 1
-			globaldamageblocks[i].draw()
-			i += 1
-		}
-	}
-	else if(randomMap00 == "map3") {
-		if(Math.floor(Math.random()*50) == 1) {
-			globaldamageblocks.push(new damageBlock(w+10,Math.floor(Math.random()*h*0.5)+h/2,20,20,10,loadImage("frog.png")))
-			frogVX.push(-3)
-			frogVY.push(-3)
-		}
-		var i = 0
-		while(i < globaldamageblocks.length) {
-			globaldamageblocks[i].y += frogVY[i]
-			globaldamageblocks[i].x += frogVX[i]
-			
-			frogVY[i] += h/10000
-			globaldamageblocks[i].draw()
-			i += 1
-		}
-	}
+	if(document.getElementById("loading").style.display == "none") {
 
-	var i = 0
-	while(i < players.length) {
-		players[i].input()
-		players[i].move()
-		i += 1
+		//EVENTS
+		randomMap00 = randomMap0.replace(".png","")
+		if(randomMap00 == "map1") {
+			if(Math.floor(Math.random()*200) == 1) {
+				globaldamageblocks.push(new damageBlock(w,Math.floor(Math.random()*h),w*2,10,50,loadImage("laser.png")))
+			}
+			var i = 0
+			while(i < globaldamageblocks.length) {
+				globaldamageblocks[i].x -= 5
+				globaldamageblocks[i].draw()
+				if(globaldamageblocks[i].x <= -1*w) {
+					globaldamageblocks[i].x = -10000000
+				}
+				i += 1
+			}
+		}
+		else if(randomMap00 == "map2") {
+			if(Math.floor(Math.random()*100) == 1) {
+				globaldamageblocks.push(new damageBlock(Math.floor(Math.random()*w),-50,50,50,50,loadImage("meteor.png")))
+			}
+			var i = 0
+			while(i < globaldamageblocks.length) {
+				globaldamageblocks[i].y += 1
+				globaldamageblocks[i].draw()
+				i += 1
+			}
+		}
+		else if(randomMap00 == "map3") {
+			if(Math.floor(Math.random()*50) == 1) {
+				globaldamageblocks.push(new damageBlock(w+10,Math.floor(Math.random()*h*0.5)+h/2,20,20,10,loadImage("frog.png")))
+				frogVX.push(-3)
+				frogVY.push(-3)
+			}
+			var i = 0
+			while(i < globaldamageblocks.length) {
+				globaldamageblocks[i].y += frogVY[i]
+				globaldamageblocks[i].x += frogVX[i]
+				
+				frogVY[i] += h/10000
+				globaldamageblocks[i].draw()
+				i += 1
+			}
+		}
+
+		var i = 0
+		while(i < players.length) {
+			players[i].input()
+			players[i].move()
+			i += 1
+		}
+		bot(players)
 	}
-	bot(players)
 }
 
 </script>
