@@ -485,9 +485,11 @@ class player {
 				if(this.x >= (damageblock.x - this.w) && this.x <= (damageblock.x + damageblock.w) && (this.y + this.h) >= damageblock.y && this.y <= (damageblock.y + damageblock.h)) {
 					damageblock.x = -1000000
 					this.health -= damageblock.damage
+					sessionStorage.ran1 = Math.floor(Math.random()*24)-12
+					sessionStorage.ran2 = Math.floor(Math.random()*24)-12
 					this.vx = Number(sessionStorage.ran1)
 					this.vy = Number(sessionStorage.ran2)
-					this.hittimeout = 151
+
 					return(true)
 				}
 				i += 1
