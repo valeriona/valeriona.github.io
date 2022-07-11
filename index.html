@@ -1,25 +1,933 @@
 <!DOCTYPE html>
+
 <html>
+
 <head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+
 <style>
-* {box-sizing:border-box;}
-body {margin:0;background-color:#FFFFFF;}
-div {position:absolute;left:25px;right:25px;top:25px;bottom:25px;background-color:#EEEEEE;border-radius:25px;border:1px solid #960000;}
-h1 {font-family:arial;text-align:center;font-size:50px;position:absolute;top:0px;left:0px;right:0px;color:#960000;}
-h2 {font-family:arial;text-align:center;left:25px;right:25px;position:absolute;top:100px;font-size:20px;}
-img {left:50%;width:200px;height:200px;bottom:100px;position:absolute;margin-left:-100px;}
+
+* {box-sizing:border-box;user-select: none;touch-action: manipulation;outline:none;font-family:arial;}
+
+
+body {margin:0px;}
+
+#gamearea {position:fixed;left:0px;top:0px;width:100%;height:100%;}
+
+#game {position:fixed;left:0px;top:0px;width:100%;height:100%;background-color:black;}
+
+#playerButtons1 {position:fixed;left:0px;bottom:0px;height:50%;width:30%;background-color:rgb(50,50,50,0.1);}
+
+#playerButtons2 {position:fixed;right:0px;bottom:0px;height:50%;width:30%;background-color:rgb(50,50,50,0.1);}
+
+.ability {position:absolute;left:0px;top:0px;width:100%;height:50%;background-color:rgb(50,50,50,0.3);border:none;color:white;font-size:50px;}
+
+.left {position:absolute;left:0px;top:50%;width:50%;height:50%;background-color:rgb(50,0,0,0.3);border:none;color:white;font-size:50px;}
+
+.right {position:absolute;right:0px;top:50%;width:50%;height:50%;background-color:rgb(0,0,50,0.3);border:none;color:white;font-size:50px;}
+
+#bot {position:fixed;top:0px;left:50%;margin-left:-50px;;width:100px;height:50px;background-color:#FFAAAA;border:none;color:black;font-size:30px;}
+
+#start {position:fixed;left:0px;top:0px;width:100%;height:100%;background-color:black;}
+
+#startbutton {position:fixed;left:50%;width:20vw;height:15%;margin-left:-10vw;bottom:15%;color:white;text-align:center;font-family:arial;font-size:2vw;background-color:#333333;border-radius:5px;box-shadow:0px 0px 15px red;border:none;}
+
+#startbutton:active {box-shadow:0px 0px 20px red;}
+
+#startbutton2 {position:fixed;left:50%;width:20vw;height:15%;margin-left:-10vw;bottom:40%;color:white;text-align:center;font-family:arial;font-size:2vw;background-color:#111111;border-radius:10px;box-shadow:0px 0px 15px red;border:none;}
+
+#startbutton2:active {box-shadow:0px 0px 20px red;}
+
+#player1 {position:fixed;left:25%;width:50px;height:50px;bottom:65%;}
+
+#player2 {position:fixed;right:25%;width:50px;height:50px;bottom:65%;}
+
+#player1previous {position:fixed;left:25%;margin-left:-100px;width:50px;height:50px;bottom:65%;color:white;text-align:center;font-family:arial;font-size:40px;background-color:#555555;border-radius:10px;box-shadow:0px 0px 15px red;border:none;}
+#player1previous:active {box-shadow:0px 0px 25px red;}
+
+#player1next {position:fixed;left:25%;margin-left:100px;width:50px;height:50px;bottom:65%;color:white;text-align:center;font-family:arial;font-size:40px;background-color:#555555;border-radius:10px;box-shadow:0px 0px 15px red;border:none;}
+#player1next:active {box-shadow:0px 0px 25px red;}
+
+#player2previous {position:fixed;right:25%;margin-right:100px;width:50px;height:50px;bottom:65%;color:white;text-align:center;font-family:arial;font-size:40px;background-color:#555555;border-radius:10px;box-shadow:0px 0px 15px red;border:none;}
+#player2previous:active {box-shadow:0px 0px 25px red;}
+
+#player2next {position:fixed;right:25%;margin-right:-100px;width:50px;height:50px;bottom:65%;color:white;text-align:center;font-family:arial;font-size:40px;background-color:#555555;border-radius:10px;box-shadow:0px 0px 15px red;border:none;}
+#player2next:active {box-shadow:0px 0px 25px red;}
+
+#loading {position:fixed;left:0px;top:0px;width:100%;height:100%;background-color:black;color:white;font-family:arial;font-size:10vw;text-align:center;padding-top:5%;display:none;}
+
 </style>
+
+<title>Pocket Spleef</title>
+
 </head>
+
 <body>
 
-<div>
+<div id="gamearea"></div>
 
-<h1>We're moving!</h1>
-<h2>Due to github banning all my accounts one by one for creating alts (I only just read that it's in the TOS), I had to move to a new domain. I will look through my projects and publish them here.</h2>
-<img src="https://cyberchillgithub.github.io/cybersystem90s/logo.png">
+<canvas id="game"></canvas>
+
+<div id="playerButtons1">
+
+<button class="ability" ontouchstart="abilityStart1()" ontouchend="abilityEnd1()" onmousedown="abilityStart1()" onmouseup="abilityEnd1()">X</button>
+<button class="left" ontouchstart="leftStart1()" ontouchend="leftEnd1()" onmousedown="leftStart1()" onmouseup="leftEnd1()"><</button>
+<button class="right" ontouchstart="rightStart1()" ontouchend="rightEnd1()" onmousedown="rightStart1()" onmouseup="rightEnd1()">></button>
+
 </div>
 
+<div id="playerButtons2">
+
+<button class="ability" ontouchstart="abilityStart2()" ontouchend="abilityEnd2()" onmousedown="abilityStart2()" onmouseup="abilityEnd2()">X</button>
+<button class="left" ontouchstart="leftStart2()" ontouchend="leftEnd2()" onmousedown="leftStart2()" onmouseup="leftEnd2()"><</button>
+<button class="right" ontouchstart="rightStart2()" ontouchend="rightEnd2()" onmousedown="rightStart2()" onmouseup="rightEnd2()">></button>
+<button id="bot" onclick="botToggleStart()"><b>BOT</b></button>
+
+</div>
+
+<div id="start">
+
+<button id="player1previous" onclick="player1previous()"><</button>
+<img src="character1right.png" id="player1">
+<button id="player1next" onclick="player1next()">></button>
+
+<button id="player2previous" onclick="player2previous()"><</button>
+<img src="character1left.png" id="player2">
+<button id="player2next" onclick="player2next()">></button>
+
+<button id="startbutton2" onclick="sessionStorage.mode='normal';setup();document.getElementById('start').style.display = 'none'">START NORMAL MATCH</button>
+<button id="startbutton" onclick="sessionStorage.mode='quickmatch';setup();document.getElementById('start').style.display = 'none'">START QUICK MATCH</button>
+</div>
+
+<div id="loading">
+Loading...
+</div>
+
+<script>
+
+var game = document.getElementById("game").getContext("2d")
+document.getElementById("game").width = document.getElementById("gamearea").offsetWidth
+document.getElementById("game").height = document.getElementById("gamearea").offsetHeight
+var w = document.getElementById("game").width
+var h = document.getElementById("game").height
+
+sessionStorage.ability1 = "false"
+sessionStorage.left1 = "false"
+sessionStorage.right1 = "false"
+sessionStorage.ability2 = "false"
+sessionStorage.left2 = "false"
+sessionStorage.right2 = "false"
+sessionStorage.bot = "false"
+sessionStorage.mode = "normal"
+sessionStorage.character1 = "character1"
+sessionStorage.character2 = "character1"
+
+
+
+
+
+
+
+
+document.onkeydown = function (e) {
+    e = e || window.event;
+    if(e.keyCode == 65) {
+		leftStart1()
+	}
+	else if(e.keyCode == 68) {
+		rightStart1()
+	}
+	else if(e.keyCode == 83) {
+		abilityStart1()
+	}
+	else if(e.keyCode == 37) {
+		leftStart2()
+	}
+	else if(e.keyCode == 39) {
+		rightStart2()
+	}
+	else if(e.keyCode == 40) {
+		abilityStart2()
+	}
+};
+
+
+document.onkeyup = function (e) {
+    e = e || window.event;
+    if(e.keyCode == 65) {
+		leftEnd1()
+	}
+	else if(e.keyCode == 68) {
+		rightEnd1()
+	}
+	else if(e.keyCode == 83) {
+		abilityEnd1()
+	}
+	else if(e.keyCode == 37) {
+		leftEnd2()
+	}
+	else if(e.keyCode == 39) {
+		rightEnd2()
+	}
+	else if(e.keyCode == 40) {
+		abilityEnd2()
+	}
+};
+
+
+
+
+
+
+
+function abilityStart1() {
+	sessionStorage.ability1 = "true"
+}
+
+function abilityEnd1() {
+	sessionStorage.ability1 = "false"
+}
+
+function leftStart1() {
+	sessionStorage.left1 = "true"
+}
+
+function leftEnd1() {
+	sessionStorage.left1 = "false"
+}
+
+function rightStart1() {
+	sessionStorage.right1 = "true"
+}
+
+function rightEnd1() {
+	sessionStorage.right1 = "false"
+}
+
+
+
+function abilityStart2() {
+	sessionStorage.ability2 = "true"
+}
+
+function abilityEnd2() {
+	sessionStorage.ability2 = "false"
+}
+
+function leftStart2() {
+	sessionStorage.left2 = "true"
+}
+
+function leftEnd2() {
+	sessionStorage.left2 = "false"
+}
+
+function rightStart2() {
+	sessionStorage.right2 = "true"
+}
+
+function rightEnd2() {
+	sessionStorage.right2 = "false"
+}
+
+function botToggleStart() {
+	if(sessionStorage.bot == "true") {
+		sessionStorage.bot = "false"
+		sessionStorage.ability2 = "false"
+		sessionStorage.left2 = "false"
+		sessionStorage.right2 = "false"
+	}
+	else {
+		sessionStorage.bot = "true"
+	}
+}
+
+
+
+
+
+//Images
+
+function loadImage(image) {
+	var img = new Image();
+	img.addEventListener('load', function() {
+	}, false);
+	img.src = image;
+	return(img)
+}
+
+//game.drawImage(image,x,y,w,h)
+
+//Note: Don't make two seperate colors for the same character for each player - but create variations in color for different characters
+
+
+
+
+
+
+
+
+
+var maps = ["map1.png","map2.png","map3.png"]
+var soundtracks = ["https://docs.google.com/uc?export=open&id=1Nv8QIFOwcKfjgFz5Xrl9tecRNT0NBxjS","https://docs.google.com/uc?export=open&id=1iUQvfiCs4KX3_guID5suCkcsUVquRcq8","https://docs.google.com/uc?export=open&id=1lp0zfDbipoQmXNCcnKAT0hw_xXvIvSR8"]
+var soundtracks2 = []
+var i = 0
+while(i < soundtracks.length) {
+	soundtracks2.push(new Audio(soundtracks[i]))
+	i += 1
+}
+//Soundtracks:
+//Soundtrack format: https://docs.google.com/uc?export=open&id=[ID]
+//cyberchillcompany@gmail.com
+//https://drive.google.com/file/d/1Nv8QIFOwcKfjgFz5Xrl9tecRNT0NBxjS/view?usp=sharing 
+//https://drive.google.com/file/d/1iUQvfiCs4KX3_guID5suCkcsUVquRcq8/view?usp=sharing 
+//https://drive.google.com/file/d/1lp0zfDbipoQmXNCcnKAT0hw_xXvIvSR8/view?usp=sharing
+
+var characters = ["character1","tor","hackerman"]
+var charactersLeft = ["character1left.png","torleft.png","hackermanleft.png"]
+var charactersRight = ["character1right.png","torright.png","hackermanright.png"]
+var soundtrack;
+
+
+
+window.onerror = function(message, source, lineno, colno, error) {
+
+	soundtrack.play()
+
+};
+
+
+
+
+function player1previous() {
+	var currentIndex = characters.indexOf(sessionStorage.character1)
+	if(currentIndex == 0) {
+		sessionStorage.character1 = characters[characters.length-1]
+		currentIndex = characters.length-1
+	}
+	else {
+		sessionStorage.character1 = characters[currentIndex-1]
+		currentIndex = currentIndex-1
+	}
+	document.getElementById("player1").src = charactersRight[currentIndex]
+}
+
+function player1next() {
+	var currentIndex = characters.indexOf(sessionStorage.character1)
+	if(currentIndex == characters.length-1) {
+		sessionStorage.character1 = characters[0]
+		currentIndex = 0
+	}
+	else {
+		sessionStorage.character1 = characters[currentIndex+1]
+		currentIndex = currentIndex+1
+	}
+	document.getElementById("player1").src = charactersRight[currentIndex]
+}
+
+function player2previous() {
+	var currentIndex = characters.indexOf(sessionStorage.character2)
+	if(currentIndex == 0) {
+		sessionStorage.character2 = characters[characters.length-1]
+		currentIndex = characters.length-1
+	}
+	else {
+		sessionStorage.character2 = characters[currentIndex-1]
+		currentIndex = currentIndex-1
+	}
+	document.getElementById("player2").src = charactersLeft[currentIndex]
+}
+
+function player2next() {
+	var currentIndex = characters.indexOf(sessionStorage.character2)
+	if(currentIndex == characters.length-1) {
+		sessionStorage.character2 = characters[0]
+		currentIndex = 0
+	}
+	else {
+		sessionStorage.character2 = characters[currentIndex+1]
+		currentIndex = currentIndex+1
+	}
+	document.getElementById("player2").src = charactersLeft[currentIndex]
+}
+
+
+class player {
+	constructor(x,y,w,h,vx,vy,jumptimeout,id,direction,characterleft,characterright,health,damageblocks,abilitytimeout,character,hittimeout) {
+		this.x = x;
+		this.y = y;
+		this.vx = vx;
+		this.vy = vy;
+		this.w = w;
+		this.h = h;
+		this.jumptimeout = jumptimeout;
+		this.id = id;
+		this.direction = direction;
+		this.characterleft = characterleft;
+		this.characterright = characterright;
+		this.health = health
+		this.damageblocks = damageblocks
+		this.abilitytimeout = abilitytimeout
+		this.character = character
+		this.hittimeout = hittimeout
+		this.bulletleft = loadImage("bulletleft.png")
+		this.bulletright = loadImage("bulletright.png")
+		this.ranvelocities1 = [[0,-10],[5,-5],[10,0],[5,5],[0,10],[-5,5],[-10,0],[-5,-5]]
+		this.nukeleft = loadImage("nukeleft.png")
+		this.nukeright = loadImage("nukeright.png")
+	}
+	move() {
+		if(this.abilitytimeout <= 300) {
+			this.x += this.vx
+			this.y += this.vy
+			this.damageblocks = []
+
+			if(this.x >= w - this.w) {
+				this.vx = -10
+				this.health -= 34
+			}
+
+			else if(this.x <= 0) {
+				this.vx = 10
+				this.health -= 34
+			}
+
+			else if(this.y <= 0) {
+				this.vy = 10
+				this.health -= 34
+			}
+
+			else if(this.y >= h - this.h) {
+				this.vy = -1*h*0.03
+				this.health -= 34
+			}
+		}
+		else {
+			this.vx = 0
+			this.vy = 0
+		}
+		if(this.direction == "left") {
+			game.drawImage(this.characterleft,this.x,this.y,this.w,this.h)
+		}
+		else {
+			game.drawImage(this.characterright,this.x,this.y,this.w,this.h)
+			
+		}
+		game.font = "13px Arial"
+		game.fillStyle = "black"
+		game.textAlign = "center"
+		game.fillText((this.id).toString(),this.x+this.w/2-1,this.y-this.h-1)
+
+		game.font = "13px Arial"
+		game.fillStyle = "white"
+		game.textAlign = "center"
+		game.fillText((this.id).toString(),this.x+this.w/2,this.y-this.h)
+		
+		
+		
+		if(this.id == 1) {
+			game.fillStyle = "white"
+			game.fillRect(100,0,this.health*3*0.5,20)
+
+			game.fillStyle = "#BBBBBB"
+			game.fillRect(100,20,((450-this.abilitytimeout)*0.5)*(2/3),20)
+
+			game.font = "15px Arial"
+			game.fillStyle = "white"
+			game.textAlign = "left"
+			game.fillText("HEALTH",20,15)
+
+			game.font = "15px Arial"
+			game.fillStyle = "#BBBBBB"
+			game.textAlign = "left"
+			game.fillText("ABILITY",20,35)
+		}
+		else if(this.id == 2) {
+			game.fillStyle = "white"
+			game.fillRect(w-(this.health*3*0.5)-100,0,this.health*3*0.5,20)
+
+			game.fillStyle = "#BBBBBB"
+			game.fillRect((w-((450-this.abilitytimeout)*0.5)*(2/3))-100,20,((450-this.abilitytimeout)*0.5)*(2/3),20)
+
+			game.font = "15px Arial"
+			game.fillStyle = "white"
+			game.textAlign = "left"
+			game.fillText("HEALTH",w-80,15)
+
+			game.font = "15px Arial"
+			game.fillStyle = "#BBBBBB"
+			game.textAlign = "left"
+			game.fillText("ABILITY",w-80,35)
+
+		}
+		if(this.health <= 0) {
+			if(soundtrack) {
+				soundtrack.pause()
+			}
+			clearInterval(gameLoop)
+			soundtrack.pause()
+			document.getElementById('start').style.display = 'block'
+		}
+	}
+	platformCollide(platforms) {
+		var i = 0
+		var platform;
+		while(i < platforms.length) {
+			platform = platforms[i]
+			if(this.x >= (platform.x - this.w) && this.x <= (platform.x + platform.w) && (this.y + this.h) >= platform.y && this.y <= (platform.y + platform.h)) {
+				platform.health -= 1
+				if(platform.health <= 0) {
+					platform.x = -10000000
+				}
+				return(true)
+			}
+			i += 1
+		}
+		return(false)
+	}
+	damageBlockCollide() {
+		if(this.hittimeout == 0) {
+			var i0 = 0
+			var i = 0
+			var damageblock;
+			while(i0 < players.length) {
+				if(i0 != this.id-1) {
+					i = 0
+					while(i < players[i0].damageblocks.length) {
+						damageblock = players[i0].damageblocks[i]
+						if(this.x >= (damageblock.x - this.w) && this.x <= (damageblock.x + damageblock.w) && (this.y + this.h) >= damageblock.y && this.y <= (damageblock.y + damageblock.h)) {
+							players[i0].damageblocks[i].x = -1000000
+							this.health -= damageblock.damage
+							this.vx = Number(damageblock.direction[0])
+							this.vy = Number(damageblock.direction[1])
+							this.hittimeout = 5
+							return(true)
+						}
+						i += 1
+					}
+				}
+				i0 += 1
+			}
+			i = 0
+			while(i < globaldamageblocks.length) {
+				damageblock = globaldamageblocks[i]
+				if(this.x >= (damageblock.x - this.w) && this.x <= (damageblock.x + damageblock.w) && (this.y + this.h) >= damageblock.y && this.y <= (damageblock.y + damageblock.h)) {
+					damageblock.x = -1000000
+					this.health -= damageblock.damage
+					this.vx = Number(damageblock.direction[0])
+					this.vy = Number(damageblock.direction[1])
+
+					return(true)
+				}
+				i += 1
+			}
+			return(false)
+		}
+		else {
+			return(false)
+		}
+	}
+	input() {
+		if(this.abilitytimeout <= 300) {
+			if(sessionStorage["left"+(this.id).toString()] == "true") {
+				if(this.vx > -3) {
+					this.vx = truncate(this.vx - 0.3,1)
+					this.direction = "left"
+				}
+			}
+			else if(sessionStorage["right"+(this.id).toString()] == "true") {
+				if(this.vx < 3) {
+					this.vx = truncate(this.vx + 0.3,1)
+					this.direction = "right"
+				}
+			}
+			else {
+				if(this.vx > 0) {
+					this.vx = truncate(this.vx - 0.1,1)
+				}
+				else if(this.vx < 0) {
+					this.vx = truncate(this.vx + 0.1,1)
+				}
+			}
+			if(this.platformCollide(platforms) == false) {
+				if(this.vy <= 3) {
+					this.vy += 0.3
+				}
+			}
+			else {
+				if(this.vy > 0) {
+					this.vy = 0
+				}
+				this.vy -= 0.1
+			}
+			
+			if(this.platformCollide(platforms) == true && this.jumptimeout > 0) {
+				if(this.jumpTimeout == 100) {
+					this.vy = 0
+				}
+				if(this.jumptimeout > this.jumptimeout/2) {
+					if(this.vy >= -5) {
+						this.vy -= 5
+					}
+					else {
+						this.vy = -5
+					}
+				}
+				this.jumptimeout -= 1
+			}
+			if(this.jumptimeout <= 0) {
+				this.jumptimeout = 100
+			}
+		}
+		
+		if(sessionStorage["ability"+(this.id).toString()] == "true" && this.abilitytimeout == 0) {
+			if(this.character == "character1") {
+				if(this.direction == "left") {
+					this.damageblocks.push(new damageBlock(this.x,this.y,this.w,this.h,15,this.characterleft,[-10,0]))
+					this.damageblocks[0].draw()
+				}
+				else {
+					this.damageblocks.push(new damageBlock(this.x,this.y,this.w,this.h,15,this.characterright,[10,0]))
+					this.damageblocks[0].draw()
+				}
+			}
+			else if(this.character == "tor") {
+				this.damageblocks.push(new damageBlock(this.x,this.y+this.h/2,15,5,5,this.bulletleft,[-10,0]))
+				this.damageblocks[0].draw()
+
+				this.damageblocks.push(new damageBlock(this.x,this.y+this.h/2,15,5,5,this.bulletright,[10,0]))
+				this.damageblocks[1].draw()
+				
+			}
+			else if(this.character == "hackerman") {
+				if(this.direction == "left") {
+					this.damageblocks.push(new damageBlock(this.x,this.y-this.h/2,50,25,10,this.nukeleft,[-10,0]))
+					this.damageblocks[0].draw()
+				}
+				else {
+					this.damageblocks.push(new damageBlock(this.x,this.y-this.h/2,50,25,10,this.nukeright,[10,0]))
+					this.damageblocks[0].draw()
+				}
+			}
+			this.abilitytimeout = 450
+			sessionStorage["ability"+(this.id).toString()] = "false"
+		}
+		if(this.abilitytimeout > 0) {
+			this.abilitytimeout -= 1
+			if(this.abilitytimeout > 300) {
+				if(this.character == "character1") {
+					if(this.direction == "left") {
+						if(this.abilitytimeout > 430) {
+							this.damageblocks[0].x = this.x-((450-this.abilitytimeout)*this.w*0.05)
+							this.damageblocks[0].y = this.y
+							this.damageblocks[0].draw()
+						}
+						else {
+							this.damageblocks[0].x = this.x-this.w
+							this.damageblocks[0].y = this.y
+							this.damageblocks[0].draw()
+						}
+					}
+					else {
+						if(this.abilitytimeout > 430) {
+							this.damageblocks[0].x = this.x+((450-this.abilitytimeout)*this.w*0.05)
+							this.damageblocks[0].y = this.y
+							this.damageblocks[0].draw()
+						}
+						else {
+							this.damageblocks[0].x = this.x+this.w
+							this.damageblocks[0].y = this.y
+							this.damageblocks[0].draw()
+						}
+					}
+				}
+				else if(this.character == "tor") {
+					if(this.abilitytimeout == 430 || this.abilitytimeout == 410 || this.abilitytimeout == 390) {
+						this.damageblocks.push(new damageBlock(this.x,this.y+this.h/2,15,5,5,this.bulletleft,[-10,0]))
+						this.damageblocks.push(new damageBlock(this.x,this.y+this.h/2,15,5,5,this.bulletright,[10,0]))
+					}
+					var i = 0
+					while(i < this.damageblocks.length) {
+						if(this.damageblocks[i].image == this.bulletleft) {
+							this.damageblocks[i].x -= 3
+						}
+						else {
+							this.damageblocks[i].x += 3
+						}
+						this.damageblocks[i].draw()
+						i += 1
+					}
+				}
+				else if(this.character == "hackerman") {
+					if(this.direction == "left") {
+						this.damageblocks[0].x -= 3
+						this.damageblocks[0].draw()
+						
+					}
+					else {
+						this.damageblocks[0].x += 3
+						this.damageblocks[0].draw()
+						
+					}
+				}
+			}
+		}
+		
+		this.damageBlockCollide()
+		
+		if(this.hittimeout > 0) {
+			this.hittimeout -= 1
+		}
+	}
+}
+
+class platform {
+	constructor(x,y,w,h,health,type) {
+		this.x = x
+		this.y = y
+		this.w = w
+		this.h = h
+		this.health = health
+		this.type = type
+	}
+}
+
+class damageBlock {
+	constructor(x,y,w,h,damage,image,direction) {
+		this.x = x
+		this.y = y
+		this.w = w
+		this.h = h
+		this.damage = damage
+		this.image = image
+		this.direction = direction
+	}
+	draw() {
+		game.drawImage(this.image,this.x,this.y,this.w,this.h)
+	}
+}
+
+function generatePlatforms() {
+	var platforms = []
+	var i = 0
+	var i2 = 50
+	var distances = [10,10,10,10,10,10,40,50,60,80,90,100]
+	while(i2 <= 200) {
+		i = 0
+		i2 += 50
+		while(i < w - 100) {
+			
+			i += distances[Math.floor(Math.random()*distances.length)]
+			platforms.push(new platform(i,i2,15,2.5,12,"normal"))
+		}
+	}
+	return(platforms)
+}
+
+function drawPlatforms(platforms) {
+	var i = 0
+	while(i < platforms.length) {
+		//game.fillStyle = "black"
+		//game.fillRect(platforms[i].x-1,platforms[i].y-1,platforms[i].w+2,platforms[i].h+2)
+		
+		//game.fillStyle = "white"
+		//game.fillRect(platforms[i].x,platforms[i].y,platforms[i].w,platforms[i].h)
+		if(platforms[i].health >= 12) {
+			game.drawImage(platformStages[0],platforms[i].x,platforms[i].y,platforms[i].w,platforms[i].h)
+		}
+		else if(platforms[i].health >= 10) {
+			game.drawImage(platformStages[1],platforms[i].x,platforms[i].y,platforms[i].w,platforms[i].h)
+		}
+		else if(platforms[i].health >= 8) {
+			game.drawImage(platformStages[2],platforms[i].x,platforms[i].y,platforms[i].w,platforms[i].h)
+		}
+		else if(platforms[i].health >= 6) {
+			game.drawImage(platformStages[3],platforms[i].x,platforms[i].y,platforms[i].w,platforms[i].h)
+		}
+		else if(platforms[i].health >= 4) {
+			game.drawImage(platformStages[4],platforms[i].x,platforms[i].y,platforms[i].w,platforms[i].h)
+		}
+		else if(platforms[i].health >= 1) {
+			game.drawImage(platformStages[4],platforms[i].x,platforms[i].y,platforms[i].w,platforms[i].h)
+		}
+		i += 1
+	}
+}
+
+function bot(players) {
+	if(sessionStorage.bot == "true") {
+		var player1 = players[0]
+		var player2 = players[1]
+		if(player1.x < player2.x) {
+			sessionStorage.right2 = "false"
+			sessionStorage.left2 = "true"
+		}
+		else {
+			sessionStorage.left2 = "false"
+			sessionStorage.right2 = "true"
+		}
+		
+		sessionStorage.ability2 = "true"
+		document.getElementById("bot").style.backgroundColor = "#AAFFAA"
+	}
+	else {
+		document.getElementById("bot").style.backgroundColor = "#FFAAAA"
+	}
+}
+
+var platformStages = [loadImage("platform1.png"),loadImage("platform2.png"),loadImage("platform3.png"),loadImage("platform4.png"),loadImage("platform5.png"),loadImage("platform6.png")]
+
+var platforms;
+
+var randomMap;
+
+var randomCharacter1;
+var player1;
+
+var randomCharacter2;
+var player2;
+
+var players;
+
+var randomMap0 = ""
+
+var randomMap00 = ""
+
+var globaldamageblocks = []
+
+var frogVX = []
+var frogVY = []
+
+function setup() {
+	
+	document.getElementById("loading").style.display = "block"
+
+	sessionStorage.ability1 = "false"
+	sessionStorage.left1 = "false"
+	sessionStorage.right1 = "false"
+	sessionStorage.ability2 = "false"
+	sessionStorage.left2 = "false"
+	sessionStorage.right2 = "false"
+
+	globaldamageblocks = []
+
+	platforms = generatePlatforms()
+
+	randomMap0 = maps[Math.floor(Math.random()*maps.length)]
+	randomMap = loadImage(randomMap0)
+
+	frogVX = []
+	frogVY = []
+	
+	
+	soundtrack = soundtracks2[maps.indexOf(randomMap0)]
+
+	soundtrack.volume = "0.5"
+	soundtrack.loop = true
+	soundtrack.currentTime = 0
+	soundtrack.play()
+	
+
+	if(sessionStorage.mode == "quickmatch") {
+		randomCharacter1 = Math.floor(Math.random()*charactersLeft.length)
+		player1 = new player(150,50,15,15,0,0,100,1,"right",loadImage(charactersLeft[randomCharacter1]),loadImage(charactersRight[randomCharacter1]),100,[],0,characters[randomCharacter1],0)
+
+		randomCharacter2 = Math.floor(Math.random()*charactersLeft.length)
+		player2 = new player(w-180,50,15,15,0,0,100,2,"left",loadImage(charactersLeft[randomCharacter2]),loadImage(charactersRight[randomCharacter2]),100,[],0,characters[randomCharacter2],0)
+	}
+	else {
+		player1 = new player(150,50,15,15,0,0,100,1,"right",loadImage(charactersLeft[characters.indexOf(sessionStorage.character1)]),loadImage(charactersRight[characters.indexOf(sessionStorage.character1)]),100,[],0,characters[characters.indexOf(sessionStorage.character1)],0)
+		player2 = new player(w-180,50,15,15,0,0,100,2,"left",loadImage(charactersLeft[characters.indexOf(sessionStorage.character2)]),loadImage(charactersRight[characters.indexOf(sessionStorage.character2)]),100,[],0,characters[characters.indexOf(sessionStorage.character2)],0)
+	}
+
+	players = [player1,player2]
+
+	setTimeout(function() {document.getElementById("loading").style.display = "none";},2000)
+
+	gameLoop = setInterval(gameLoop1,10)
+
+}
+
+
+
+function truncate(n,m) {
+	if(n >= 0) {
+		return(Math.floor(n*10**m)/(10**m))
+	}
+	else {
+		n = n * -1
+		return((Math.floor(n*10**m)/(10**m))*-1)
+	}
+}
+
+function gameLoop1() {
+	if(soundtrack.paused) {
+		soundtrack.play()
+	}
+	game.drawImage(randomMap,0,0,w,h)
+	drawPlatforms(platforms)
+
+	if(document.getElementById("loading").style.display == "none") {
+
+		//EVENTS
+		randomMap00 = randomMap0.replace(".png","")
+		if(randomMap00 == "map1") {
+			if(Math.floor(Math.random()*200) == 1) {
+				globaldamageblocks.push(new damageBlock(w,Math.floor(Math.random()*h),w*2,10,15,loadImage("laser.png"),[-10,0]))
+			}
+			var i = 0
+			while(i < globaldamageblocks.length) {
+				globaldamageblocks[i].x -= 5
+				globaldamageblocks[i].draw()
+				if(globaldamageblocks[i].x <= -1*w) {
+					globaldamageblocks[i].x = -10000000
+				}
+				i += 1
+			}
+		}
+		else if(randomMap00 == "map2") {
+			if(Math.floor(Math.random()*100) == 1) {
+				globaldamageblocks.push(new damageBlock(Math.floor(Math.random()*w),-50,50,50,15,loadImage("meteor.png"),[0,10]))
+			}
+			var i = 0
+			while(i < globaldamageblocks.length) {
+				globaldamageblocks[i].y += 1
+				globaldamageblocks[i].draw()
+				i += 1
+			}
+		}
+		else if(randomMap00 == "map3") {
+			if(Math.floor(Math.random()*50) == 1) {
+				globaldamageblocks.push(new damageBlock(w+10,Math.floor(Math.random()*h*0.5)+h/2,20,20,5,loadImage("frog.png"),[-10,0]))
+				frogVX.push(-3)
+				frogVY.push(-3)
+			}
+			var i = 0
+			while(i < globaldamageblocks.length) {
+				globaldamageblocks[i].y += frogVY[i]
+				globaldamageblocks[i].x += frogVX[i]
+				
+				frogVY[i] += h/10000
+				globaldamageblocks[i].draw()
+				i += 1
+			}
+		}
+
+		var i = 0
+		while(i < players.length) {
+			players[i].input()
+			players[i].move()
+			i += 1
+		}
+		bot(players)
+	}
+}
+
+</script>
+
 </body>
+
 </html>
-
-
