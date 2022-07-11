@@ -585,7 +585,7 @@ class player {
 		if(sessionStorage["ability"+(this.id).toString()] == "true" && this.abilitytimeout == 0) {
 			if(this.character == "character1") {
 				if(this.direction == "left") {
-					this.damageblocks.push(new damageBlock(this.x,this.y,this.w,this.h,15,this.characterleft,[-5,0]))
+					this.damageblocks.push(new damageBlock(this.x,this.y,this.w,this.h,15,this.characterleft,[-8,0]))
 					this.damageblocks[0].draw()
 				}
 				else {
@@ -594,7 +594,7 @@ class player {
 				}
 			}
 			else if(this.character == "tor") {
-				this.damageblocks.push(new damageBlock(this.x,this.y+this.h/2,15,5,5,this.bulletleft,[-5,0]))
+				this.damageblocks.push(new damageBlock(this.x,this.y+this.h/2,15,5,5,this.bulletleft,[-8,0]))
 				this.damageblocks[0].draw()
 
 				this.damageblocks.push(new damageBlock(this.x,this.y+this.h/2,15,5,5,this.bulletright,[5,0]))
@@ -603,7 +603,7 @@ class player {
 			}
 			else if(this.character == "hackerman") {
 				if(this.direction == "left") {
-					this.damageblocks.push(new damageBlock(this.x,this.y-this.h/2,50,25,10,this.nukeleft,[-5,0]))
+					this.damageblocks.push(new damageBlock(this.x,this.y-this.h/2,50,25,10,this.nukeleft,[-8,0]))
 					this.damageblocks[0].draw()
 				}
 				else {
@@ -645,7 +645,7 @@ class player {
 				}
 				else if(this.character == "tor") {
 					if(this.abilitytimeout == 430 || this.abilitytimeout == 410 || this.abilitytimeout == 390) {
-						this.damageblocks.push(new damageBlock(this.x,this.y+this.h/2,15,5,5,this.bulletleft,[-5,0]))
+						this.damageblocks.push(new damageBlock(this.x,this.y+this.h/2,15,5,5,this.bulletleft,[-8,0]))
 						this.damageblocks.push(new damageBlock(this.x,this.y+this.h/2,15,5,5,this.bulletright,[5,0]))
 					}
 					var i = 0
@@ -875,7 +875,7 @@ function gameLoop1() {
 		randomMap00 = randomMap0.replace(".png","")
 		if(randomMap00 == "map1") {
 			if(Math.floor(Math.random()*200) == 1) {
-				globaldamageblocks.push(new damageBlock(w,Math.floor(Math.random()*h),w*2,10,15,loadImage("laser.png"),[-5,0]))
+				globaldamageblocks.push(new damageBlock(w,Math.floor(Math.random()*h),w*2,10,15,loadImage("laser.png"),[-8,0]))
 			}
 			var i = 0
 			while(i < globaldamageblocks.length) {
@@ -889,7 +889,7 @@ function gameLoop1() {
 		}
 		else if(randomMap00 == "map2") {
 			if(Math.floor(Math.random()*100) == 1) {
-				globaldamageblocks.push(new damageBlock(Math.floor(Math.random()*w),-50,50,50,15,loadImage("meteor.png"),[0,5]))
+				globaldamageblocks.push(new damageBlock(Math.floor(Math.random()*w),-50,50,50,15,loadImage("meteor.png"),[0,8]))
 			}
 			var i = 0
 			while(i < globaldamageblocks.length) {
@@ -900,7 +900,7 @@ function gameLoop1() {
 		}
 		else if(randomMap00 == "map3") {
 			if(Math.floor(Math.random()*50) == 1) {
-				globaldamageblocks.push(new damageBlock(w+10,Math.floor(Math.random()*h*0.5)+h/2,20,20,5,loadImage("frog.png"),[-5,0]))
+				globaldamageblocks.push(new damageBlock(w+10,Math.floor(Math.random()*h*0.5)+h/2,20,20,5,loadImage("frog.png"),[-8,0]))
 				frogVX.push(-3)
 				frogVY.push(-3)
 			}
