@@ -501,8 +501,8 @@ class player {
 						if(this.x >= (damageblock.x - this.w) && this.x <= (damageblock.x + damageblock.w) && (this.y + this.h) >= damageblock.y && this.y <= (damageblock.y + damageblock.h)) {
 							players[i0].damageblocks[i].x = -1000000
 							this.health -= damageblock.damage
-							this.vx = Number(sessionStorage.ran1)
-							this.vy = Number(sessionStorage.ran2)
+							this.vx = Number(damageblock.direction[0])
+							this.vy = Number(damageblock.direction[1])
 							this.hittimeout = 5
 							return(true)
 						}
@@ -517,11 +517,8 @@ class player {
 				if(this.x >= (damageblock.x - this.w) && this.x <= (damageblock.x + damageblock.w) && (this.y + this.h) >= damageblock.y && this.y <= (damageblock.y + damageblock.h)) {
 					damageblock.x = -1000000
 					this.health -= damageblock.damage
-					var ran01 = this.ranvelocities1[Math.floor(Math.random()*this.ranvelocities1.length)]
-					sessionStorage.ran1 = ran01[0]
-					sessionStorage.ran2 = ran01[1]
-					this.vx = Number(sessionStorage.ran1)
-					this.vy = Number(sessionStorage.ran2)
+					this.vx = Number(damageblock.direction[0])
+					this.vy = Number(damageblock.direction[1])
 
 					return(true)
 				}
@@ -589,40 +586,31 @@ class player {
 		if(sessionStorage["ability"+(this.id).toString()] == "true" && this.abilitytimeout == 0) {
 			if(this.character == "character1") {
 				if(this.direction == "left") {
-					this.damageblocks.push(new damageBlock(this.x,this.y,this.w,this.h,50,this.characterleft))
+					this.damageblocks.push(new damageBlock(this.x,this.y,this.w,this.h,5,this.characterleft,[-10,0]))
 					this.damageblocks[0].draw()
 				}
 				else {
-					this.damageblocks.push(new damageBlock(this.x,this.y,this.w,this.h,50,this.characterright))
+					this.damageblocks.push(new damageBlock(this.x,this.y,this.w,this.h,5,this.characterright,[10,0]))
 					this.damageblocks[0].draw()
 				}
-				var ran01 = this.ranvelocities1[Math.floor(Math.random()*this.ranvelocities1.length)]
-				sessionStorage.ran1 = ran01[0]
-				sessionStorage.ran2 = ran01[1]
 			}
 			else if(this.character == "tor") {
-				this.damageblocks.push(new damageBlock(this.x,this.y+this.h/2,15,5,10,this.bulletleft))
+				this.damageblocks.push(new damageBlock(this.x,this.y+this.h/2,15,5,1,this.bulletleft,[-10,0]))
 				this.damageblocks[0].draw()
 
-				this.damageblocks.push(new damageBlock(this.x,this.y+this.h/2,15,5,10,this.bulletright))
+				this.damageblocks.push(new damageBlock(this.x,this.y+this.h/2,15,5,1,this.bulletright,[10,0]))
 				this.damageblocks[1].draw()
 				
-
-				sessionStorage.ran1 = Math.floor(Math.random()*24)-12
-				sessionStorage.ran2 = Math.floor(Math.random()*24)-12
 			}
 			else if(this.character == "hackerman") {
 				if(this.direction == "left") {
-					this.damageblocks.push(new damageBlock(this.x,this.y-this.h/2,50,25,50,this.nukeleft))
+					this.damageblocks.push(new damageBlock(this.x,this.y-this.h/2,50,25,5,this.nukeleft,[-10,0]))
 					this.damageblocks[0].draw()
 				}
 				else {
-					this.damageblocks.push(new damageBlock(this.x,this.y-this.h/2,50,25,50,this.nukeright))
+					this.damageblocks.push(new damageBlock(this.x,this.y-this.h/2,50,25,5,this.nukeright,[10,0]))
 					this.damageblocks[0].draw()
 				}
-				var ran01 = this.ranvelocities1[Math.floor(Math.random()*this.ranvelocities1.length)]
-				sessionStorage.ran1 = ran01[0]
-				sessionStorage.ran2 = ran01[1]
 			}
 			this.abilitytimeout = 450
 			sessionStorage["ability"+(this.id).toString()] = "false"
@@ -658,8 +646,8 @@ class player {
 				}
 				else if(this.character == "tor") {
 					if(this.abilitytimeout == 430 || this.abilitytimeout == 410 || this.abilitytimeout == 390) {
-						this.damageblocks.push(new damageBlock(this.x,this.y+this.h/2,15,5,10,this.bulletleft))
-						this.damageblocks.push(new damageBlock(this.x,this.y+this.h/2,15,5,10,this.bulletright))
+						this.damageblocks.push(new damageBlock(this.x,this.y+this.h/2,15,5,1,this.bulletleft,[-10,0]))
+						this.damageblocks.push(new damageBlock(this.x,this.y+this.h/2,15,5,1,this.bulletright,[10,0]))
 					}
 					var i = 0
 					while(i < this.damageblocks.length) {
@@ -708,13 +696,14 @@ class platform {
 }
 
 class damageBlock {
-	constructor(x,y,w,h,damage,image) {
+	constructor(x,y,w,h,damage,image,direction) {
 		this.x = x
 		this.y = y
 		this.w = w
 		this.h = h
 		this.damage = damage
 		this.image = image
+		this.direction = direction
 	}
 	draw() {
 		game.drawImage(this.image,this.x,this.y,this.w,this.h)
@@ -887,7 +876,7 @@ function gameLoop1() {
 		randomMap00 = randomMap0.replace(".png","")
 		if(randomMap00 == "map1") {
 			if(Math.floor(Math.random()*200) == 1) {
-				globaldamageblocks.push(new damageBlock(w,Math.floor(Math.random()*h),w*2,10,50,loadImage("laser.png")))
+				globaldamageblocks.push(new damageBlock(w,Math.floor(Math.random()*h),w*2,10,5,loadImage("laser.png"),[-10,0]))
 			}
 			var i = 0
 			while(i < globaldamageblocks.length) {
@@ -901,7 +890,7 @@ function gameLoop1() {
 		}
 		else if(randomMap00 == "map2") {
 			if(Math.floor(Math.random()*100) == 1) {
-				globaldamageblocks.push(new damageBlock(Math.floor(Math.random()*w),-50,50,50,50,loadImage("meteor.png")))
+				globaldamageblocks.push(new damageBlock(Math.floor(Math.random()*w),-50,50,50,5,loadImage("meteor.png"),[0,10]))
 			}
 			var i = 0
 			while(i < globaldamageblocks.length) {
@@ -912,7 +901,7 @@ function gameLoop1() {
 		}
 		else if(randomMap00 == "map3") {
 			if(Math.floor(Math.random()*50) == 1) {
-				globaldamageblocks.push(new damageBlock(w+10,Math.floor(Math.random()*h*0.5)+h/2,20,20,10,loadImage("frog.png")))
+				globaldamageblocks.push(new damageBlock(w+10,Math.floor(Math.random()*h*0.5)+h/2,20,20,1,loadImage("frog.png"),[-10,0]))
 				frogVX.push(-3)
 				frogVY.push(-3)
 			}
