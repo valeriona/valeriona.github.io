@@ -1,1 +1,74 @@
+<!DOCTYPE html>
 
+<html>
+
+<title>Alarm</title>
+
+<body>
+
+<audio id="alarm">
+<source src="alarm1.mp3" type="audio/mpeg">
+</audio>
+
+<h1>CyberChill Alarm 1</h1>
+
+<input id="inp" placeholder="hours:minutes"><button id="setAlarm" onclick="setAlarm()">Set</button><button id="stopAlarmCaptcha" onclick="stopAlarmCaptcha()">Stop</button>
+
+<div id="captcha">
+
+<h3>Before you can turn off the alarm, you need to verify that you are awake.</h3>
+<h4>Copy the number below.</h4>
+
+<p id="n"></p>
+<input id="c">
+
+<button onclick="stopAlarm()">Verify</button>
+
+</div>
+
+<script>
+
+var alarm = document.getElementById("alarm");
+var inp = document.getElementById("inp");
+var captcha = document.getElementById("captcha");
+var n = document.getElementById("n");
+var c = document.getElementById("c");
+var h0 = 0
+var m0 = 0
+
+function setAlarm() {
+	alarm0 = setInterval(playAlarm,1000)
+	var inpVal = inp.value + ""
+	var inpVal1 = inpVal.split(":")
+	h0 = Number(inpVal1[0])+0
+	m0 = Number(inpVal1[1])+0
+}
+
+function playAlarm() {
+	var d = new Date();
+	var h = d.getHours();
+	var m = d.getMinutes();
+	if(h >= h0 && m >= m0) {
+		console.log("It is time!")
+		alarm.loop = true
+		alarm.play()
+	}
+}
+
+function stopAlarmCaptcha() {
+	n.innerHTML = (Math.random()).toString() + (Math.random()).toString() + (Math.random()).toString() + (Math.random()).toString() + (Math.random()).toString()
+}
+
+function stopAlarm() {
+	if(n.innerHTML == c.value) {
+		alert("Stopping alarm!")
+		clearInterval(alarm0)
+		alarm.pause()
+	}
+}
+
+</script>
+
+</body>
+
+</html>
