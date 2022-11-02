@@ -28,24 +28,27 @@ var threebasic1 = {
 	meshes : [],
 	meshdata : [],
 	uuids : [],
+	groupnames : [],
+	groupdata : [],
 	test : function() {console.log("\x1b[35m%s","ThreeBasic.js successfully loaded.");return(true);},
 	init : function(data) {
 		this.scene = new THREE.Scene();
 		this.camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
 		this.camera.position.y = 1;
 		this.camera.position.z = 5;
+		let width = document.getElementById(data.canvas).offsetWidth;
+		let height = document.getElementById(data.canvas).offsetHeight;
 
 		this.renderer = new THREE.WebGLRenderer();
-		this.renderer.setSize( window.innerWidth, window.innerHeight );
+		this.renderer.setSize( width, height );
 		this.renderer.setClearColor(data.background);
-		document.getElementById("canvas").appendChild(this.renderer.domElement);
+		document.getElementById(data.canvas).appendChild(this.renderer.domElement);
 		
 	
 
 
 		window.addEventListener('resize', function () {
-			 let width = window.innerWidth;
-			 let height = window.innerHeight;
+			 
 			 if(this.renderer != undefined) {
 				this.renderer.setSize(width,height);
 			 }
@@ -64,6 +67,13 @@ var threebasic1 = {
 		
 		this.defaultfps = data.defaultfps
 		
+		//https://r105.threejsfundamentals.org/threejs/lessons/threejs-fog.html#:~:text=In%20three.,near%20is%20unaffected%20by%20fog.
+		
+		var fogmin = data.renderdistance-5
+		var fogmax = data.renderdistance
+		this.scene.fog = new THREE.Fog(data.background, fogmin, fogmax); //If doesnt seem to work, as there is no fog below the player, then there might be a block there
+		this.renderer.setClearColor(data.background);
+
 		console.log("\x1b[35m%s","ThreeBasic.js successfully initialised.")
 		
 	},
@@ -86,13 +96,26 @@ var threebasic1 = {
 		//https://codeburst.io/infinite-scene-with-threejs-and-instancedmesh-adc74b8efcf4
 		if(data.type == "cube") {
 			//var mesh = new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),  new THREE.MeshBasicMaterial( { color: "#FF0000" } ), data.amount);
-			var mesh = new THREE.InstancedMesh(new THREE.BoxGeometry(data.w2,data.h2,data.l2), new THREE.MeshNormalMaterial(), data.amount);
-			mesh.position.x = data.x
-			mesh.position.y = data.y
-			mesh.position.z = data.z
+			if(data.data.texture == true) {
+				var materials = [
+					data.data.texture1,
+					data.data.texture2,
+					data.data.texture3,
+					data.data.texture4,
+					data.data.texture5,
+					data.data.texture6
+				];
+				var mesh = new THREE.InstancedMesh(new THREE.BoxGeometry(data.data.w,data.data.h,data.data.l), materials, data.amount);
+			}
+			//mesh.position.x = data.x
+			//mesh.position.y = data.y
+			//mesh.position.z = data.z
 			this.objectnames.push(data.name)
 			this.objects.push(mesh)
-			this.gravity.push(data.gravity)
+			this.gravity.push(data.data.gravity)
+
+			this.groupnames.push(mesh.uuid)
+			this.groupdata.push({w:data.w,h:data.h,l:data.l,x:data.x,y:data.y,z:data.z})
 
 			if(data.chunk == undefined) {
 				data.chunk = "other"
@@ -112,14 +135,12 @@ var threebasic1 = {
 	grouppositions : function(data) {
 		var dummy = new THREE.Object3D();
 		var obj = this.objects[this.objectnames.indexOf(data.name)]
-		console.log(obj)
+		
 		for ( var i = 0; i < obj.count; i ++ ) {
 			dummy.position.set(data.positions[i].x, data.positions[i].y, data.positions[i].z);
 			dummy.updateMatrix();
-			console.log(dummy.matrix)
 			obj.setMatrixAt( i, dummy.matrix );
 		}
-		console.log(data.positions)
 		
 		obj.instanceMatrix.needsUpdate = true;
 	},
@@ -138,17 +159,16 @@ var threebasic1 = {
 		if(data.texture == true) {
 		
 
-			if(this.materials1 == undefined) {
-				this.materials1 = [
-					data.texture1,
-					data.texture2,
-					data.texture3,
-					data.texture4,
-					data.texture5,
-					data.texture6
-				];
-			}
-			var materials = this.materials1
+			
+			
+			var materials = [
+				data.texture1,
+				data.texture2,
+				data.texture3,
+				data.texture4,
+				data.texture5,
+				data.texture6
+			];
 
 			var cube = new THREE.Mesh( geometry, materials )
 			
@@ -317,6 +337,7 @@ var threebasic1 = {
 		var i2 = 0
 		while(i < previousChildren.length) {
 			
+
 			x2 = previousChildren[i].position.x
 			x21 = previousChildren[i].position.x - previousChildren[i].geometry.parameters.width/2
 			x22 = previousChildren[i].position.x + previousChildren[i].geometry.parameters.width/2
@@ -326,6 +347,7 @@ var threebasic1 = {
 			z2 = previousChildren[i].position.z
 			z21 = previousChildren[i].position.z - previousChildren[i].geometry.parameters.depth/2
 			z22 = previousChildren[i].position.z + previousChildren[i].geometry.parameters.depth/2
+		
 			
 			dx = x2 - x1
 			if(dx < 0) {
@@ -340,7 +362,7 @@ var threebasic1 = {
 				dz = dz * -1
 			}
 			
-			if(dx < this.renderdistance && dy < this.renderdistance && dz < this.renderdistance || previousChildren[i].type == "GridHelper") {
+			if(dx < this.renderdistance && dy < this.renderdistance && dz < this.renderdistance || previousChildren[i].type == "GridHelper" || previousChildren[i].isInstancedMesh) {
 				if(previousChildren[i].visible == true) {
 					newChildren.push(previousChildren[i])
 				}
@@ -501,9 +523,28 @@ var threebasic1 = {
 		
 	},
 	sethitbox(data) {
-		var obj = this.objects[this.objectnames.indexOf(data.name)]
-		this.hitboxobjects.push(obj)
-		this.hitboxnames.push(data.name)
+		if(data.custom == true) {
+			/*
+			x1 = obj1.position.x
+			y1 = obj1.position.y
+			z1 = obj1.position.z
+			w1 = obj1.geometry.parameters.width
+			h1 = obj1.geometry.parameters.height
+			l1 = obj1.geometry.parameters.depth*/
+			var obj = {
+				position : {x:data.x,y:data.y,z:data.z},
+				geometry : {
+					parameters : {width:data.w,height:data.h,depth:data.l}
+				}
+			}
+			this.hitboxobjects.push(obj)
+			this.hitboxnames.push("custom")
+		}
+		else {
+			var obj = this.objects[this.objectnames.indexOf(data.name)]
+			this.hitboxobjects.push(obj)
+			this.hitboxnames.push(data.name)
+		}
 	},
 	collisions(data) {
 		//INEFFICIENCY WAS CAUSED ALL THE OBJECTS BEING COLLISION DETECTED DUE TO CHANGE IN Y DUE TO GRAVITY EVEN IF
@@ -581,6 +622,49 @@ var threebasic1 = {
 				}
 				i1 += 1
 			}
+			
+
+			i1 = 0
+			while(i1 < this.hitboxobjects.length) {
+				obj2 = this.hitboxobjects[i1]
+				if(this.hitboxnames[i1] == "custom" && this.distance({x1:obj1.position.x,y1:obj1.position.y,z1:obj1.position.z,x2:obj2.position.x,y2:obj2.position.y,z2:obj2.position.z}) < this.renderdistance) {
+					x1 = obj1.position.x
+					y1 = obj1.position.y
+					z1 = obj1.position.z
+					w1 = obj1.geometry.parameters.width
+					h1 = obj1.geometry.parameters.height
+					l1 = obj1.geometry.parameters.depth
+					x2 = obj2.position.x
+					y2 = obj2.position.y
+					z2 = obj2.position.z
+					w2 = obj2.geometry.parameters.width
+					h2 = obj2.geometry.parameters.height
+					l2 = obj2.geometry.parameters.depth
+	
+					
+					
+					//Position based on centre of mesh
+					dx = (x2-x1)
+					if(dx < 0) {dx = dx * -1}
+					dy = (y2-y1)
+					if(dy < 0) {dy = dy * -1}
+					dz = (z2-z1)
+					if(dz < 0) {dz = dz * -1}
+					
+					c1 = dx < (w1/2 + w2/2)
+					c2 = dy < (h1/2 + h2/2)
+					c3 = dz < (l1/2 + l2/2)
+					
+					if(c1 && c2 && c3) {
+						if(collisions.indexOf(obj2) == -1) {
+							collisions.push(obj2)
+						}
+					}
+				}
+				i1 += 1
+			}
+
+
 			return(collisions)
 		}
 		else {
@@ -588,6 +672,14 @@ var threebasic1 = {
 		}
 	
 		
+	},
+	distance(data) {
+		var dx = data.x2 - data.x1;
+		var dy = data.y2 - data.y1;
+		var dz = data.z2 - data.z1;
+
+		distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+		return(distance)
 	}
 }
 
