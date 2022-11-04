@@ -30,7 +30,16 @@ var threebasic1 = {
 	uuids : [],
 	groupnames : [],
 	groupdata : [],
+	baseblockgroups : [],
+	baseblocks : [],
+	dummy : new THREE.Object3D(),
+	grouphitboxnames : [],
+	grouphitboxes : [],
+	falling : [],
+	objectloader : undefined,
+	objectsloaded : 0,
 	test : function() {console.log("\x1b[35m%s","ThreeBasic.js successfully loaded.");return(true);},
+	lights : [],
 	init : function(data) {
 		this.scene = new THREE.Scene();
 		this.camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
@@ -58,10 +67,12 @@ var threebasic1 = {
 			 }
 		});
 		this.loader = new THREE.TextureLoader();
+		this.objectloader = new THREE.GLTFLoader();
 
 
 		this.objectnames.push("camera")
 		this.objects.push(this.camera)
+		this.falling.push(false)
 		this.gravity.push(0)
 		this.renderdistance = data.renderdistance + 0
 		
@@ -69,16 +80,49 @@ var threebasic1 = {
 		
 		//https://r105.threejsfundamentals.org/threejs/lessons/threejs-fog.html#:~:text=In%20three.,near%20is%20unaffected%20by%20fog.
 		
-		var fogmin = data.renderdistance-5
-		var fogmax = data.renderdistance
+		var fogmin = data.renderdistance-7
+		var fogmax = data.renderdistance-3
 		this.scene.fog = new THREE.Fog(data.background, fogmin, fogmax); //If doesnt seem to work, as there is no fog below the player, then there might be a block there
 		this.renderer.setClearColor(data.background);
+
+
+
+
+
+
+		
+
+		
 
 		console.log("\x1b[35m%s","ThreeBasic.js successfully initialised.")
 		
 	},
+	loadobjects(data) {
+		loading = setInterval(function() {
+			if(threebasic1.objectsloaded == data.amount) {
+				clearInterval(loading);
+				data.main()
+			};
+		},100)
+	},
+	setlight(data) {
+		const light = new THREE.DirectionalLight(data.color, data.brightness);
+		light.position.set(data.x, data.y, data.z);
+		this.scene.add(light);
+		this.scene.add(light.target);
+	},
+	light(data) {
+		this.lights.push(data)
+	},
 	setmaterial : function(data) {
-		this.materials.push(new THREE.MeshBasicMaterial({map: this.loader.load(data.material)}))
+		if(data.transparency == undefined) {
+			data.transparency = 0
+		}
+		var material = new THREE.MeshBasicMaterial({map: this.loader.load(data.material),opacity:data.transparency})
+		if(data.transparency != 0) {
+			material.transparent = true
+		}
+		this.materials.push(material)
 		this.materialnames.push(data.name)
 	},
 	getmaterial : function(data) {
@@ -94,24 +138,35 @@ var threebasic1 = {
 
 		//DISSAPEARS AT A CERTAIN DISTANCE
 		//https://codeburst.io/infinite-scene-with-threejs-and-instancedmesh-adc74b8efcf4
+
+		if(data.collisions == true) {
+			var i = 0
+			var hitboxes1 = []
+			while(i < data.amount) {
+				hitboxes1.push({x:-10000000,y:-10000000,z:-10000000,w:data.data.w,h:data.data.h,l:data.data.l})
+				i += 1
+			}
+			this.grouphitboxes.push(hitboxes1)
+			this.grouphitboxnames.push(data.name)
+		}
+
 		if(data.type == "cube") {
 			//var mesh = new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),  new THREE.MeshBasicMaterial( { color: "#FF0000" } ), data.amount);
-			if(data.data.texture == true) {
-				var materials = [
-					data.data.texture1,
-					data.data.texture2,
-					data.data.texture3,
-					data.data.texture4,
-					data.data.texture5,
-					data.data.texture6
-				];
+			if(data.data.textures) {
+				var materials = data.data.textures
+
 				var mesh = new THREE.InstancedMesh(new THREE.BoxGeometry(data.data.w,data.data.h,data.data.l), materials, data.amount);
+			}
+			else {
+				var material = new THREE.MeshBasicMaterial( { color: data.color } );
+				var mesh = new THREE.InstancedMesh(new THREE.BoxGeometry(data.data.w,data.data.h,data.data.l), material, data.amount);
 			}
 			//mesh.position.x = data.x
 			//mesh.position.y = data.y
 			//mesh.position.z = data.z
 			this.objectnames.push(data.name)
 			this.objects.push(mesh)
+			this.falling.push(false)
 			this.gravity.push(data.data.gravity)
 
 			this.groupnames.push(mesh.uuid)
@@ -133,7 +188,7 @@ var threebasic1 = {
 		}
 	},
 	grouppositions : function(data) {
-		var dummy = new THREE.Object3D();
+		var dummy = this.dummy
 		var obj = this.objects[this.objectnames.indexOf(data.name)]
 		
 		for ( var i = 0; i < obj.count; i ++ ) {
@@ -141,6 +196,16 @@ var threebasic1 = {
 			dummy.updateMatrix();
 			obj.setMatrixAt( i, dummy.matrix );
 		}
+		
+		obj.instanceMatrix.needsUpdate = true;
+	},
+	groupposition : function(data) {
+		var dummy = this.dummy
+		var obj = this.objects[this.objectnames.indexOf(data.name)]
+		var i = data.index
+		dummy.position.set(data.x, data.y, data.z);
+		dummy.updateMatrix();
+		obj.setMatrixAt( i, dummy.matrix );
 		
 		obj.instanceMatrix.needsUpdate = true;
 	},
@@ -156,28 +221,22 @@ var threebasic1 = {
 		
 		var geometry = this.geometries[this.geometryvalues.indexOf(data.w.toString()+":"+data.h.toString()+":"+data.l.toString())]
 		
-		if(data.texture == true) {
+		if(data.textures) {
 		
 
 			
 			
-			var materials = [
-				data.texture1,
-				data.texture2,
-				data.texture3,
-				data.texture4,
-				data.texture5,
-				data.texture6
-			];
+			var materials = data.textures
 
 			var cube = new THREE.Mesh( geometry, materials )
 			
 		}
 		else {
 			var material = new THREE.MeshBasicMaterial( { color: data.color } );
+			
 			var cube = new THREE.Mesh( geometry, material );
 		}
-		
+		//cube.opacity = 0.0
 		//this.scene.add(cube);
 		if(data.chunk == undefined) {
 			data.chunk = "other"
@@ -194,9 +253,63 @@ var threebasic1 = {
 			//console.log(cube,3)
 		}
 		//console.log(this.chunks)
+		
 		this.objectnames.push(data.name)
 		this.objects.push(cube)
+		this.falling.push(false)
 		this.gravity.push(data.gravity)
+		
+	},
+	object : function(data) {
+		
+		var obj;
+		this.objectloader.load(data.object, (gltf) => {
+		  obj = gltf.scene;
+		  obj.geometry1 = {
+			parameters : {
+				width:data.w,
+				height:data.h,
+				depth:data.l
+			}
+		  }
+
+		  this.scene.add(obj);
+		
+		  // compute the box that contains all the stuff
+		  // from root and below
+		  const box = new THREE.Box3().setFromObject(obj);
+
+		  const boxSize = box.getSize(new THREE.Vector3());
+		  const boxCenter = box.getCenter(new THREE.Vector3());
+		  
+			obj.scale.x = data.w/boxSize.x
+			obj.scale.y = data.h/boxSize.y
+			obj.scale.z = data.l/boxSize.z
+			if(data.chunk == undefined) {
+				data.chunk = "other"
+			}
+			//console.log(cube,2)
+			if(this.chunknames.indexOf(data.chunk) == -1) {
+				this.chunknames.push(data.chunk)
+				
+				this.chunks.push([obj])
+			}
+			else {
+				
+				(this.chunks[this.chunknames.indexOf(data.chunk)]).push(obj)
+				//console.log(cube,3)
+			}
+			//console.log(this.chunks)
+			this.objectnames.push(data.name)
+			this.objects.push(obj)
+			this.falling.push(false)
+			this.gravity.push(data.gravity)
+			this.objectsloaded += 1
+		  });
+		
+
+
+		
 		
 	},
 	grid : function(data) {
@@ -278,12 +391,15 @@ var threebasic1 = {
 		}
 		
 	},
+	baseblock : function(data) {
+		this.baseblocks.push(data)
+	},
+	isfalling : function(data) {
+		return(this.falling[this.objectnames.indexOf(data.name)])
+	},
 	animateframe : function(data) {
-		setTimeout( function() {
 
-			requestAnimationFrame( data );
-
-		}, 15 );
+		requestAnimationFrame( data );
 		
 		
 		if(this.loaded == false) {
@@ -308,13 +424,22 @@ var threebasic1 = {
 		var i = 0;
 		var obj;
 		var newval;
+		var previousy1 = 0
+		var nexty1 = 0
 		
 		while(i < this.gravity.length) {
 			
 			obj = this.objects[i]
-			newval = (obj.position.y + 0) - this.gravity[i]
+			newval = (obj.position.y + 0) - (this.gravity[i]*threebasic.fpsmultiplier)
+			previousy1 = obj.position.y + 0
 			this.y({name:this.objectnames[i],value:newval,set:true,initial:false})
-		
+			nexty1 = obj.position.y + 0
+			if(previousy1 == nexty1) {
+				this.falling[i] = false
+			}
+			else {
+				this.falling[i] = true
+			}
 		
 			i += 1
 		}
@@ -337,17 +462,28 @@ var threebasic1 = {
 		var i2 = 0
 		while(i < previousChildren.length) {
 			
-
-			x2 = previousChildren[i].position.x
-			x21 = previousChildren[i].position.x - previousChildren[i].geometry.parameters.width/2
-			x22 = previousChildren[i].position.x + previousChildren[i].geometry.parameters.width/2
-			y2 = previousChildren[i].position.y
-			y21 = previousChildren[i].position.y - previousChildren[i].geometry.parameters.height/2
-			y22 = previousChildren[i].position.y + previousChildren[i].geometry.parameters.height/2
-			z2 = previousChildren[i].position.z
-			z21 = previousChildren[i].position.z - previousChildren[i].geometry.parameters.depth/2
-			z22 = previousChildren[i].position.z + previousChildren[i].geometry.parameters.depth/2
-		
+			if(previousChildren[i].geometry == undefined) {
+				x2 = previousChildren[i].position.x
+				x21 = previousChildren[i].position.x - previousChildren[i].geometry1.parameters.width/2
+				x22 = previousChildren[i].position.x + previousChildren[i].geometry1.parameters.width/2
+				y2 = previousChildren[i].position.y
+				y21 = previousChildren[i].position.y - previousChildren[i].geometry1.parameters.height/2
+				y22 = previousChildren[i].position.y + previousChildren[i].geometry1.parameters.height/2
+				z2 = previousChildren[i].position.z
+				z21 = previousChildren[i].position.z - previousChildren[i].geometry1.parameters.depth/2
+				z22 = previousChildren[i].position.z + previousChildren[i].geometry1.parameters.depth/2
+			}
+			else {
+				x2 = previousChildren[i].position.x
+				x21 = previousChildren[i].position.x - previousChildren[i].geometry.parameters.width/2
+				x22 = previousChildren[i].position.x + previousChildren[i].geometry.parameters.width/2
+				y2 = previousChildren[i].position.y
+				y21 = previousChildren[i].position.y - previousChildren[i].geometry.parameters.height/2
+				y22 = previousChildren[i].position.y + previousChildren[i].geometry.parameters.height/2
+				z2 = previousChildren[i].position.z
+				z21 = previousChildren[i].position.z - previousChildren[i].geometry.parameters.depth/2
+				z22 = previousChildren[i].position.z + previousChildren[i].geometry.parameters.depth/2
+			}
 			
 			dx = x2 - x1
 			if(dx < 0) {
@@ -369,9 +505,18 @@ var threebasic1 = {
 			}
 			else if(x1 >= x21-this.renderdistance && x1 <= x22+this.renderdistance || y1 >= y21-this.renderdistance && y1 <= y22+this.renderdistance || z1 >= z21-this.renderdistance && z1 <= z22+this.renderdistance) {
 				//console.log("yo")
-				if(previousChildren[i].geometry.parameters.width > this.renderdistance) {
-					if(previousChildren[i].visible == true) {
-						newChildren.push(previousChildren[i])
+				if(previousChildren[i].geometry) {
+					if(previousChildren[i].geometry.parameters.width > this.renderdistance) {
+						if(previousChildren[i].visible == true) {
+							newChildren.push(previousChildren[i])
+						}
+					}
+				}
+				else {
+					if(previousChildren[i].geometry1.parameters.width > this.renderdistance) {
+						if(previousChildren[i].visible == true) {
+							newChildren.push(previousChildren[i])
+						}
 					}
 				}
 			}
@@ -379,6 +524,24 @@ var threebasic1 = {
 			i += 1
 		}
 		this.scene.children = newChildren
+
+		i = 0
+		var i2 = 0
+		var baseblock1 = {}
+		var hitbox1 = {}
+		while(i < this.baseblocks.length) {0
+			baseblock1 = this.baseblocks[i]
+			
+			if(this.distance({x1:baseblock1.x,y1:baseblock1.y,z1:baseblock1.z,x2:x1,y2:y1,z2:z1}) < this.renderdistance) {
+				this.groupposition({x:baseblock1.x,y:baseblock1.y,z:baseblock1.z,index:i2,name:baseblock1.group})
+				hitbox1 = this.grouphitboxes[this.grouphitboxnames.indexOf(baseblock1.group)][i2]
+				hitbox1.x = baseblock1.x
+				hitbox1.y = baseblock1.y
+				hitbox1.z = baseblock1.z
+				i2 += 1
+			}
+			i += 1
+		}
 		
 		i = 0
 		
@@ -391,11 +554,17 @@ var threebasic1 = {
 			i += 1
 		}
 		
-		
+		i = 0
+		while(i < this.lights.length) {
+			this.setlight(this.lights[i])
+			i += 1
+		}
+		this.lights = []
 		
 		this.renderer.render( this.scene, this.camera );
 		
 		this.scene.children = previousChildren
+		
 		
 		
 		//Loading takes too long each time - preload with no rendering at the start by rotating the camera
@@ -413,14 +582,20 @@ var threebasic1 = {
 
 		const speedFactor = data.speed;
 		const direction = new THREE.Vector3();
-
-		obj.getWorldDirection(direction);
-		
+		if(data.relativeto) {
+			var obj2 = this.objects[this.objectnames.indexOf(data.relativeto)]
+			obj2.getWorldDirection(direction);
+		}
+		else {
+			obj.getWorldDirection(direction);
+		}
+	
 		var previousposx = obj.position.x + 0
 		var previousposy = obj.position.y + 0
 		var previousposz = obj.position.z + 0
 		
 		obj.position.add(direction.multiplyScalar(speedFactor));
+		obj.position.y = previousposy
 		if(this.collisions({object:obj}).length != 0) {
 			obj.position.x = previousposx + 0
 			obj.position.y = previousposy + 0
@@ -430,16 +605,51 @@ var threebasic1 = {
 		
 	},
 	cameraview1(data) {
-		var ox = this.x({name:data.mainobject,set:false})
-		var oy = this.y({name:data.mainobject,set:false})
-		var oz = this.z({name:data.mainobject,set:false})
-		this.rotatey({name:data.mainobject,value:this.cameraposx,set:true})
-		
-		this.x({name:"camera",value:ox+data.offsetx*(Math.sin(this.cameraposx)),set:true})
-		this.y({name:"camera",value:oy+data.offsety,set:true})
-		this.z({name:"camera",value:oz+data.offsetz*(Math.cos(this.cameraposx)),set:true})
+		if(data.type == "object") {
+			//1) Position mainobject at object
+			//2) Rotate to data.rotation
+			//3) Move backwards/forwards by data.offset
+			//4) Adjust rotation by data.rotationoffset
+			var ox = this.x({name:data.object,set:false})
+			var oy = this.y({name:data.object,set:false})
+			var oz = this.z({name:data.object,set:false})
+			
+			
+			
+			this.x({name:data.mainobject,value:ox,set:true})
+			this.y({name:data.mainobject,value:oy+data.offsety,set:true})
+			this.z({name:data.mainobject,value:oz,set:true})
 
-		this.lookat({name:"camera",x:ox,y:oy,z:oz})
+			this.rotatey({name:data.mainobject,value:data.rotation,set:true})
+			
+			this.forwards({name:data.mainobject,speed:data.offsetz*-1})
+
+			this.rotatey({name:data.mainobject,value:data.rotation+1.5,set:true})
+
+			this.forwards({name:data.mainobject,speed:data.offsetx})
+
+			this.rotatey({name:data.mainobject,value:data.rotation,set:true})
+
+			this.rotatey({name:data.mainobject,value:data.rotation+data.rotationoffset,set:true})
+	
+			//this.lookat({name:data.mainobject,x:ox,y:oy,z:oz})
+		}
+		else {
+			var ox = this.x({name:data.mainobject,set:false})
+			var oy = this.y({name:data.mainobject,set:false})
+			var oz = this.z({name:data.mainobject,set:false})
+			this.rotatey({name:data.mainobject,value:this.cameraposx,set:true})
+			
+			this.x({name:"camera",value:ox+data.offsetz*(Math.sin(this.cameraposx)),set:true})
+			this.y({name:"camera",value:oy+data.offsety,set:true})
+			this.z({name:"camera",value:oz+data.offsetz*(Math.cos(this.cameraposx)),set:true})
+		
+			
+
+			this.lookat({name:"camera",x:ox,y:oy,z:oz})
+		}
+		
+		
 	},
 	loadchunks() {
 		var x1 = this.camera.position.x
@@ -584,7 +794,7 @@ var threebasic1 = {
 		var x1, x2, y1, y2, z1, z2, w1, w2, h1, h2, l1, l2, dx, dy, dz = 0
 		var c1, c2, c3
 		//console.log(this.renderedobjects.length, "out of ",this.hitboxnames.length, "hitboxes")
-		if(this.objects.indexOf(obj1) != 0 && this.renderedobjects.length != 0) {
+		if(this.objects.indexOf(obj1) != 0 && this.renderedobjects.length != 0 && this.hitboxobjects.indexOf(obj1) != -1) {
 
 			while(i1 < this.renderedobjects.length) {
 				obj2 = this.renderedobjects[i1]
@@ -662,6 +872,52 @@ var threebasic1 = {
 					}
 				}
 				i1 += 1
+			}
+
+
+			var i0 = 0
+			var group1
+			while(i0 < this.grouphitboxnames.length) {
+				group1 = this.grouphitboxes[i0]
+				while(i1 < group1.length) {
+					obj2 = group1[i1]
+					if(this.distance({x1:obj1.position.x,y1:obj1.position.y,z1:obj1.position.z,x2:obj2.x,y2:obj2.y,z2:obj2.z}) < this.renderdistance) {
+						x1 = obj1.position.x
+						y1 = obj1.position.y
+						z1 = obj1.position.z
+						w1 = obj1.geometry.parameters.width
+						h1 = obj1.geometry.parameters.height
+						l1 = obj1.geometry.parameters.depth
+						x2 = obj2.x
+						y2 = obj2.y
+						z2 = obj2.z
+						w2 = obj2.w
+						h2 = obj2.h
+						l2 = obj2.l
+		
+						
+						
+						//Position based on centre of mesh
+						dx = (x2-x1)
+						if(dx < 0) {dx = dx * -1}
+						dy = (y2-y1)
+						if(dy < 0) {dy = dy * -1}
+						dz = (z2-z1)
+						if(dz < 0) {dz = dz * -1}
+						
+						c1 = dx < (w1/2 + w2/2)
+						c2 = dy < (h1/2 + h2/2)
+						c3 = dz < (l1/2 + l2/2)
+						
+						if(c1 && c2 && c3) {
+							if(collisions.indexOf(obj2) == -1) {
+								collisions.push(obj2)
+							}
+						}
+					}
+					i1 += 1
+				}
+			i0 += 1
 			}
 
 
