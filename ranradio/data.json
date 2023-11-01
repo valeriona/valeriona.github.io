@@ -1,4 +1,6 @@
 {
   "rock": ["https://soundcloud.com/bonjovi/its-my-life","https://soundcloud.com/bonjovi/always-1"],
-  "rockLengths": [224,353]
+  "rockLengths": [224,353],
+  "classicrock": ["https://soundcloud.com/bonjovi/wild-in-the-streets","https://soundcloud.com/alicecooperofficial/alice-cooper-im-eighteen"],
+  "classicrockLengths": [234,180]
 }
