@@ -1,11 +1,296 @@
 <!DOCTYPE html>
-
 <html>
+<head>
+    <title>Play SoundCloud Songs</title>
+<style>
 
+body {margin:0px;background-color:#000011;}
+
+* {box-sizing:border-box;}
+
+
+</style>
+</head>
 <body>
 
-<h1>The transition of RanRadio to github is under development!</h1>
-  
+<!-- Create elements to embed the SoundCloud widgets -->
+<div id="song-widget" style="display: block;"></div>
+<button onclick="playSong()">Play</button>
+
+
+<div style="width:290px;height:60px;background-color:#000033"><a href="https://discord.gg/C6XZ9wEFUj" target="_blank"><span style="font-size:25px;position:absolute;padding:15px;font-family:arial;color:white;">Join us on</span> <img src="discord.png" style="width:150px;height:60px;position:absolute;left:130px;padding:10px;"></img></a></div>
+
+<script src="https://w.soundcloud.com/player/api.js"></script>
+<script>
+
+	if (!localStorage.getItem("genre")) {
+	  localStorage.setItem("genre", "rock");
+	}
+
+    function getUTC() {
+	    const date = new Date();
+	    const millisecondsSinceEpochUTC = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 
+	    date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds(), date.getUTCMilliseconds());
+	    return(millisecondsSinceEpochUTC)
+	}
+
+	function getUTCS(t) {
+	    const seconds = Math.ceil(t / 1000);
+	    return seconds;
+	}
+	
+	
+	var songs = []
+	
+	var songLengths = []
+	
+	var i
+	
+	var songLengthTotal
+	
+	var songLengthsRunningTotals
+	
+	var runningTotal
+
+	function shuffle(array, seed) {
+	    const random = (seed) => {
+		var x = Math.sin(seed) * 10000;
+		return x - Math.floor(x);
+	    };
+
+	    const newArray = array.slice(); // Create a copy of the array
+	    for (let i = newArray.length - 1; i > 0; i--) {
+		const j = Math.floor(random(seed) * (i + 1));
+		[newArray[i], newArray[j]] = [newArray[j], newArray[i]]; // Perform the swap on the copied array
+	    }
+	    return newArray; // Return the shuffled array
+	}
+
+
+function getRandomItem(array, seed) {
+    const random = (seed) => {
+        var x = Math.sin(seed++) * 10000;
+        return x - Math.floor(x);
+    };
+
+    const randomIndex = Math.floor(random(seed) * array.length);
+    return array[randomIndex];
+}
+
+
+
+    function init(genre) {
+
+
+    
+    
+    	     fetch('https://cyberchillgithub.github.io/ranradio/data.json')
+	      .then(response => response.json())
+	      .then(data => {
+		songs = data[genre];
+		songLengths = data[genre+"Lengths"]
+
+		songs = shuffle(songs,Math.floor(getUTCS(getUTC())/86400))	
+		songLengths = shuffle(songLengths,Math.floor(getUTCS(getUTC())/86400))		
+		
+		console.log("Days: ",Math.floor(getUTCS(getUTC())/86400))
+		
+		
+			i = 0
+		    
+		    songLengthTotal = 0
+		    
+		    while(i < songLengths.length) {
+		    	songLengthTotal += songLengths[i]
+		    	i += 1
+		    }
+		    
+		    songLengthsRunningTotals = []
+		    
+		    runningTotal = 0
+		    
+		    i = 0
+		    
+		    while(i < songLengths.length) {
+		    
+		    	runningTotal += songLengths[i] + 0
+		    
+		    	songLengthsRunningTotals.push(runningTotal)
+		    	
+		    	i += 1
+		    
+		    }
+		
+		
+		
+		
+		
+		
+	      })
+	      .catch(error => {
+		console.error('Error fetching the JSON file:', error);
+	      });
+
+	    //songs = ["https://soundcloud.com/bonjovi/its-my-life","https://soundcloud.com/bonjovi/always-1"]
+	    
+	    //songLengths = [224,353]
+	    
+	    
+	    
+	    
+    
+    }
+    
+    init(localStorage.getItem("genre"))
+    
+    i = 0
+    
+    var t = getUTCS(getUTC())%runningTotal
+    
+    var currentSong = ""
+    
+    var currentSongIndex = 0
+    
+    function setCurrentSong() {
+    
+    	    t = getUTCS(getUTC())%runningTotal
+    
+    	    i = 0
+    
+	    while(i < songLengths.length) {
+	    
+	    	if(t <= songLengthsRunningTotals[i]) {
+	    		currentSong = songs[i]
+	    		currentSongIndex = i + 0
+	    		//console.log(t,i,currentSong)
+	    		i = songLengths.length + 0
+	    		
+	    	}
+	    	
+	    	i += 1
+	    }
+    }
+    
+    setCurrentSong()
+    
+
+    const iframeElement = document.createElement('iframe');
+    iframeElement.setAttribute('width', '200px');
+    iframeElement.setAttribute('height', '200px');
+    iframeElement.setAttribute('scrolling', 'no');
+    iframeElement.setAttribute('frameborder', 'no');
+    iframeElement.setAttribute('allow', 'autoplay');
+    iframeElement.src = `https://w.soundcloud.com/player/?url=${currentSong}&auto_play=false&color=%23333333&visual=true`;
+    document.getElementById('song-widget').appendChild(iframeElement);
+
+    const widget = SC.Widget(iframeElement);
+
+
+
+
+	
+
+
+
+
+
+
+
+    function playSong() {
+
+
+
+
+
+	
+
+
+
+
+
+
+    	setCurrentSong()
+    	
+    	widget.getCurrentSound(function(currentSound) {
+		
+		if(currentSound != null) {
+			if(currentSound.permalink_url == currentSong) {
+				// Do nothing
+			}
+			else {
+				widget.load(`${currentSong}&auto_play=false&color=%23333333&visual=true`);
+			}
+			//console.log(currentSound.permalink_url)
+		}
+		else {
+			widget.load(`${currentSong}&auto_play=false&color=%23333333&visual=true`)
+		}
+	      });
+    	
+        widget.play();
+        
+        var difference = songLengths[currentSongIndex] - (songLengthsRunningTotals[currentSongIndex] - getUTCS(getUTC())%runningTotal)
+        
+        var m = difference * 1000
+        
+        //console.log(m)
+        
+        var currentTime1 = 0
+        
+	widget.getPosition(function (position) {
+	  currentTime1 = Math.floor(position)
+	  //console.log(currentTime1);
+	  
+	  //console.log(currentTime1,m)
+	
+		if(currentTime1-m > 3000 || currentTime1-m < -3000) {
+			widget.seekTo(m);
+		}
+	});
+	
+	
+        
+       
+    	//console.log(getUTCS(getUTC())%runningTotal,songLengthsRunningTotals,currentSongIndex)
+    }
+
+    widget.bind(SC.Widget.Events.FINISH, function() {
+    	setCurrentSong()
+    	
+    	
+        widget.load(`${currentSong}&auto_play=false&color=%23333333&visual=true`);
+        
+        
+    });
+    
+    setInterval(playSong,1000)
+
+
+
+
+
+
+
+
+
+function refreshAtMidnightForEpochTime(epochTime) {
+      const millisecondsInDay = 24 * 60 * 60 * 1000;
+      const timeSinceEpoch = epochTime % millisecondsInDay;
+      const timeToMidnight = millisecondsInDay - timeSinceEpoch;
+	console.log("Time to midnight: ", timeToMidnight)
+      setTimeout(function() {
+	alert("Refreshing the radio so you can enjoy some new beats!")
+        location.reload();
+      }, timeToMidnight);
+    }
+
+    const specificEpochTime = getUTC()
+    refreshAtMidnightForEpochTime(specificEpochTime);
+
+
+    
+   
+</script>
+
 </body>
-  
 </html>
