@@ -1,3 +1,4 @@
 {
-  "data": "Hello, this is the string you want to access!"
+  "rock": ["https://soundcloud.com/bonjovi/its-my-life","https://soundcloud.com/bonjovi/always-1"],
+  "rockLengths": [224,353]
 }
