@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -18,9 +19,7 @@ body {margin:0px;background-color:#000011;color:white;}
 <button onclick="playSong()">Play</button>
 
 
-<div style="width:290px;height:60px;background-color:#000033"><a href="https://discord.gg/C6XZ9wEFUj" target="_blank"><span style="font-size:25px;position:absolute;padding:15px;font-family:arial;color:white;">Join us on</span> <img src="discord.png" style="width:150px;height:60px;position:absolute;left:130px;padding:10px;"></img></a></div>
-
-NOTE: MOBILE USERS ARE REQUIRED TO ENABLE DESKTOP SITE / DESKTOP VIEW FOR THE RADIO TO WORK AS INTENDED
+<div style="width:290px;height:60px;background-color:#000033"><a href="https://discord.gg/C6XZ9wEFUj" target="_blank"><span style="font-size:25px;position:absolute;padding:15px;font-family:arial;color:white;">Join us on</span> <img src="discord.png" style="width:150px;height:60px;position:absolute;left:130px;padding:10px;"></a></div>
 
 <script src="https://w.soundcloud.com/player/api.js"></script>
 <script>
@@ -174,6 +173,8 @@ function getRandomItem(array, seed) {
     }
     
     setCurrentSong()
+    
+    currentSong = "https://soundcloud.com/bonjovi/its-my-life"
     
 
     const iframeElement = document.createElement('iframe');
