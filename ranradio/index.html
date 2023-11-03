@@ -93,7 +93,6 @@ function getRandomItem(array, seed) {
 		songCodes = data[genre];
 		//songLengths = data[genre+"Lengths"]
 
-		songsCodes = shuffle(songCodes,Math.floor(getUTCS(getUTC())/86400))	
 		//songLengths = shuffle(songLengths,Math.floor(getUTCS(getUTC())/86400))
 
 		i = 0
@@ -108,6 +107,10 @@ function getRandomItem(array, seed) {
 
 			
 		}
+
+		songs = shuffle(songs,Math.floor(getUTCS(getUTC())/86400))
+
+		songLengths = shuffle(songLengths,Math.floor(getUTCS(getUTC())/86400))
 
 		i = 0
 		
