@@ -44,6 +44,8 @@ body {margin:0px;background-color:#000011;color:white;}
 	var songs = []
 	
 	var songLengths = []
+
+	var songNames = []
 	
 	var i
 	
@@ -103,6 +105,8 @@ function getRandomItem(array, seed) {
 
 			songLengths.push(songCodes[i][2])
 
+			songNames.push(songCodes[i][0])
+
 			i += 1
 
 			
@@ -111,6 +115,8 @@ function getRandomItem(array, seed) {
 		songs = shuffle(songs,Math.floor(getUTCS(getUTC())/86400))
 
 		songLengths = shuffle(songLengths,Math.floor(getUTCS(getUTC())/86400))
+
+		songNames = shuffle(songNames,Math.floor(getUTCS(getUTC())/86400))
 
 		i = 0
 		
