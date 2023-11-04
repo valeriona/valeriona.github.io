@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -63,19 +64,18 @@ body {margin:0px;background-color:#000011;color:white;}
 	var songCodes = []
 
 	function shuffle(array, seed) {
-	    const random = (seed) => {
-		var x = Math.sin(seed) * 10000;
-		return x - Math.floor(x);
-	    };
+      const customRandom = (seed) => {
+          var x = Math.sin(seed) * 10000;
+          return x - Math.floor(x);
+      };
 
-	    const newArray = array.slice(); // Create a copy of the array
-	    for (let i = newArray.length - 1; i > 0; i--) {
-		const j = Math.floor(random(seed) * (i + 1));
-		[newArray[i], newArray[j]] = [newArray[j], newArray[i]]; // Perform the swap on the copied array
-	    }
-	    return newArray; // Return the shuffled array
-	}
-
+      const newArray = array.slice(); // Create a copy of the array
+      for (let i = newArray.length - 1; i > 0; i--) {
+          const j = Math.floor(customRandom(seed + i) * (i + 1));
+          [newArray[i], newArray[j]] = [newArray[j], newArray[i]]; // Perform the swap on the copied array
+      }
+      return newArray; // Return the shuffled array
+  }
 
 function getRandomItem(array, seed) {
     const random = (seed) => {
