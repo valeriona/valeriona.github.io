@@ -278,6 +278,8 @@ function decreaseVolume() {
 	      });
     	
         widget.play();
+		
+		widget.setVolume(currentVolume);
         
         var difference = songLengths[currentSongIndex] - (songLengthsRunningTotals[currentSongIndex] - getUTCS(getUTC())%runningTotal)
         
