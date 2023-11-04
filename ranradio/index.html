@@ -223,22 +223,23 @@ function getRandomItem(array, seed) {
 
 
 	
-  function increaseVolume() {
-        widget.getVolume(function(volume) {
-            if (volume < 100) {
-                widget.setVolume(volume + 5);
-            }
-        });
-    }
+ let currentVolume = 100; // Initialize the current volume to 100
 
-    // Function to decrease volume
-    function decreaseVolume() {
-        widget.getVolume(function(volume) {
-            if (volume > 0) {
-                widget.setVolume(volume - 5);
-            }
-        });
+// Function to increase volume
+function increaseVolume() {
+    if (currentVolume < 100) {
+        currentVolume += 5;
+        widget.setVolume(currentVolume);
     }
+}
+
+// Function to decrease volume
+function decreaseVolume() {
+    if (currentVolume > 0) {
+        currentVolume -= 5;
+        widget.setVolume(currentVolume);
+    }
+}
 
 
 
