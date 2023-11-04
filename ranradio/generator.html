@@ -29,6 +29,10 @@
       widget.bind(SC.Widget.Events.READY, function() {
         document.getElementById('contentWrapper').style.display = 'block';
         setInterval(function() {
+            resultsDiv.innerHTML = resultsDiv.innerHTML.replace("][","],[")
+            
+          
+        
           widget.getSounds(function(sounds) {
             sounds.slice(lastIndex).forEach(function(sound) {
               var resultString = '["' + sound.title + ' - ' + sound.user.username + '", "' + sound.permalink_url + '", ' + Math.floor(sound.duration / 1000) + ']';
