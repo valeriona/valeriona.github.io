@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -18,6 +19,9 @@ body {margin:0px;background-color:#000011;color:white;}
 <!-- Create elements to embed the SoundCloud widgets -->
 <div id="song-widget" style="display: block;"></div>
 <button onclick="playSong()">Play</button>
+
+<button onclick="increaseVolume()">Increase Volume</button>
+<button onclick="decreaseVolume()">Decrease Volume</button>
 
 
 <div style="width:290px;height:60px;background-color:#000033"><a href="https://discord.gg/C6XZ9wEFUj" target="_blank"><span style="font-size:25px;position:absolute;padding:15px;font-family:arial;color:white;">Join us on</span> <img src="discord.png" style="width:150px;height:60px;position:absolute;left:130px;padding:10px;"></a></div>
@@ -219,7 +223,22 @@ function getRandomItem(array, seed) {
 
 
 	
+  function increaseVolume() {
+        widget.getVolume(function(volume) {
+            if (volume < 100) {
+                widget.setVolume(volume + 5);
+            }
+        });
+    }
 
+    // Function to decrease volume
+    function decreaseVolume() {
+        widget.getVolume(function(volume) {
+            if (volume > 0) {
+                widget.setVolume(volume - 5);
+            }
+        });
+    }
 
 
 
