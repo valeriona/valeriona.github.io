@@ -1,36 +1,466 @@
 
-
-
-<!DOCTYPE html>
 <html>
-<head>
-    <title>RanRadio</title>
-	<link rel="icon" type="image/png" href="favicon.ico">
-<style>
 
-body {margin:0px;background-color:#000011;color:white;}
+<head>
+
+<title>RanRadio</title>
+
+<link rel="icon" type="image/png" href="favicon.ico">
+
+<meta name="viewport" content="width=device-width, initial-scale=0.6, maximum-scale=0.6, user-scalable=0">
+
+
+<style>
 
 * {box-sizing:border-box;}
 
+/* Hide scrollbar for Chrome, Safari and Opera */
+*::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+* {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+input:focus,button:focus {outline:none;}
+
+input::placeholder {color:#AAAAAA;}
+
+input {color:white;}
+
+body {margin:0px;background-color:#000011;color:white;}
+
+audio {display:none;}
+
+#songname {font-family:arial;color:white;font-size:20px;width:400px;text-align:center;margin-top:25px;position:absolute;font-weight:bold;margin-left:25px;user-select:none;}
+
+#nextsongname {font-family:arial;color:white;font-size:12px;width:400px;text-align:center;margin-top:80px;position:absolute;font-weight:bold;margin-left:25px;user-select:none;}
+
+#songtime {font-family:arial;color:white;font-size:15px;width:400px;text-align:center;position:absolute;margin-top:125px;margin-left:25px;user-select:none;}
+
+#start {position:absolute;left:40px;top:165px;width:165px;height:50px;color:white;background-color:#006666;font-size:20px;border-radius:5px;font-family:arial;box-shadow:0px 0px 10px cyan;border:1px solid cyan;user-select:none;}
+
+#stop {position:absolute;left:240px;top:165px;width:165px;height:50px;color:white;background-color:#660066;font-size:20px;border-radius:5px;font-family:arial;box-shadow:0px 0px 10px magenta;border:1px solid magenta;user-select:none;}
+
+#title {font-family:arial;color:cyan;font-size:30px;width:100%;text-align:center;margin-top:25px;margin-left:0px;user-select:none;}
+
+#soundcontainer {background-color:#000023;border-radius:15px;width:450px;height:710px;margin-left:-225px;box-shadow:0px 0px 10px magenta;left:50%;position:absolute}
+
+#start:hover {background-color:#008888;user-select:none;}
+
+#stop:hover {background-color:#880088;user-select:none;}
+
+
+#genreselect {position:absolute;left:150px;top:275px;width:135px;height:30px;color:white;background-color:#166716;font-size:15px;border-radius:5px;font-family:arial;box-shadow:0px 0px 10px green;border:1px solid lime;user-select:none;}
+
+#genreselect:hover {background-color:#368736;user-select:none;}
+
+
+#genrecontainer {background-color:#001100;border-radius:15px;width:300px;height:0px;margin-left:-150px;box-shadow:0px 0px 10px lime;left:50%;position:absolute;top:285px;margin-bottom:50px;user-select:none;}
+
+
+.genre {
+width:175px;height:30px;color:white;background-color:#114432;font-size:15px;border-radius:5px;font-family:arial;box-shadow:0px 0px 10px green;border:1px solid lime;margin-right:165px;margin-left:60px;margin-top:25px;user-select:none;
+  
+}
+
+#soundcloudInfo {
+  position:absolute;bottom:145px;width:100%;text-align:center;color:white;font-family:arial;font-size:15px;margin-left:0px;user-select:none;
+}
+
+#youtubeEmbedInfo {
+  background-color:#110000;border-radius:15px;width:250px;height:0px;margin-left:80px;box-shadow:0px 0px 10px red;left:50%;position:absolute;top:330px;margin-bottom:50px;height:150px;font-family:arial;padding:15px;padding-left:50px;user-select:none;
+}
+
+#loading {
+  position: fixed;left:0px;top:0px;right:0px;bottom:0px;width:100%;height:100%;background-color:#000022
+}
+
+#loadingText {
+  position: absolute;text-align:center;top:50%;font-family:arial;width:100%;margin-top:-50px;height:100px;font-size:50px;
+}
+
+#footer {
+  position:fixed;bottom:-15px;width:100%;text-align:center;font-family:arial;font-size:15px;font-weight:bold;color:cyan;background-color:#000033;padding:10px;
+}
+
+#volume {
+
+  position: absolute;left:50%;margin-left:-100px;width:200px;top:235px;accent-color: cyan;
+}
+
+#volumeLow {
+
+  position: absolute;left:50%;margin-left:-140px;width:30px;font-size:30px;top:225px;accent-color: cyan; user-select:none;
+}
+
+#volumeHigh {
+
+  position: absolute;left:50%;margin-left:110px;width:30px;font-size:30px;top:225px;accent-color: cyan; user-select:none;
+}
+
+#developer {
+  position: fixed; right:15px;bottom:10px;text-decoration:none;color:#9999CC;font-size:20px;
+}
+
+#loadingReload {
+  position: absolute;
+  left: 50%;
+  margin-left: -100px;
+  width: 200px;
+  height:25px; 
+  top: 70%;
+  background-color:#001144;
+  color:white;
+  font-weight: bold;
+  font-family:arial;
+  border:1px solid white;
+  box-shadow:0px 0px 10px white;
+  border-radius:5px;
+}
 
 </style>
+
 </head>
+
 <body>
+
+<h1 id="title"><span style="color:magenta;font-size:20px;">Ran</span>Radio</h1>
+
+<div id="soundcontainer">
+
+<p id="songname">-</p>
+  <p id="nextsongname">-</p>
+  <p id="songtime">00:00</p>
+
+
+<button onclick="start()" id="start">start</button>
+<button onclick="stop()" id="stop">stop</button>
+
+<input type="range" id="volume" min="0" max="100" step="0.1" value="100" oninput="volumeChange()">
+
+<span id="volumeLow" onclick="volumeDown()">🔈</span>
+  
+<span id="volumeHigh" onclick="volumeUp()">🔊</span>
+
+<div id="youtubeEmbedInfo" style="display:none;">This is a youtube embed of the music, it is not recommended to use these controls to control the radio because it can break the radio.</div>
+  
+
+
+
 
 <!-- Create elements to embed the SoundCloud widgets -->
 <div id="song-widget" style="display: block;"></div>
-<button onclick="playSong()">Play</button>
-
-<button onclick="increaseVolume()">Increase Volume</button>
-<button onclick="decreaseVolume()">Decrease Volume</button>
 
 
-<div style="width:290px;height:60px;background-color:#000033"><a href="https://discord.gg/C6XZ9wEFUj" target="_blank"><span style="font-size:25px;position:absolute;padding:15px;font-family:arial;color:white;">Join us on</span> <img src="discord.png" style="width:150px;height:60px;position:absolute;left:130px;padding:10px;"></a></div>
+
+<div style="position:absolute;bottom:35px;border-radius:10px;border:1px solid #7289da;box-shadow:0px 0px 10px #7289da;left:140px;width:290px;height:60px;background-color:#001144"><a href="https://discord.gg/C6XZ9wEFUj" target="_blank"><span style="font-size:25px;position:absolute;padding:15px;font-family:arial;color:white;">Join us on</span> <img src="discord.png" style="width:150px;height:60px;position:absolute;left:130px;padding:10px;"></a></div>
 
 <script src="https://w.soundcloud.com/player/api.js"></script>
+
+
+
+  
+<span id="soundcloudInfo" target="_blank">Music provided by <a  style="text-decoration:none;font-weight:bold;color:red;" href="https://soundcloud.com" >Soundcloud</a></span>
+
+
+
+<a href="/download"><div id="download" style="width:100px;user-select:none;background-color:black;height:100px;position:absolute;left:15px;top:595px;border-radius:10px;border:1px solid lime;box-shadow:0px 0px 10px lime;" onmouseover="ytInfo()" onmouseout="ytInfo()">
+<img id="downloadImage" src="android.png" style="width:74px;left:12px;position:absolute;height:54px;top:41px;border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-sizing:border-box;">
+<span style="position:absolute;width:100px;height:20px;color:lime;font-family:arial;font-size:15px;padding:3px;text-align:center;">download<br>app</span>
+</div></a>
+
+
+
+<div id="genrecontainer" style="display:none;">
+<div id="genres">
+  <br>
+<button onclick='localStorage.genre = "rock";init();start()' class="genre">rock</button>
+<button onclick='localStorage.genre = "classicrock";init();start()' class="genre">classic rock</button>
+</div>
+</div>
+
+  
+  
+<button onclick="genreselect()" id="genreselect">genre</button>
+
+
+
+
+</div>
+
+<p id="footer" >Contact me: ranradioreplit@gmail.com</p>
+
+<div id="loading">
+<h1 id="loadingText">Loading</h1>
+<button onclick="location.reload()" id="loadingReload">Loading too long? <u>Retry</u></button>
+</div>
+
+
+   
+
+
+
+
+
+<a href="/developer" id="developer">𝝿</an>
+
+
+
+
 <script>
 
-	if (!localStorage.getItem("genre")) {
+var ADVERT = document.getElementById("advertImage")
+
+var ADVERTS = ["autoadvert.png"]
+
+var ADVERTINDEX = 0
+
+
+var CURRENTPLAYER = "player"
+
+var GENRE = "rock"
+
+var AUDIONAME = ""
+
+var NEXTAUDIONAME = ""
+  
+var AUDIOSRC = ""
+
+var NEXTAUDIOSRC = ""
+  
+var AUDIOTIME = 0
+
+var LOADING = ""
+
+var LOADING2 = ""
+
+var PAUSED = false
+
+var READY = false
+
+
+
+
+setTimeout(function() {
+	READY = true
+},1000)
+
+
+loadingInterval = setInterval(function() {
+var loadingText = document.getElementById("loadingText")
+var loadingDiv = document.getElementById("loading")
+loadingText.innerHTML += "."
+if(READY == true) {
+  endLoading()
+  clearInterval(loadingInterval)
+}
+},100)
+
+
+function endLoading() {
+  var loadingDiv = document.getElementById("loading")
+
+  var i = 0
+  intervalEndLoading = setInterval(function() {
+    i -= 10
+    loadingDiv.style.marginTop = i.toString() + "px"
+    if(i <= -1 * loadingDiv.offsetHeight) {
+      loadingDiv.style.display = "none"
+      clearInterval(intervalEndLoading)
+      
+    }
+  },5)
+}
+
+
+  
+  
+function genreselect() {
+  var menu = document.getElementById("genrecontainer")
+  var genres = document.getElementById("genres")
+  if(menu.style.display == "none") {
+    menu.style.display = "block"
+    var i = 0
+    interval3 = setInterval(function() {
+      i += 10
+      menu.style.height = i.toString() + "px"
+      if(i == 400) {
+        genres.style.display = "block"
+        clearInterval(interval3)
+      }
+    },5)
+  }
+  else {
+    genres.style.display = "none"
+    var i = 400
+    interval4 = setInterval(function() {
+      i -= 10
+      menu.style.height = i.toString() + "px"
+      if(i == 0) {
+        menu.style.display = "none"
+        
+        clearInterval(interval4)
+        
+      }
+    },5)
+    
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+function ytInfo() {
+  var menu = document.getElementById("youtubeEmbedInfo")
+  if(menu.style.display == "none") {
+    menu.style.display = "block"
+    var i = 50
+    interval5 = setInterval(function() {
+      i += 10
+      menu.style.left = i.toString() + "px"
+      if(i >= 220) {
+        clearInterval(interval5)
+      }
+    },5)
+  }
+  else {
+    genres.style.display = "none"
+    var i = 220
+    interval6 = setInterval(function() {
+      i -= 10
+      menu.style.left = i.toString() + "px"
+      if(i <= 50) {
+        menu.style.display = "none"
+        
+        clearInterval(interval6)
+        
+      }
+    },5)
+    
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+function secondsToMinutes(t2) {
+  var t = Math.floor(t2) + 0
+  var m = Math.floor(t/60)
+  var s = t - (m*60)
+  var ms = String(m)
+  var ss = String(s)
+
+  if(s < 10) {
+    ss = "0" + ss
+  }
+  var time = ms + ":" + ss
+
+  if(ms == "NaN" || ss == "NaN") {
+    time = "0:00"
+  }
+  return(time + "")
+}
+
+
+
+
+var audio = document.getElementById("radio")
+var songname = document.getElementById("songname")
+var nextsongname = document.getElementById("nextsongname")
+var songtime = document.getElementById("songtime")
+  
+function start() {
+  PLAYING = true
+}
+
+  function stop() {
+
+   PLAYING = false
+
+}
+
+
+var i2 = 0
+var colors1 = ["FF00FF","#EE11EE","#DD22DD","#CC33CC","#BB44BB","#AA55AA","#996699","#887788","#778877","#669966","#55AA55","#44BB44","#33CC33","#22DD22","#11EE11","#00FF00","#00FF11","#00FF22","#00FF33","#00FF44","#00FF55","#00FF66","#00FF77","#00FF88","#00FF99","#00FFAA","#00FFBB","#00FFCC","#00FFDD","#00FFEE","#00FFFF","#11EEEE","#22DDDD","#33CCCC","#44BBBB","#55AAAA","#669999","#778888","#887777","#996666","#AA5555","#BB4444","#CC3333","#DD2222","#EE1111","FF0000"]
+var direction1 = 1
+
+
+interval2 = setInterval(function() {
+  document.getElementById("soundcontainer").style.boxShadow = "0px 0px 10px " + colors1[i2]
+
+  
+  if(direction1 == 1) {
+    i2 += 1
+  }
+  else {
+    i2 -= 1
+  }
+  if(i2 == colors1.length-1 || i2 == 0) {
+    direction1 = direction1 * -1
+  }
+
+  if(document.getElementById("songname").innerHTML == document.getElementById("nextsongname").innerHTML) {
+    document.getElementById("nextsongname").innerHTML = "-"
+  }
+
+  
+  
+},100)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+if (!localStorage.getItem("genre")) {
 	  localStorage.setItem("genre", "rock");
 	}
 
@@ -63,6 +493,8 @@ body {margin:0px;background-color:#000011;color:white;}
 
 	var songCodes = []
 
+	var PLAYING = false
+
 	function shuffle(array, seed) {
       const customRandom = (seed) => {
           var x = Math.sin(seed) * 10000;
@@ -89,7 +521,8 @@ function getRandomItem(array, seed) {
 
 
 
-    function init(genre) {
+    function init() {
+	    var genre = localStorage.getItem("genre")
 
 
     
@@ -103,6 +536,12 @@ function getRandomItem(array, seed) {
 		//songLengths = shuffle(songLengths,Math.floor(getUTCS(getUTC())/86400))
 
 		i = 0
+
+		songs = []
+
+		songLengths = []
+
+		songNames = []
 
 		while(i < songCodes.length) {
 
@@ -173,7 +612,7 @@ function getRandomItem(array, seed) {
     
     }
     
-    init(localStorage.getItem("genre"))
+    init()
     
     i = 0
     
@@ -209,6 +648,7 @@ function getRandomItem(array, seed) {
     
 
     const iframeElement = document.createElement('iframe');
+    iframeElement.style = "width:200px;user-select:none;background-color:black;height:200px;position:absolute;left:50%;margin-left:-100px;top:340px;border-radius:10px;border:1px solid cyan;box-shadow:0px 0px 10px cyan;"
     iframeElement.setAttribute('width', '200px');
     iframeElement.setAttribute('height', '200px');
     iframeElement.setAttribute('scrolling', 'no');
@@ -222,26 +662,22 @@ function getRandomItem(array, seed) {
 
 
 
-	
- let currentVolume = 100; // Initialize the current volume to 100
-
-// Function to increase volume
-function increaseVolume() {
-    if (currentVolume < 100) {
-        currentVolume += 5;
-        widget.setVolume(currentVolume);
-    }
+function volumeChange() {
+  var volumeInput = Number(document.getElementById("volume").value)
+  widget.setVolume(volumeInput+0);
 }
 
-// Function to decrease volume
-function decreaseVolume() {
-    if (currentVolume > 0) {
-        currentVolume -= 5;
-        widget.setVolume(currentVolume);
-    }
+function volumeDown() {
+  var volumeInput = Number(document.getElementById("volume").value)
+  document.getElementById('volume').value = volumeInput - 5
+  volumeChange()
 }
 
-
+function volumeUp() {
+  var volumeInput = Number(document.getElementById("volume").value)
+  document.getElementById('volume').value = volumeInput + 5
+  volumeChange()
+}
 
 
 
@@ -249,57 +685,76 @@ function decreaseVolume() {
     function playSong() {
 
 
-
+	widget.getPosition(function (position) {
+	  currentTime1 = Math.floor(position/1000)
+	  songtime.innerHTML = secondsToMinutes(currentTime1) + " / " + secondsToMinutes(songLengths[currentSongIndex])
+	});
 
 
 	
+	if(PLAYING == true) {
 
 
 
 
 
-
-    	setCurrentSong()
-    	
-    	widget.getCurrentSound(function(currentSound) {
-		
-		if(currentSound != null) {
-			if(currentSound.permalink_url == currentSong) {
-				// Do nothing
+	    	setCurrentSong()
+	    	
+	    	widget.getCurrentSound(function(currentSound) {
+			
+			if(currentSound != null) {
+				if(currentSound.permalink_url == currentSong) {
+					// Do nothing
+				}
+				else {
+					widget.load(`${currentSong}&auto_play=false&color=%23333333&visual=true`);
+				}
+				//console.log(currentSound.permalink_url)
 			}
 			else {
-				widget.load(`${currentSong}&auto_play=false&color=%23333333&visual=true`);
+				widget.load(`${currentSong}&auto_play=false&color=%23333333&visual=true`)
 			}
-			//console.log(currentSound.permalink_url)
+		      });
+
+		songname.innerHTML = songNames[currentSongIndex]
+
+		if((currentSongIndex+1) >= songNames.length) {
+			nextsongname.innerHTML = songNames[0]
 		}
 		else {
-			widget.load(`${currentSong}&auto_play=false&color=%23333333&visual=true`)
+			nextsongname.innerHTML = songNames[currentSongIndex+1]
 		}
-	      });
-    	
-        widget.play();
+	    	
+		widget.play();
+			
+		volumeChange()
+
+
 		
-		widget.setVolume(currentVolume);
-        
-        var difference = songLengths[currentSongIndex] - (songLengthsRunningTotals[currentSongIndex] - getUTCS(getUTC())%runningTotal)
-        
-        var m = difference * 1000
-        
-        //console.log(m)
-        
-        var currentTime1 = 0
-        
-	widget.getPosition(function (position) {
-	  currentTime1 = Math.floor(position)
-	  //console.log(currentTime1);
-	  
-	  //console.log(currentTime1,m)
+		var difference = songLengths[currentSongIndex] - (songLengthsRunningTotals[currentSongIndex] - getUTCS(getUTC())%runningTotal)
+		
+		var m = difference * 1000
+		
+		//console.log(m)
+		
+		var currentTime1 = 0
+		
+		widget.getPosition(function (position) {
+		  currentTime1 = Math.floor(position)
+		  //console.log(currentTime1);
+		  
+		  //console.log(currentTime1,m)
+		
+			if(currentTime1-m > 3000 || currentTime1-m < -3000) {
+				widget.seekTo(m);
+			}
+		});
 	
-		if(currentTime1-m > 3000 || currentTime1-m < -3000) {
-			widget.seekTo(m);
-		}
-	});
-	
+	}
+
+	else {
+		widget.pause()
+	}
 	
         
        
@@ -340,9 +795,23 @@ function refreshAtMidnightForEpochTime(epochTime) {
     refreshAtMidnightForEpochTime(specificEpochTime);
 
 
-    
-   
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
 </script>
 
 </body>
+
 </html>
