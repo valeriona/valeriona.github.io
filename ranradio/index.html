@@ -71,10 +71,6 @@ width:175px;height:30px;color:white;background-color:#114432;font-size:15px;bord
   position:absolute;bottom:140px;width:100%;text-align:center;color:white;font-family:arial;font-size:15px;margin-left:0px;user-select:none;
 }
 
-#youtubeEmbedInfo {
-  background-color:#110000;border-radius:15px;width:250px;height:0px;margin-left:80px;box-shadow:0px 0px 10px red;left:50%;position:absolute;top:330px;margin-bottom:50px;height:150px;font-family:arial;padding:15px;padding-left:50px;user-select:none;
-}
-
 #loading {
   position: fixed;left:0px;top:0px;right:0px;bottom:0px;width:100%;height:100%;background-color:#000022
 }
@@ -106,22 +102,6 @@ width:175px;height:30px;color:white;background-color:#114432;font-size:15px;bord
   position: fixed; right:15px;bottom:10px;text-decoration:none;color:#9999CC;font-size:20px;
 }
 
-#loadingReload {
-  position: absolute;
-  left: 50%;
-  margin-left: -100px;
-  width: 200px;
-  height:25px; 
-  top: 70%;
-  background-color:#001144;
-  color:white;
-  font-weight: bold;
-  font-family:arial;
-  border:1px solid white;
-  box-shadow:0px 0px 10px white;
-  border-radius:5px;
-}
-
 </style>
 
 </head>
@@ -146,18 +126,16 @@ width:175px;height:30px;color:white;background-color:#114432;font-size:15px;bord
   
 <span id="volumeHigh" onclick="volumeUp()">🔊</span>
 
-<div id="youtubeEmbedInfo" style="display:none;">This is a youtube embed of the music, it is not recommended to use these controls to control the radio because it can break the radio.</div>
-  
-
-
-
 
 <!-- Create elements to embed the SoundCloud widgets -->
 <div id="song-widget" style="display: block;"></div>
 
 
 
-<div style="position:absolute;bottom:35px;border-radius:10px;border:1px solid #7289da;box-shadow:0px 0px 10px #7289da;left:140px;width:290px;height:60px;background-color:#001144"><a href="https://discord.gg/C6XZ9wEFUj" target="_blank"><span style="font-size:25px;position:absolute;padding:15px;font-family:arial;color:white;">Join us on</span> <img src="discord.png" style="width:150px;height:60px;position:absolute;left:130px;padding:10px;"></a></div>
+<div style="position:absolute;bottom:55px;border-radius:10px;border:1px solid #7289da;box-shadow:0px 0px 10px #7289da;left:140px;width:290px;height:60px;background-color:#001144"><a href="https://discord.gg/C6XZ9wEFUj" target="_blank"><span style="font-size:25px;position:absolute;padding:15px;font-family:arial;color:white;">Join us on</span> <img src="discord.png" style="width:150px;height:60px;position:absolute;left:130px;padding:10px;"></a></div>
+
+
+<button style="position:absolute;color:white;font-size:20px;bottom:15px;border-radius:10px;border:1px solid magenta;box-shadow:0px 0px 10px magenta;left:140px;width:290px;height:30px;background-color:#550055" onclick="document.getElementById('screensaver').style.display = 'block';">turn on screensaver</button>
 
 <script src="https://w.soundcloud.com/player/api.js"></script>
 
@@ -199,11 +177,11 @@ width:175px;height:30px;color:white;background-color:#114432;font-size:15px;bord
 
 <div id="loading">
 <h1 id="loadingText">Loading</h1>
-<button onclick="location.reload()" id="loadingReload">Loading too long? <u>Retry</u></button>
 </div>
 
-
-   
+<div id="screensaver" style="position:fixed;left:0px;top:0px;width:100%;height:100%;background-color:rgb(0,0,0,0.95);display:none;">
+<button onclick="this.parentElement.style.display = 'none'" style="position:fixed;right:0px;width:60px;height:60px;top:0px;background-color:black;border:1px solid red;color:red;font-size:50px;border-bottom-left-radius:10px;box-shadow:0px 0px 10px red;">X</button>
+</div>
 
 
 
@@ -316,60 +294,6 @@ function genreselect() {
 
 
 
-
-
-
-
-
-
-
-
-function ytInfo() {
-  var menu = document.getElementById("youtubeEmbedInfo")
-  if(menu.style.display == "none") {
-    menu.style.display = "block"
-    var i = 50
-    interval5 = setInterval(function() {
-      i += 10
-      menu.style.left = i.toString() + "px"
-      if(i >= 220) {
-        clearInterval(interval5)
-      }
-    },5)
-  }
-  else {
-    genres.style.display = "none"
-    var i = 220
-    interval6 = setInterval(function() {
-      i -= 10
-      menu.style.left = i.toString() + "px"
-      if(i <= 50) {
-        menu.style.display = "none"
-        
-        clearInterval(interval6)
-        
-      }
-    },5)
-    
-  }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
 
 
 function secondsToMinutes(t2) {
