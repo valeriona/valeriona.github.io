@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -17,14 +18,67 @@
     "https://soundcloud.com/doneagain/danger-zone-single-in-the",
     "https://soundcloud.com/officialmetallica/fuel-live-july-6-2014",
     "https://soundcloud.com/officialmetallica/whiskey-in-the-jar-live-3",
-    "https://soundcloud.com/the-police-official/every-breath-you-take-2003"
+    "https://soundcloud.com/officialmetallica/every-breath-you-take-2003",
+    "https://soundcloud.com/officialmetallica/one-awards-show-rehearsal",
+    "https://soundcloud.com/officialmetallica/the-unforgiven-live-march-18",
+    "https://soundcloud.com/red-hot-chili-peppers-official/californication",
+    "https://soundcloud.com/aerosmith/dream-on",
+    "https://soundcloud.com/guns-n-roses-official/november-rain-live-in-japan",
+    "https://soundcloud.com/darren-coggins-13185684/breaking-the-chains-dokken-cover",
+    "https://soundcloud.com/bryanadams/summer-of-69-classic-version",
+    "https://soundcloud.com/ramones/blitzkrieg-bop-1",
+    "https://soundcloud.com/subsoloband/beds-are-burning-midnight-oil",
+    "https://soundcloud.com/void-metal-band/beds-are-burning-midnight-oil-cover",
+    "https://soundcloud.com/officialmetallica/hardwired",
+    "https://soundcloud.com/nacional-kid/footloose-kenny-loggins",
+    "https://soundcloud.com/kiss-official/heavens-on-fire",
+    "https://soundcloud.com/kiss-official/detroit-rock-city-2012-remix",
+    "https://soundcloud.com/antonisvlachos/ozzy-osbourne-shot-in-the-dark",
+    "https://soundcloud.com/wingerofficial/winger-cant-get-enough",
+    "https://soundcloud.com/whitesnake-tribute/slide-it-in",
+    "https://soundcloud.com/whitesnake-tribute/give-me-all",
+    "https://soundcloud.com/whitesnake-tribute/still-of-the-night",
+    "https://soundcloud.com/whitesnake-tribute/here-i-go-again",
+    "https://soundcloud.com/journey-official/dont-stop-believin-live-3",
+    "https://soundcloud.com/cutting-crew-official/i-just-died-in-your-arms-3",
+    "https://soundcloud.com/journey-official/separate-ways-live",
+    "https://soundcloud.com/12ouncecurl/reo-speedwagon-take-it-on-the-run-cover",
+    "https://soundcloud.com/andy-c-saxton/photograph-def-leppard-cover-by-new-device",
+    "https://soundcloud.com/bryanadams/run-to-you-classic-version",
+    "https://soundcloud.com/bryanadams/heaven-classic-version",
+    "https://soundcloud.com/raphaelleandro/i-dont-wanna-miss-a-thing",
+    "https://soundcloud.com/thomas-streitler/uncle-toms-cabin-warrant-cover",
+    "https://soundcloud.com/vixen-sc/edge-of-a-broken-heart-live",
+    "https://soundcloud.com/whitelionofficial/white-lion-broken-heart",
+    "https://soundcloud.com/federicovazquez/gypsy-road-cinderella-cover",
+    "https://soundcloud.com/kenny-matel/i-remember-you-skid-row",
+    "https://soundcloud.com/guns-n-roses-official/sweet-child-o-mine-live-in",
+    "https://soundcloud.com/officialmetallica/nothing-else-matters-3",
+    "https://soundcloud.com/deadly-sting-tribute/deadly-sting-still-loving-you",
+    "https://soundcloud.com/deadly-sting-tribute/coming-home",
+    "https://soundcloud.com/deadly-sting-tribute/bad-boys-running-wild",
+    "https://soundcloud.com/deadly-sting-tribute/big-city-nights",
+    "https://soundcloud.com/deadly-sting-tribute/blackout",
+    "https://soundcloud.com/deadly-sting-tribute/the-zoo",
+    "https://soundcloud.com/deadly-sting-tribute/rock-you-like-a-hurricane",
+    "https://soundcloud.com/poprocks-1/livin-on-a-prayer-bon-jovi",
+    "https://soundcloud.com/lubaz-beat/dimas-skid-row-18-and-life",
+    "https://soundcloud.com/bonjovi/id-die-for-you-1",
+    "https://soundcloud.com/bonjovi/runaway-live-1",
+    "https://soundcloud.com/nicoborie/born-to-be-my-baby-espanol",
+    "https://soundcloud.com/tigerstripes-182435815/born-to-be-my-baby-bon-jovi-cover"
 ]
+
+
+
+
+
 
 
     const songsContainer = document.getElementById("songs-container");
     const songWidgets = [];
 
-    songUrls.slice(0, 10).forEach((songUrl, index) => {
+    songUrls.slice(0, songUrls.length).forEach((songUrl, index) => {
         const songContainer = document.createElement("div");
         const songWidget = document.createElement("iframe");
         songWidget.setAttribute('width', '100%');
