@@ -360,7 +360,6 @@ function start() {
 
 }
 
-
 var i2 = 0
 var colors1 = ["FF00FF","#EE11EE","#DD22DD","#CC33CC","#BB44BB","#AA55AA","#996699","#887788","#778877","#669966","#55AA55","#44BB44","#33CC33","#22DD22","#11EE11","#00FF00","#00FF11","#00FF22","#00FF33","#00FF44","#00FF55","#00FF66","#00FF77","#00FF88","#00FF99","#00FFAA","#00FFBB","#00FFCC","#00FFDD","#00FFEE","#00FFFF","#11EEEE","#22DDDD","#33CCCC","#44BBBB","#55AAAA","#669999","#778888","#887777","#996666","#AA5555","#BB4444","#CC3333","#DD2222","#EE1111","FF0000"]
 var direction1 = 1
@@ -418,6 +417,7 @@ interval2 = setInterval(function() {
 if (!localStorage.getItem("genre")) {
 	  localStorage.setItem("genre", "rock");
 	}
+
 
     function getUTC() {
 	    const date = new Date();
@@ -741,8 +741,34 @@ function refreshAtMidnightForEpochTime(epochTime) {
       const timeToMidnight = millisecondsInDay - timeSinceEpoch;
 	console.log("Time to midnight: ", timeToMidnight)
       setTimeout(function() {
-	alert("Refreshing the radio so you can enjoy some new beats!")
-        location.reload();
+		
+		//setTimeout(function() {
+			//alert("Press OK to reload.")
+			//location.reload();
+			
+		//},5000)
+		//document.body.innerHTML = "<h1 style='color:white;position:absolute;font-size:50px;font-family:arial;width:100%;left:0px;top:0px;text-align:center;bottom:0px;padding:20%;'>Refreshing the radio so you can enjoy some new beats...</h1>"
+		
+		
+		
+		
+		
+		
+		
+		init()
+		
+		setTimeout(function() {
+			const specificEpochTime = getUTC()
+			refreshAtMidnightForEpochTime(specificEpochTime);
+		},5000)
+		
+		// TRYING OUT A NEW FORMAT WHICH SHOULD IN THEORY WORK WITHOUT MAJOR ANNOYANCE
+		
+		
+		
+		
+		
+		
       }, timeToMidnight);
     }
 
