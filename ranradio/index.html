@@ -55,16 +55,31 @@ audio {display:none;}
 #stop:hover {background-color:#880088;user-select:none;}
 
 
-#genreselect {position:absolute;left:150px;top:275px;width:135px;height:30px;color:white;background-color:#166716;font-size:15px;border-radius:5px;font-family:arial;box-shadow:0px 0px 10px green;border:1px solid lime;user-select:none;}
+#genreselect {z-index:10001;position:absolute;left:80px;top:275px;width:135px;height:30px;color:white;background-color:#166716;font-size:15px;border-radius:5px;font-family:arial;box-shadow:0px 0px 10px green;border:1px solid lime;user-select:none;}
+
+#offscreenselect {z-index:10001;position:absolute;right:80px;top:275px;width:135px;height:30px;color:white;background-color:#160000;font-size:15px;border-radius:5px;font-family:arial;box-shadow:0px 0px 10px red;border:1px solid red;user-select:none;}
+
 
 #genreselect:hover {background-color:#368736;user-select:none;}
 
+#offscreenselect:hover {background-color:#360000;user-select:none;}
 
-#genrecontainer {background-color:#001100;border-radius:15px;width:300px;height:0px;margin-left:-150px;box-shadow:0px 0px 10px lime;left:50%;position:absolute;top:285px;margin-bottom:50px;user-select:none;}
+#genrecontainer {z-index:10000;background-color:#001100;border-radius:15px;width:300px;height:0px;margin-left:-150px;box-shadow:0px 0px 10px lime;left:50%;position:absolute;top:285px;margin-bottom:50px;user-select:none;}
 
+#offscreencontainer {z-index:10000;background-color:#110000;border-radius:15px;width:300px;height:0px;margin-left:-150px;box-shadow:0px 0px 10px red;left:50%;position:absolute;top:285px;margin-bottom:50px;user-select:none;}
 
 .genre {
 width:175px;height:30px;color:white;background-color:#114432;font-size:15px;border-radius:5px;font-family:arial;box-shadow:0px 0px 10px green;border:1px solid lime;margin-right:165px;margin-left:60px;margin-top:25px;user-select:none;
+  
+}
+
+#offscreenInitButton {
+width:175px;height:30px;color:white;background-color:#440000;font-size:15px;border-radius:5px;font-family:arial;box-shadow:0px 0px 10px red;border:1px solid red;margin-right:165px;margin-left:60px;margin-top:25px;user-select:none;
+  
+}
+
+#offscreenDeInitButton {
+width:175px;height:30px;color:white;background-color:#440000;font-size:15px;border-radius:5px;font-family:arial;box-shadow:0px 0px 10px red;border:1px solid red;margin-right:165px;margin-left:60px;margin-top:25px;user-select:none;
   
 }
 
@@ -73,7 +88,7 @@ width:175px;height:30px;color:white;background-color:#114432;font-size:15px;bord
 }
 
 #loading {
-  position: fixed;left:0px;top:0px;right:0px;bottom:0px;width:100%;height:100%;background-color:#000022
+  position: fixed;z-index:10002;left:0px;top:0px;right:0px;bottom:0px;width:100%;height:100%;background-color:#000022
 }
 
 #loadingText {
@@ -103,6 +118,10 @@ width:175px;height:30px;color:white;background-color:#114432;font-size:15px;bord
   position: fixed; right:15px;bottom:10px;text-decoration:none;color:#9999CC;font-size:20px;
 }
 
+#offscreenQuantityText {position:absolute;left:50%;margin-left:-175px;width:350px;top:45px;text-align:center;font-family:arial;font-size:15px;}
+
+#offscreenQuantity {position:absolute;left:50%;margin-left:-75px;width:150px;top:70px;accent-color: cyan;}
+
 </style>
 
 </head>
@@ -118,8 +137,8 @@ width:175px;height:30px;color:white;background-color:#114432;font-size:15px;bord
   <p id="songtime">00:00</p>
 
 
-<button onclick="start()" id="start">start</button>
-<button onclick="stop()" id="stop">stop</button>
+<button onclick="start();unpauseCurrentSong()" id="start">start</button>
+<button onclick="stop();pauseCurrentSong()" id="stop">stop</button>
 
 <input type="range" id="volume" min="0" max="100" step="0.1" value="100" oninput="volumeChange()">
 
@@ -162,11 +181,24 @@ width:175px;height:30px;color:white;background-color:#114432;font-size:15px;bord
 </div>
 </div>
 
+<div id="offscreencontainer" style="display:none;">
+<div id="offscreen">
+  <br><br><br><br>
+<span id="offscreenQuantityText">Amount of songs to preload: 50</span>
+<input type="range" id="offscreenQuantity" min="0" max="100" step="1" value="50" oninput='document.getElementById("offscreenQuantityText").innerHTML = "Amount of songs to preload: " + String(this.value)'>
+<button onclick='initPreload(currentSongIndex,Number(document.getElementById("offscreenQuantity").value))' id="offscreenInitButton">preload offscreen songs</button>
+<button onclick='deinitPreload()' id="offscreenDeInitButton">stop preloading songs</button>
+</div>
+</div>
+
   
   
 <button onclick="genreselect()" id="genreselect">genre</button>
 
+<button onclick="offscreenselect()" id="offscreenselect">offscreen</button>
 
+
+<div id="songs-container"></div>
 
 
 </div>
@@ -189,6 +221,14 @@ width:175px;height:30px;color:white;background-color:#114432;font-size:15px;bord
 <div id="screensaver" style="position:fixed;left:0px;top:0px;width:100%;height:100%;background-color:rgb(0,0,0,0.95);display:none;">
 <button onclick="this.parentElement.style.display = 'none';toggleFullscreen();" style="position:fixed;right:60px;width:60px;height:60px;top:60px;background-color:black;border:1px solid red;color:red;font-size:50px;border-radius:10px;box-shadow:0px 0px 10px red;">X</button>
 </div>
+
+
+
+
+
+
+
+
 
 
 
@@ -251,6 +291,9 @@ var PAUSED = false
 
 var READY = false
 
+var OFFSCREEN = false
+
+var PLAYING_OFFSCREEN = false
 
 
 
@@ -289,38 +332,83 @@ function endLoading() {
   
   
 function genreselect() {
-  var menu = document.getElementById("genrecontainer")
-  var genres = document.getElementById("genres")
-  if(menu.style.display == "none") {
-    menu.style.display = "block"
-    var i = 0
-    interval3 = setInterval(function() {
-      i += 10
-      menu.style.height = i.toString() + "px"
-      if(i == 400) {
-        genres.style.display = "block"
-        clearInterval(interval3)
-      }
-    },5)
+  if(document.getElementById("offscreencontainer").style.display == "block" && document.getElementById("offscreencontainer").style.height == "400px") {
+	document.getElementById("offscreencontainer").style.height = "390px"
+	offscreenselect()
+	genreselect()
   }
   else {
-    genres.style.display = "none"
-    var i = 400
-    interval4 = setInterval(function() {
-      i -= 10
-      menu.style.height = i.toString() + "px"
-      if(i == 0) {
-        menu.style.display = "none"
-        
-        clearInterval(interval4)
-        
-      }
-    },5)
-    
+	  var menu = document.getElementById("genrecontainer")
+	  var genres = document.getElementById("genres")
+	  if(menu.style.display == "none") {
+	    menu.style.display = "block"
+	    var i = 0
+	    interval3 = setInterval(function() {
+	      i += 10
+	      menu.style.height = i.toString() + "px"
+	      if(i == 400) {
+		genres.style.display = "block"
+		clearInterval(interval3)
+	      }
+	    },5)
+	  }
+	  else {
+	    genres.style.display = "none"
+	    var i = 400
+	    interval4 = setInterval(function() {
+	      i -= 10
+	      menu.style.height = i.toString() + "px"
+	      if(i == 0) {
+		menu.style.display = "none"
+		
+		clearInterval(interval4)
+		
+	      }
+	    },5)
+	    
+	  }
   }
 }
 
 
+function offscreenselect() {
+  if(document.getElementById("genrecontainer").style.display == "block" && document.getElementById("genrecontainer").style.height == "400px") {
+	document.getElementById("genrecontainer").style.height = "390px"
+	genreselect()
+	offscreenselect()
+  }
+  else {
+	  var menu = document.getElementById("offscreencontainer")
+	  var genres = document.getElementById("genres")
+	  if(menu.style.display == "none") {
+	    menu.style.display = "block"
+	    var i = 0
+	    interval3 = setInterval(function() {
+	      i += 10
+	      menu.style.height = i.toString() + "px"
+	      if(i == 400) {
+		genres.style.display = "block"
+		clearInterval(interval3)
+	      }
+	    },5)
+	  }
+	  else {
+	    genres.style.display = "none"
+	    var i = 400
+	    interval4 = setInterval(function() {
+	      i -= 10
+	      menu.style.height = i.toString() + "px"
+	      if(i == 0) {
+		menu.style.display = "none"
+		
+		clearInterval(interval4)
+		
+	      }
+	    },5)
+	    
+	  }
+  }
+}
 
 
 
@@ -351,12 +439,18 @@ var nextsongname = document.getElementById("nextsongname")
 var songtime = document.getElementById("songtime")
   
 function start() {
-  PLAYING = true
+  if(OFFSCREEN == false) {
+  	PLAYING = true
+  }
 }
 
   function stop() {
 
-   PLAYING = false
+   if(OFFSCREEN == false) {
+
+   	PLAYING = false
+
+  }
 
 }
 
@@ -603,23 +697,33 @@ function getRandomItem(array, seed) {
     
 
     const iframeElement = document.createElement('iframe');
-    iframeElement.style = "width:200px;user-select:none;background-color:black;height:200px;position:absolute;left:50%;margin-left:-100px;top:340px;border-radius:10px;border:1px solid cyan;box-shadow:0px 0px 10px cyan;"
+    iframeElement.style = "display:none;width:200px;user-select:none;background-color:black;height:200px;position:absolute;left:50%;margin-left:-100px;top:340px;border-radius:10px;border:1px solid cyan;box-shadow:0px 0px 10px cyan;"
     iframeElement.setAttribute('width', '200px');
     iframeElement.setAttribute('height', '200px');
     iframeElement.setAttribute('scrolling', 'no');
     iframeElement.setAttribute('frameborder', 'no');
     iframeElement.setAttribute('allow', 'autoplay');
     iframeElement.src = `https://w.soundcloud.com/player/?url=${currentSong}&auto_play=false&color=%23333333&visual=true`;
+	
+
     document.getElementById('song-widget').appendChild(iframeElement);
 
     const widget = SC.Widget(iframeElement);
 
+widget.bind(SC.Widget.Events.PAUSE, function() {
+		    iframeElement.style.display = 'none';
+		});
 
+		widget.bind(SC.Widget.Events.PLAY, function() {
+		    iframeElement.style.display = 'block';
+		});
 
+var volume = 100
 
 function volumeChange() {
   var volumeInput = Number(document.getElementById("volume").value)
   widget.setVolume(volumeInput+0);
+  volume = volumeInput+0
 }
 
 function volumeDown() {
@@ -635,25 +739,29 @@ function volumeUp() {
 }
 
 
+var OFFSCREEN_TIME = 0
+
 
 
     function playSong() {
 
 
-	widget.getPosition(function (position) {
-	  currentTime1 = Math.floor(position/1000)
-	  songtime.innerHTML = secondsToMinutes(currentTime1) + " / " + secondsToMinutes(songLengths[currentSongIndex])
-	});
 
+
+	setCurrentSong()
+
+	offscreenQuantity.max = songs.length
 
 	
 	if(PLAYING == true) {
 
+		
+		widget.getPosition(function (position) {
+		  currentTime1 = Math.floor(position/1000)
+		  songtime.innerHTML = secondsToMinutes(currentTime1) + " / " + secondsToMinutes(songLengths[currentSongIndex])
+		});
 
 
-
-
-	    	setCurrentSong()
 	    	
 	    	widget.getCurrentSound(function(currentSound) {
 			
@@ -705,6 +813,34 @@ function volumeUp() {
 			}
 		});
 	
+	}
+
+	else if(OFFSCREEN == true) {
+
+		widget.pause()
+
+
+		songname.innerHTML = songNames[currentSongIndex]
+
+		if((currentSongIndex+1) >= songNames.length) {
+			nextsongname.innerHTML = songNames[0]
+		}
+		else {
+			nextsongname.innerHTML = songNames[currentSongIndex+1]
+		}
+
+
+		var difference = songLengths[currentSongIndex] - (songLengthsRunningTotals[currentSongIndex] - getUTCS(getUTC())%runningTotal)
+		
+		var m = difference * 1000
+		
+		//console.log(m)
+		
+		var currentTime1 = 0
+		
+
+		OFFSCREEN_TIME = m + 0
+			
 	}
 
 	else {
@@ -782,12 +918,231 @@ function refreshAtMidnightForEpochTime(epochTime) {
 
 
 
+   //OFFSCREEN LISTENING
+
+   var songsContainer = document.getElementById("songs-container");
+    var songWidgets = [];
+    var currentSongIndex1 = 0;
+   var counter1 = 0
+
+   var i0 = 0
+
+
+   function loadNextSong(quantity) {
+
+	console.log(i0, quantity)
+
+        if (i0 < quantity) {
+            const songContainer = document.createElement("div");
+            const songWidget = document.createElement("iframe");
+            songWidget.setAttribute('width', '100%');
+            songWidget.setAttribute('height', '166');
+            songWidget.setAttribute('scrolling', 'no');
+            songWidget.setAttribute('frameborder', 'no');
+            songWidget.setAttribute('allow', 'autoplay');
+	    songWidget.style = "display:none;width:200px;user-select:none;background-color:black;height:200px;position:absolute;left:50%;margin-left:-100px;top:340px;border-radius:10px;border:1px solid cyan;box-shadow:0px 0px 10px cyan;"
+    
+            songWidget.src = `https://w.soundcloud.com/player/?url=${songs[currentSongIndex+i0]}&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true`;
+
+
+            songContainer.appendChild(songWidget);
+            songsContainer.appendChild(songContainer);
+
+            songWidgets.push(songWidget);
+
+            songWidget.addEventListener('load', function() {
+                const widget = SC.Widget(songWidget);
+                widget.bind(SC.Widget.Events.READY, function() {
+                    currentSongIndex1++;
+                	loadNextSong(quantity);
+                });
+                
+            });
+	   i0 += 1
+        }
+	
+    }
 
 
 
+   let currentSongWidget = null;
+
+    function playNextSong() {
+
+	counter1 += 1
+
+	if(counter1 >= songWidgets.length) {
+		deinitPreload()
+	}
+
+	else {
+
+		if (currentSongWidget) {
+		    currentSongWidget.contentWindow.postMessage('{"method":"pause"}', "*");
+		    currentSongWidget.style.display = "none"
+		}
+
+		if(PLAYING_OFFSCREEN == true) {
+
+			currentSongWidget = songWidgets[currentSongIndex1 % songWidgets.length];
+			currentSongWidget.contentWindow.postMessage('{"method":"play"}', "*");
+
+		}
+
+		songWidgets.forEach((songWidget) => {
+		    songWidget.style.display = 'none';
+		});
+		
+
+		currentSongIndex1++;
+
+	}
+    }
+
+   function playCurrentSong() {
+
+	
+
+	if(PLAYING_OFFSCREEN == true) {
 
 
+		
+		
+		
 
+		currentSongWidget = songWidgets[currentSongIndex1 % songWidgets.length];
+		currentSongWidget.contentWindow.postMessage('{"method":"play"}', "*");
+
+
+		const widget = SC.Widget(currentSongWidget);
+
+		widget.setVolume(volume+0);
+
+		var seekTime = 0
+
+		widget.getPosition(function (position) {
+		    seekTime = position + 0;
+		});
+
+
+		if(OFFSCREEN_TIME >= songLengths[currentSongIndex]*1000) {
+			playNextSong()
+		}
+
+		widget.getCurrentSound(function(currentSound) {
+		    if(currentSound.permalink_url != currentSong) {
+			playNextSong()
+		    }
+		});
+
+		widget.getCurrentSound(function (sound) {
+		    if(OFFSCREEN_TIME-seekTime >= 2000 || OFFSCREEN_TIME-seekTime <= -2000) {
+			    widget.seekTo(OFFSCREEN_TIME)
+			    
+			}
+		});
+		songWidgets.forEach((songWidget) => {
+		    songWidget.style.display = 'none';
+		});
+		currentSongWidget.style.display = "block"
+
+		widget.getPosition(function (position) {
+		  currentTime1 = Math.floor(position/1000)
+		  if(currentTime1 != 0) {
+		  	songtime.innerHTML = secondsToMinutes(currentTime1) + " / " + secondsToMinutes(songLengths[currentSongIndex])
+		  }
+		});
+	
+	}
+   }
+
+
+   function pauseCurrentSong() {
+
+	if(OFFSCREEN == true) {
+	
+
+		currentSongWidget = songWidgets[currentSongIndex1 % songWidgets.length];
+		currentSongWidget.contentWindow.postMessage('{"method":"pause"}', "*");
+		
+		PLAYING_OFFSCREEN = false
+
+	}
+	
+   }
+
+
+   function unpauseCurrentSong() {
+
+	if(OFFSCREEN == true) {
+
+		PLAYING_OFFSCREEN = true
+		playCurrentSong()
+
+		
+	}
+
+   }
+
+
+   //Set OFFSCREEN = true before running to load correctly EDIT: NO LONGER REQUIRED
+
+   function initPreload(startIndex, quantity) {
+
+	counter1 = 0
+
+	PLAYING = false
+
+	PLAYING_OFFSCREEN = true
+
+	songWidgets = [];
+
+	currentSongIndex1 = 0
+
+	i0 = 0
+	
+	OFFSCREEN_TIME = 0
+
+	songsContainer.innerHTML = ""
+
+	console.log(startIndex,quantity)
+
+	OFFSCREEN = true
+
+	currentSongIndex1 = 0
+
+	loadNextSong(quantity+0);
+
+	
+	
+	//setInterval(playNextSong, 15000);
+
+	setInterval(playCurrentSong,1000)
+
+   }
+
+
+   function deinitPreload() {
+
+	PLAYING_OFFSCREEN = false
+
+	songWidgets = [];
+
+	currentSongIndex1 = 0
+
+	i0 = 0
+	
+	OFFSCREEN_TIME = 0
+
+	songsContainer.innerHTML = ""
+
+	OFFSCREEN = false
+
+	counter1 = 0
+
+   }
+
+   //setTimeout(function() {initPreload(currentSongIndex,5);},1000)
 
   
 
