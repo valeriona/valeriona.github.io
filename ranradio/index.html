@@ -950,14 +950,19 @@ function refreshAtMidnightForEpochTime(epochTime) {
 
             songWidgets.push(songWidget);
 
-            songWidget.addEventListener('load', function() {
-                const widget = SC.Widget(songWidget);
-                widget.bind(SC.Widget.Events.READY, function() {
-                    currentSongIndex1++;
-                	loadNextSong(quantity);
-                });
+            //songWidget.addEventListener('load', function() {
+             //   const widget = SC.Widget(songWidget);
+            //    widget.bind(SC.Widget.Events.READY, function() {
+            //        currentSongIndex1++;
+            //    	loadNextSong(quantity);
+            //    });
                 
-            });
+            //});
+
+	   setTimeout(function() {
+		currentSongIndex1++;
+                loadNextSong(quantity);
+	   },500)
 	   i0 += 1
         }
 	
