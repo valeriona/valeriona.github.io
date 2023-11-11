@@ -1031,7 +1031,27 @@
 
 	collide(p) {
 		if(this.damage < 8) {
-			if(p.x > this.x - p.w && p.x < this.x + this.w && p.y < this.y + this.h && p.y > this.y - p.h) {
+
+
+			
+
+			//Check this before y level
+
+			if(p.y + p.h > this.y + 5 && p.x + p.w > this.x && p.x < this.x + this.w && p.y < this.y + this.h) {
+
+				if(p.x + p.w/2 < this.x + this.w/2) {
+					p.vx = -2
+				}
+				else {
+					p.vx = 2
+				}
+			
+			}
+
+
+
+
+			else if(p.x > this.x - p.w + 4 && p.x < this.x + this.w - 4 && p.y < this.y + this.h && p.y > this.y - p.h) {
 
 				
 
@@ -1047,7 +1067,7 @@
 
 				  
 
-				  if(this.type == "enemy") {
+				  if(p.type == "enemy") {
 
 					  p.y += offset1
 					  
@@ -1055,7 +1075,7 @@
 					  this.y += offset1
 				  }
 
-				  else if(this.type == "player") {
+				  else if(p.type == "player") {
 
 					  var i = 0
 
@@ -1079,6 +1099,10 @@
 				
 				return(true)
 			}
+
+			//disableEnemy()
+
+			
 		}
 		else if(this.damage >= 8) {
 			this.x = -1000000
@@ -1090,20 +1114,36 @@
 	}
 
 	draw() {
-		game.fillStyle = "#FF99FF"
 
 
-		if(this.damage < 2) {
-			game.drawImage(platform_s1,this.x,this.y)
+		if(this.type == "normal") {
+
+			game.fillStyle = "#FF99FF"
+
+
+			if(this.damage < 2) {
+				game.drawImage(platform_s1,this.x,this.y)
+			}
+			else if(this.damage < 4) {
+				game.drawImage(platform_s2,this.x,this.y)
+			}
+			else if(this.damage < 6) {
+				game.drawImage(platform_s3,this.x,this.y)
+			}
+			else if(this.damage < 8) {
+				game.drawImage(platform_s4,this.x,this.y)
+			}
+			
 		}
-		else if(this.damage < 4) {
-			game.drawImage(platform_s2,this.x,this.y)
-		}
-		else if(this.damage < 6) {
-			game.drawImage(platform_s3,this.x,this.y)
-		}
-		else if(this.damage < 8) {
-			game.drawImage(platform_s4,this.x,this.y)
+
+		else if(this.type = "crate") {
+
+			if(this.damage < 8) {
+
+				game.drawImage(crate,this.x,this.y)
+
+			}
+			
 		}
 		
 		
@@ -1231,52 +1271,82 @@
 	}
 
 	collide(p) {
+
+		var i = 0
+
+		while(i < platforms.length) {
+		
+			var pl = platforms[i]
+
+			
+
+			if (pl.initx < this.x + this.w && pl.initx + pl.w > this.x && pl.inity < this.y + this.h && pl.inity + pl.h > this.y && platforms[i].damage < 8) {
+			
+				platforms[i].damage += 3
+
+				var c = ""
+
+				if(pl.type == "crate") {
+					c = "lightbrown"
+				}
+
+				p.bloods.push(new blood(pl.initx,pl.inity,10,c, 5, 5,0))
+
+				p.bloods[p.bloods.length-1].init()
+
+				projectiles.splice(projectiles.indexOf(this),1)
+
+			}
+	
+			i += 1
+
+		}
 	    
-			if(p.rx > this.x - p.w && p.rx < this.x + this.w && p.ry < this.y + this.h && p.ry > this.y - p.h) {
-			
-			  if(this.hittable == true) {
-			    if(p.usingAbility == true) {
-			      if(p.facing == "right") {
-			        this.x += p.w * 2
-			        this.vx = this.initvx + 0
-			        this.vy = this.initvy + 0
-			      }
-			      else {
-			        this.vx = this.initvx * -1
-			        this.vy = this.initvy + 0
-			        this.x -= p.w * 2
-			      }
-			      this.hittable = false
-			      this.immune = p.pName + "" //Immune is fixed
-			    }
-			  }
-			  else if(p.pName != this.immume) {
-          p.health -= this.damage
-          p.vx = this.kx
-          p.vy = this.ky
-          this.x = -1000000
-          console.log("HIT",this.damage)
-          
-          
-          
-          
-          if(p.type == "enemy") {
-			
-			      p.bloods.push(new blood(p.rx,p.ry,60,"magenta", 5, 5,this.damage))
+		if(p.rx > this.x - p.w && p.rx < this.x + this.w && p.ry < this.y + this.h && p.ry > this.y - p.h) {
+		
+		  if(this.hittable == true) {
+		    if(p.usingAbility == true) {
+		      if(p.facing == "right") {
+			this.x += p.w * 2
+			this.vx = this.initvx + 0
+			this.vy = this.initvy + 0
 		      }
 		      else {
-
-			      p.bloods.push(new blood(p.rx,p.ry,60,"cyan", 5, 5,this.damage))
+			this.vx = this.initvx * -1
+			this.vy = this.initvy + 0
+			this.x -= p.w * 2
 		      }
-		      
-		      p.bloods[p.bloods.length-1].init()
-          
-          
-			    return(true)
-			  }
+		      this.hittable = false
+		      this.immune = p.pName + "" //Immune is fixed
+		    }
 		  }
-		
-		
+		  else if(p.pName != this.immume) {
+			  p.health -= this.damage
+			  p.vx = this.kx
+			  p.vy = this.ky
+			  this.x = -1000000
+			  console.log("HIT",this.damage)
+			  
+			  
+			  
+			  
+			  if(p.type == "enemy") {
+					
+				      p.bloods.push(new blood(p.rx,p.ry,60,"magenta", 5, 5,this.damage))
+			      }
+			      else {
+
+				      p.bloods.push(new blood(p.rx,p.ry,60,"cyan", 5, 5,this.damage))
+			      }
+			      
+			      p.bloods[p.bloods.length-1].init()
+		  
+		  
+				    return(true)
+				  }
+	 }
+				
+				
 
 	}
 
@@ -1375,6 +1445,12 @@
 				g = 155 + Math.floor(Math.random()*100)
 				b = 155 + Math.floor(Math.random()*100)
 				this.colors.push(rgbToHex("0,"+String(g)+","+String(b)))
+			}
+			else if(this.color == "lightbrown") {
+				r = 155 + Math.floor(Math.random()*100);
+				g = 105 + Math.floor(Math.random()*50);
+				b = 40 + Math.floor(Math.random()*60);
+				this.colors.push(rgbToHex(String(r)+","+String(g)+","+String(b)))
 			}
 			
 			i += 1
@@ -1509,6 +1585,14 @@
 
     enemy1.enemy = player1
     
+
+    function disableEnemy() {
+
+	enemy1.y = -500000000000
+
+	enemy1.vy = -500000000000
+
+    }
     
     player1.weapon = "sword"
     
@@ -1598,6 +1682,25 @@
     	h:20
     }
 
+   function newPlatform(name, x, y) {
+	
+	var names = [
+		"normal",
+		"crate"	
+	]
+
+	var data = [
+		{w:80,h:10},
+		{w:40,h:40}
+	]
+
+	var d = data[names.indexOf(name)]
+	
+
+	var tplat = new platform(x,y,d.w,d.h,name)
+	platforms.push(tplat)
+   }
+
 
     main = setInterval(function() {
     
@@ -1634,12 +1737,17 @@
 			       if(Math.floor(Math.random()*2) == 1) {
 			          var tx = 30 + i * 200 + Math.random()*75
 			          var ty = 100 + i0 * 60 + Math.random()*50 + 300+100
-			          var tplat = new platform(tx,ty,80,10, "normal")
-			          platforms.push(tplat)
-			          projectiles.push(new projectile(crate, tx+20, ty-40, 40, 40, 10, 0, 25, Math.floor(Math.random()*40-20), Math.floor(Math.random()*40-20),true, tplat, 0)) //Change the vx and vy later as soon as the player hits the projectile with an ability, by default "hittable" are vx,vy 0
+			          //var tplat = new platform(tx,ty,80,10, "normal")
+
+
+				  //newPlatform("normal", tx, ty)
+		
+
+			          //platforms.push(tplat)
+			          //projectiles.push(new projectile(crate, tx+20, ty-40, 40, 40, 10, 0, 25, Math.floor(Math.random()*40-20), Math.floor(Math.random()*40-20),true, tplat, 0)) //Change the vx and vy later as soon as the player hits the projectile with an ability, by default "hittable" are vx,vy 0
 			       }
 			       else {
-			          platforms.push(new platform(30 + i * 200 + Math.random()*75,100 + i0 * 60 + Math.random()*50 + 300+100,80,10, "normal"))
+			          //platforms.push(new platform(30 + i * 200 + Math.random()*75,100 + i0 * 60 + Math.random()*50 + 300+100,80,10, "normal"))
 			      }
 
 				i += 1
@@ -1649,6 +1757,27 @@
 			    i0 += 1
 
 		    }
+
+		i = 0
+
+		var tplat
+		while(i < 20) {
+			tplat = new platform(5+i*40,750,40,40, "crate")
+			platforms.push(tplat)
+
+			if(i%4 == 0) {
+				
+				newPlatform("crate", 5+i*40, 750-40*1)
+				
+				newPlatform("crate", 5+i*40, 750-40*2)
+				newPlatform("crate", 5+i*40, 750-40*3)
+			}
+			i += 1
+		}
+
+		newPlatform("crate", 5+1*40, 750-40*4)
+
+		newPlatform("crate", 5+2*40, 750-40*5)
 	}
 
 	
@@ -1770,12 +1899,17 @@
 		
 		i = 0
 	while(i < projectiles.length) {
-			projectiles[i].draw()
-			projectiles[i].collide(player1)
-			projectiles[i].collide(enemy1)
 
-			if(projectiles[i].x < -1000) {
-				projectiles.splice(i,1)
+			
+				projectiles[i].draw()
+				projectiles[i].collide(player1)
+			if(projectiles[i] != undefined) {
+				projectiles[i].collide(enemy1)
+			}
+			if(projectiles[i] != undefined) {
+				if(projectiles[i].x < -1000) {
+					projectiles.splice(i,1)
+				}
 			}
 			i += 1
 		}
@@ -1842,9 +1976,9 @@
   //game.fillStyle="red"
   //game.fillRect(0-cx,500-cy,30,30)
 
-	drawImageRotation(crate, frame%360, 200+frame*3, 200+frame*3, 0, 0) 
+	//drawImageRotation(crate, frame%360, 200+frame*3, 200+frame*3, 0, 0) 
 
-	console.log("yo")
+	
   
 
 	//=======================================================================================================================
