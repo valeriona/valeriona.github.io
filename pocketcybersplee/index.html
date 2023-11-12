@@ -846,14 +846,14 @@
 
 
 		
-		if(this.rx <= 0) {
+		if(this.rx <= -5) {
 			this.vx = 15
 			this.health -= 25
 
 			this.bloods.push(new blood(this.rx,this.ry,15,col1, 5, 5, 25))
 			this.bloods[this.bloods.length-1].init()
 		}
-		else if(this.rx >= 1550 - this.w) {
+		else if(this.rx >= 2000 - this.w) {
 			this.vx = -15
 			this.health -= 25
 
@@ -861,7 +861,7 @@
 			this.bloods.push(new blood(this.rx,this.ry,15,col1, 5, 5, 25))
 			this.bloods[this.bloods.length-1].init()
 		}
-		else if(this.ry <= 0) {
+		else if(this.ry <= -5) {
 			this.vy = 15
 			this.health -= 25
 
@@ -870,7 +870,7 @@
 			this.bloods[this.bloods.length-1].init()
 		}
 
-		else if(this.ry >= 800 - this.h && borderCollide == true) {
+		else if(this.ry >= 1000 - this.h && borderCollide == true) {
 			this.vy = -20
 			this.health -= 25
 
@@ -1051,7 +1051,7 @@
 
 
 
-			else if(p.x > this.x - p.w + 4 && p.x < this.x + this.w - 4 && p.y < this.y + this.h && p.y > this.y - p.h) {
+			else if(p.x > this.x - p.w + 5 && p.x < this.x + this.w - 5 && p.y < this.y + this.h && p.y > this.y - p.h) {
 
 				
 
@@ -1282,7 +1282,7 @@
 
 			if (pl.initx < this.x + this.w && pl.initx + pl.w > this.x && pl.inity < this.y + this.h && pl.inity + pl.h > this.y && platforms[i].damage < 8) {
 			
-				platforms[i].damage += 3
+				platforms[i].damage += 2
 
 				var c = ""
 
@@ -1565,7 +1565,7 @@
 
 
 
-    var player1 = new player(w/2,h/2, 15, 20, "player", "player1",100, 2)
+    var player1 = new player(w/2,h/2, 15, 20, "player", "player1",100, 1)
     
     if(w>h) {
       player1.initx = 150
@@ -1578,7 +1578,7 @@
     }
 	
     
-    var enemy1 = new player(300,30, 15, 20, "enemy", "enemy1",100, 4)
+    var enemy1 = new player(2000-3*40,30, 15, 20, "enemy", "enemy1",100, 1)
 
 
     player1.enemy = enemy1
@@ -1760,24 +1760,138 @@
 
 		i = 0
 
-		var tplat
-		while(i < 20) {
-			tplat = new platform(5+i*40,750,40,40, "crate")
-			platforms.push(tplat)
 
-			if(i%4 == 0) {
-				
-				newPlatform("crate", 5+i*40, 750-40*1)
-				
-				newPlatform("crate", 5+i*40, 750-40*2)
-				newPlatform("crate", 5+i*40, 750-40*3)
-			}
+		while(i < 14) {
+			newPlatform("crate",i*40,1000-40)
+
+			newPlatform("crate",i*40,1000-40*21)
+
 			i += 1
 		}
 
-		newPlatform("crate", 5+1*40, 750-40*4)
 
-		newPlatform("crate", 5+2*40, 750-40*5)
+		i = 0
+
+		while(i < 14) {
+			newPlatform("crate",13*40,1000-40*7-40*i)
+
+			i += 1
+		}
+
+		i = 0
+
+
+		while(i < 20) {
+	
+
+			newPlatform("crate",0,1000-40-40*i)
+
+			i += 1
+		
+		}
+
+
+		newPlatform("crate",7*40,1000-40*2)
+
+		newPlatform("crate",8*40,1000-40*2)
+		newPlatform("crate",8*40,1000-40*3)
+
+			
+
+
+		newPlatform("crate",11*40,1000-40*2)
+
+
+		newPlatform("crate",12*40,1000-40*2)
+		newPlatform("crate",12*40,1000-40*3)
+
+		
+		newPlatform("crate",13*40,1000-40*2)
+		newPlatform("crate",13*40,1000-40*3)
+		newPlatform("crate",13*40,1000-40*4)
+
+		i = 0
+
+
+		while(i < 22) {
+			newPlatform("crate",14*40+i*40,1000-40*4)
+
+
+			if(i == 5 || i == 10 || i == 11 || i == 16) {
+					
+				newPlatform("crate",14*40+i*40,1000-40*5)
+
+				newPlatform("crate",14*40+i*40,1000-40*6)
+
+			}
+
+
+			i += 1
+		}
+
+		
+		
+
+
+
+
+
+		i = 0
+
+
+		while(i < 14) {
+
+			newPlatform("crate",2000-14*40,1000-40*7-40*i)
+
+
+			newPlatform("crate",2000-40-i*40,1000-40*21)
+
+			i += 1
+		}
+
+
+		i = 0
+
+		while(i < 20) {
+	
+
+			newPlatform("crate",2000-40,1000-40-40*i)
+
+			i += 1
+		
+		}
+
+
+
+		newPlatform("crate",2000-12*40,1000-40*2)
+
+
+		newPlatform("crate",2000-13*40,1000-40*2)
+		newPlatform("crate",2000-13*40,1000-40*3)
+
+		
+		newPlatform("crate",2000-14*40,1000-40*2)
+		newPlatform("crate",2000-14*40,1000-40*3)
+		newPlatform("crate",2000-14*40,1000-40*4)
+
+
+
+		newPlatform("crate",2000-8*40,1000-40*2)
+
+		newPlatform("crate",2000-9*40,1000-40*2)
+		newPlatform("crate",2000-9*40,1000-40*3)
+
+
+
+		i = 0
+
+		while(i < 14) {
+			newPlatform("crate",1960-i*40,1000-40)
+
+			i += 1
+		}
+
+	
 	}
 
 	
@@ -1826,14 +1940,14 @@
 
 
 	if(borderCollide == true) {
-		game.fillRect(0-cx,800-cy,1555,5)
+		game.fillRect(-5-cx,1000-cy,2005,5)
 	}
 
-	game.fillRect(0-cx,0-cy,1555,5)
+	game.fillRect(-5-cx,-5-cy,2000,5)
 
-	game.fillRect(1550-cx,0-cy,5,800)
+	game.fillRect(2000-cx,-5-cy,5,1010)
 
-	game.fillRect(0-cx,0-cy,5,800)
+	game.fillRect(-5-cx,-5-cy,5,1005)
 
 
 	i = 0 // Don't forget this lol
@@ -2016,7 +2130,9 @@
 		  }
 
 
-			enemy1.moveToPlatform()
+			//enemy1.moveToPlatform()
+
+			enemy1.moveToPlayer(player1)
 			
 			enemy1.abilityStart = true
 
