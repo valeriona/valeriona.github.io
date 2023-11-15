@@ -249,11 +249,24 @@
 	    mousey = touchPos.y + 0
         });
 
+    function sound(src,vol) {
+
+            const audio = new Audio(src);
+
+	    audio.volume = vol
+
+            audio.play();
+
+            audio.onended = function() {
+                audio.remove();
+            };
+        }
+
 
     
     var projectiles = [] //constructor(image, x, y, w, h, vx, vy, damage, kx, ky, hittable, platform)
     
-    //projectiles.push(new projectile(bubble_r, 50, 50, 30, 30, 5, 3, 50, 20, 20, false, null, 0))
+    //projectiles.push(new projectile(bubble_r, 50, 50, 30, 30, 5, 3, 50, 20, 20, false, null, 0, 10000))
 
 	
     var cx = 0
@@ -329,6 +342,7 @@
 		this.ability = false
 		this.abilityCount = 0
 		this.enemy = null
+		this.enemies = []
 		this.health = health + 0
 		this.maxHealth = health + 0
 		this.dead = false
@@ -349,6 +363,9 @@
 		this.weaponIndex = 0
 		this.abilityIndex = 0
 		this.abilityType = ""
+		this.idle = false
+		this.lastHealth = health + 0
+		this.beingDamaged = false
 	}
 	
 	switchWeapon() {
@@ -536,23 +553,49 @@
 					      
 					      game.drawImage(swordsl[Math.floor(this.abilityCount/2) % 8], this.x - 18, this.y + offset1 - 6, 25, 25)
 
+					      //projectiles.push(new projectile(bullet_l, this.rx - 1 + vxy.x, this.ry + vxy.y, 15, 10, vxy.x, vxy.y, 10 * this.strength, -1*Math.floor(Math.random()*25), Math.floor(Math.random()*50-25), false, null, vxy.r,10000))
+					      
+					      //game.drawImage(bubble_r, this.x - 12 + this.w/2, this.y - 10, 42, 42)
 
-					      if(this.enemy.x > this.x - 22 && this.enemy.x < this.x - 18 + 25 + this.w && this.enemy.y > this.y - 6 && this.enemy.y < this.y - 6 + this.h && this.damaged == false) {
-						      console.log("oof")
-						      this.damaged = true
-						      this.enemy.vx = -30
-						      this.enemy.health -= 10 * this.strength
+					      if(this.abilityCount == 0) {
+							projectiles.push(new projectile(bubble_l, this.rx - 44 + this.w/2, this.ry - 10, 42, 42, -15, 0, 10 * this.strength, -1*Math.floor(Math.random()*12), Math.floor(Math.random()*25-12), false, null, 5, 200))
+							sound("slash.mp3",0.3)
+						}
 
-						      if(this.enemy.type == "enemy") {
-							      
-							      this.enemy.bloods.push(new blood(this.enemy.rx,this.enemy.ry,15,"magenta", 5, 5, 10 * this.strength))
+					      var i = 0
+
+					      var l = this.enemies.length
+
+					      if(l == 0) {
+					         l = 1
+					      }
+
+					      while(i < l) {
+
+						      if(this.enemies.length != 0) {
+							  this.enemy = this.enemies[i]
 						      }
-						      else {
-							      
-							      this.enemy.bloods.push(new blood(this.enemy.rx,this.enemy.ry,15,"cyan", 5, 5, 10 * this.strength))
+
+						      if(this.enemy.x > this.x - 22 && this.enemy.x < this.x - 18 + 25 + this.w && this.enemy.y > this.y - 6 && this.enemy.y < this.y - 6 + this.h && this.damaged == false) {
+							      console.log("oof")
+							      this.damaged = true
+							      this.enemy.vx = -30
+							      this.enemy.health -= 10 * this.strength
+
+							      if(this.enemy.type == "enemy") {
+								      
+								      this.enemy.bloods.push(new blood(this.enemy.rx,this.enemy.ry,15,"magenta", 5, 5, 10 * this.strength))
+							      }
+							      else {
+								      
+								      this.enemy.bloods.push(new blood(this.enemy.rx,this.enemy.ry,15,"cyan", 5, 5, 10 * this.strength))
+							      }
+
+							      this.enemy.bloods[this.enemy.bloods.length-1].init()
 						      }
 
-						      this.enemy.bloods[this.enemy.bloods.length-1].init()
+						      i += 1
+
 					      }
 					      
 				      }
@@ -560,25 +603,46 @@
 				      else {
 			      
 					      game.drawImage(swords[Math.floor(this.abilityCount/2) % 8], this.x + this.w - 6, this.y + offset1 - 6, 25, 25)
+		
+						if(this.abilityCount == 0) {
+							projectiles.push(new projectile(bubble_r, this.rx - 4 + this.w/2, this.ry - 10, 42, 42, 15, 0, 10 * this.strength, -1*Math.floor(Math.random()*12), Math.floor(Math.random()*25-12), false, null, 5, 200))
+							sound("slash.mp3",0.3)						
+						}
 
-					      if(this.enemy.x > this.x + this.w - 6 - this.w && this.enemy.x < this.x + this.w - 6 + 25 && this.enemy.y > this.y - 6 && this.enemy.y < this.y - 6 + this.h && this.damaged == false) {
-						      console.log("oof")
-						      this.damaged = true
-						      this.enemy.vx = 30
+						var i = 0
 
-						      this.enemy.health -= 10 * this.strength
+					      var l = this.enemies.length
 
-
-						      if(this.enemy.type == "enemy") {
-							      
-							      this.enemy.bloods.push(new blood(this.enemy.rx,this.enemy.ry,15,"magenta", 5, 5, 10 * this.strength))
-						      }
-						      else {
-							      
-							      this.enemy.bloods.push(new blood(this.enemy.rx,this.enemy.ry,15,"cyan", 5, 5, 10 * this.strength))
-						      }
-						      this.enemy.bloods[this.enemy.bloods.length-1].init()
+					      if(l == 0) {
+					         l = 1
 					      }
+
+					      while(i < l) {
+
+						      if(this.enemies.length != 0) {
+							  this.enemy = this.enemies[i]
+						      }					      
+
+							if(this.enemy.x > this.x + this.w - 6 - this.w && this.enemy.x < this.x + this.w - 6 + 25 && this.enemy.y > this.y - 6 && this.enemy.y < this.y - 6 + this.h && this.damaged == false) {
+							      console.log("oof")
+							      this.damaged = true
+							      this.enemy.vx = 30
+
+							      this.enemy.health -= 10 * this.strength
+
+
+							      if(this.enemy.type == "enemy") {
+								      
+								      this.enemy.bloods.push(new blood(this.enemy.rx,this.enemy.ry,15,"magenta", 5, 5, 10 * this.strength))
+							      }
+							      else {
+								      
+								      this.enemy.bloods.push(new blood(this.enemy.rx,this.enemy.ry,15,"cyan", 5, 5, 10 * this.strength))
+							      }
+							      this.enemy.bloods[this.enemy.bloods.length-1].init()
+							}
+						i += 1
+						}
 
 				      }
 
@@ -608,8 +672,9 @@
 
 						
 					      
-					        projectiles.push(new projectile(bullet_l, this.rx - 1 + vxy.x, this.ry + vxy.y, 15, 10, vxy.x, vxy.y, 10 * this.strength, -1*Math.floor(Math.random()*25), Math.floor(Math.random()*50-25), false, null, vxy.r))
-					      
+					        projectiles.push(new projectile(bullet_l, this.rx - 1 + vxy.x, this.ry + vxy.y, 15, 10, vxy.x, vxy.y, 10 * this.strength, -1*Math.floor(Math.random()*25), Math.floor(Math.random()*50-25), false, null, vxy.r,10000))
+					        
+						sound("pistol.mp3",0.3)
 					      }
 					      
 					      //constructor(image, x, y, w, h, vx, vy, damage, kx, ky, hittable, platform, angle )
@@ -639,8 +704,10 @@
 							vxy = calculateVelocity(15, this.x, this.y, mousex, mousey) //Calculate with this.x, this.y
 						}
 
-					        projectiles.push(new projectile(bullet_r, this.rx + 1 + vxy.x, this.ry + vxy.y, 15, 10, vxy.x, vxy.y, 10 * this.strength, Math.floor(Math.random()*25), Math.floor(Math.random()*50-25), false, null, vxy.r))
+					        projectiles.push(new projectile(bullet_r, this.rx + 1 + vxy.x, this.ry + vxy.y, 15, 10, vxy.x, vxy.y, 10 * this.strength, Math.floor(Math.random()*25), Math.floor(Math.random()*50-25), false, null, vxy.r, 10000))
 					      
+
+						sound("pistol.mp3",0.3)
 					      }
 
 
@@ -699,7 +766,7 @@
         
                 this.currentAbilityDuration = 16
 			
-			
+					
 			
 				        if(this.facing == "right") {
 					        game.drawImage(bubble_r, this.x - 12 + this.w/2, this.y - 10, 42, 42)
@@ -708,20 +775,42 @@
 				        else {
 					        game.drawImage(bubble_l, this.x - 12, this.y - 10, 42, 42)
 				        }
-				        
 
-				        if(this.enemy.x > this.x - 12 - this.enemy.w && this.enemy.x < this.x - 12 + 42 && this.enemy.y > this.y - 10 - this.enemy.h && this.enemy.y < this.y - 10 + 42) {
-					        console.log("oof")
-					        
+					var i = 0
 
-					        if(this.facing == "right") {
-						        this.enemy.vx = 16
-					        }
-					        else {
-						        this.enemy.vx = -16
-					        }
+				      var l = this.enemies.length
 
-				        }
+				      if(l == 0) {
+				         l = 1
+				      }
+
+				      while(i < l) {
+
+						if(this.enemies.length != 0) {
+							  this.enemy = this.enemies[i]
+						      }
+
+
+						      if(this.enemies.length != 0) {
+							  this.enemy = this.enemies[i]
+						      }
+						
+
+						if(this.enemy.x > this.x - 12 - this.enemy.w && this.enemy.x < this.x - 12 + 42 && this.enemy.y > this.y - 10 - this.enemy.h && this.enemy.y < this.y - 10 + 42) {
+							console.log("oof")
+							
+
+							if(this.facing == "right") {
+								this.enemy.vx = 16
+							}
+							else {
+								this.enemy.vx = -16
+							}
+
+						}
+						i += 1
+
+				      }
 				        
 				        
 				}
@@ -1087,8 +1176,9 @@
 				  }
 
         
-
-				  this.damage += 1
+				  if(p.idle == false) {
+				  	this.damage += 1
+				  }
 				
 				
 				
@@ -1243,7 +1333,7 @@
     
     
     class projectile {
-	constructor(image, x, y, w, h, vx, vy, damage, kx, ky, hittable, platform, angle) {
+	constructor(image, x, y, w, h, vx, vy, damage, kx, ky, hittable, platform, angle, lifetime) {
 	  this.image = image
 		this.x = x
 		this.y = y
@@ -1266,6 +1356,10 @@
 		  this.vx = 0
 		  this.vy = 0
 		}
+		
+		setTimeout(function() {
+			projectiles.splice(projectiles.indexOf(this),1)
+		},lifetime)
 		
 
 	}
@@ -1578,13 +1672,23 @@
     }
 	
     
-    var enemy1 = new player(2000-3*40,30, 15, 20, "enemy", "enemy1",100, 1)
+    var enemy1 = new player(2000-3*40,500, 15, 20, "enemy", "enemy1",200, 1) // Treat enemy1 as boss
 
+    var enemy2 = new player(2000-16*40,500, 15, 20, "enemy", "enemy2",100, 1)
 
-    player1.enemy = enemy1
+    var enemy3 = new player(2000-24*40,500, 15, 20, "enemy", "enemy3",100, 1)
+
+    var enemies = [enemy1, enemy2, enemy3]
+
+    player1.enemies = [enemy1, enemy2, enemy3]
 
     enemy1.enemy = player1
     
+    enemy2.enemy = player1
+
+    enemy3.enemy = player1
+
+   
 
     function disableEnemy() {
 
@@ -1658,9 +1762,6 @@
 
 
 
-    var lastEnemyHealth = enemy1.health + 0
-    
-    var damageToEnemy = false
 
     
     var collision = false
@@ -1744,7 +1845,7 @@
 		
 
 			          //platforms.push(tplat)
-			          //projectiles.push(new projectile(crate, tx+20, ty-40, 40, 40, 10, 0, 25, Math.floor(Math.random()*40-20), Math.floor(Math.random()*40-20),true, tplat, 0)) //Change the vx and vy later as soon as the player hits the projectile with an ability, by default "hittable" are vx,vy 0
+			          //projectiles.push(new projectile(crate, tx+20, ty-40, 40, 40, 10, 0, 25, Math.floor(Math.random()*40-20), Math.floor(Math.random()*40-20),true, tplat, 0, 10000)) //Change the vx and vy later as soon as the player hits the projectile with an ability, by default "hittable" are vx,vy 0
 			       }
 			       else {
 			          //platforms.push(new platform(30 + i * 200 + Math.random()*75,100 + i0 * 60 + Math.random()*50 + 300+100,80,10, "normal"))
@@ -1930,6 +2031,17 @@
 			enemy1.toJump = true
 		}
 		
+		collision = platforms[i].collide(enemy2)
+
+		if(collision == true) {
+			enemy2.toJump = true
+		}
+
+		collision = platforms[i].collide(enemy3)
+
+		if(collision == true) {
+			enemy3.toJump = true
+		}
 		
 
 		i += 1
@@ -1973,7 +2085,11 @@
 			cx = 0
 			cy = 0
 			player1.reset()
-			enemy1.reset()
+			var i00 = 0
+			while(i < enemies.length) {
+				enemies[i].reset()				
+				i += 1
+			}
 			initialFrame1 = 0
 			borderCollide = true
 			
@@ -2021,39 +2137,73 @@
 				projectiles[i].collide(enemy1)
 			}
 			if(projectiles[i] != undefined) {
+				projectiles[i].collide(enemy2)
+			}
+			if(projectiles[i] != undefined) {
+				projectiles[i].collide(enemy3)
+			}
+			if(projectiles[i] != undefined) {
 				if(projectiles[i].x < -1000) {
 					projectiles.splice(i,1)
 				}
 			}
+			
 			i += 1
 		}
 
 
   var damageColor = "magenta"
-  
-  if(enemy1.health != lastEnemyHealth) {
-    if(damageToEnemy == true) {
-      clearTimeout(tout)
-    }
-  
-    damageToEnemy = true
-    
-    tout = setTimeout(function() {damageToEnemy = false;},1000)
-  }
-  
-  if(damageToEnemy == true) {
-    damageColor = "red"
-  }
 
-  if(enemy1.x >= w) {
-    game.fillStyle = damageColor
-    game.fillRect(w-10,enemy1.y,10,10)  
-  }
-  else if(enemy1.x <= 0-enemy1.w) {
-    game.fillStyle = damageColor
-    game.fillRect(0,enemy1.y,10,10)
-  }
+  var i = 0
+
   
+
+  while(i < enemies.length) {
+	
+	  damageColor = "magenta"
+  
+	  if(enemies[i].health != enemies[i].lastHealth) {
+	    if(enemies[i].beingDamaged == true) {
+	      clearTimeout(tout)
+	    }
+	  
+	    enemies[i].beingDamaged = true
+
+	    var tout
+	    
+	    (function (index) {
+	      tout = setTimeout(function () {
+		enemies[index].beingDamaged = false;
+	      }, 1000);
+	    })(i)
+	  }
+	  
+	  if(enemies[i].beingDamaged == true) {
+	    damageColor = "red"
+	  }
+
+	  
+
+	  if(enemies[i].x >= w) {
+	    game.fillStyle = damageColor
+	    game.fillRect(w-10,enemies[i].y,10,10)  
+	  }
+	  else if(enemies[i].x <= 0-enemies[i].w) {
+	    game.fillStyle = damageColor
+	    game.fillRect(0,enemy1.y,10,10)
+	  }
+
+
+	  if(enemies[i].y >= h) {
+	    game.fillStyle = damageColor
+	    game.fillRect(w-10,enemies[i].x,10,10)  
+	  }
+	  else if(enemies[i].y <= 0-enemies[i].h) {
+	    game.fillStyle = damageColor
+	    game.fillRect(0,enemy1.x,10,10)
+	  }
+	i += 1
+  }
   
   
   
@@ -2082,9 +2232,14 @@
   
   
   
+  i = 0
+
+  while(i < enemies.length) {
+	enemies[i].lastHealth = enemies[i].health + 0
+	i += 1
+  }
   
   
-  lastEnemyHealth = enemy1.health + 0
   
   //SAMPLE SYNTAX FOR STATIONARY OBJECT POSITIONING
   //game.fillStyle="red"
@@ -2108,56 +2263,90 @@
 
 	enemy1.draw()
 
+	enemy2.move()
+
+	enemy2.draw()
+
+	enemy3.move()
+
+	enemy3.draw()
+	
 	
 	// This is to slow down AI reactions
 
-	if(frame%4 == 0) {
 
-		if(enemy1.distanceToPlayer(player1) < 200 && player1.weapon == "sword") {
+	var i = 0
 
+	while(i < enemies.length) {
 
-			enemy1.moveToPlayer(player1)
+		if(frame%4 == 0) {
 
-      if(enemy1.ability == false) {
-		    enemy1.weapon = "sword"
-		  }
-		}
-
-		else {
-		
-		  if(enemy1.ability == false) {
-		    enemy1.weapon = "pistol"
-		  }
+			if(enemies[i].distanceToPlayer(player1) < 200 && player1.weapon == "sword") {
 
 
-			//enemy1.moveToPlatform()
+				enemies[i].moveToPlayer(player1)
 
-			enemy1.moveToPlayer(player1)
+				enemies[i].idle = false
+
+	      if(enemies[i].ability == false) {
+			    enemies[i].weapon = "sword"
+			  }
+			}
+
+			else {
 			
-			enemy1.abilityStart = true
+			  if(enemies[i].ability == false) {
+			    enemies[i].weapon = "pistol"
+			  }
+
+
+				//enemy1.moveToPlatform()
+
+				
+
+				//                   enemies[i].moveToPlayer(player1)
+				
+				//                   enemies[i].abilityStart = true
+
+				enemies[i].idle = true
+
+			}
 
 		}
 
-	}
+		// Don't make it too easy and do some stuff instantly
 
-	// Don't make it too easy and do some stuff instantly
+		if(enemies[i].distanceToPlayer(player1) < 200) {
 
-	if(enemy1.distanceToPlayer(player1) < 50) {
+	    if(enemies[i].ability == false) {
+		    enemies[i].weapon = "sword"
+		  }
+			
+			//Note: seems broken because its only x axis distance, potentially fix later
+			if(enemies[i].defend == false && enemies[i].ability == false && player1.usingAbility == true && player1.defend == false) {
+				enemies[i].defend = true
+				
+			}
+			else {
+				enemies[i].moveToPlayer(player1)
+			}
 
-    if(enemy1.ability == false) {
-	    enemy1.weapon = "sword"
-	  }
-		
-		//Note: seems broken because its only x axis distance, potentially fix later
-		if(enemy1.defend == false && enemy1.ability == false && player1.usingAbility == true && player1.defend == false) {
-			enemy1.defend = true
+			
+			enemies[i].abilityStart = true
+			enemies[i].idle = false
 		}
 
-		enemy1.abilityStart = true
-	}
+		if(player1.weapon == "pistol") {
+			enemies[i].weapon = "pistol"
+			
+		}
 
-	if(player1.weapon == "pistol") {
-		enemy1.weapon = "pistol"
+		if(enemies[i].health < enemies[i].maxHealth) {
+			enemies[i].moveToPlayer(player1)
+			enemies[i].idle = false
+		}
+
+		i += 1
 	}
 
 
