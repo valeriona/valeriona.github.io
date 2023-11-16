@@ -558,7 +558,7 @@
 					      //game.drawImage(bubble_r, this.x - 12 + this.w/2, this.y - 10, 42, 42)
 
 					      if(this.abilityCount == 0) {
-							projectiles.push(new projectile(bubble_l, this.rx - 44 + this.w/2, this.ry - 10, 42, 42, -15, 0, 10 * this.strength, -1*Math.floor(Math.random()*12), Math.floor(Math.random()*25-12), false, null, 5, 200))
+							projectiles.push(new projectile(slash_l, this.rx - 28 + this.w/2, this.ry - 10, 26, 26, -15, 0, 10 * this.strength, -1*Math.floor(Math.random()*12), Math.floor(Math.random()*25-12), false, null, 5, 200))
 							sound("slash.mp3",0.3)
 						}
 
@@ -605,7 +605,7 @@
 					      game.drawImage(swords[Math.floor(this.abilityCount/2) % 8], this.x + this.w - 6, this.y + offset1 - 6, 25, 25)
 		
 						if(this.abilityCount == 0) {
-							projectiles.push(new projectile(bubble_r, this.rx - 4 + this.w/2, this.ry - 10, 42, 42, 15, 0, 10 * this.strength, -1*Math.floor(Math.random()*12), Math.floor(Math.random()*25-12), false, null, 5, 200))
+							projectiles.push(new projectile(slash_r, this.rx - 4 + this.w/2, this.ry - 10, 26, 26, 15, 0, 10 * this.strength, -1*Math.floor(Math.random()*12), Math.floor(Math.random()*25-12), false, null, 5, 200))
 							sound("slash.mp3",0.3)						
 						}
 
@@ -1742,6 +1742,10 @@
     var bullet_l = loadImage("bullet_l.png")
 
     var bullet_r = loadImage("bullet_r.png")
+
+    var slash_l = loadImage("slash_l.png")
+
+    var slash_r = loadImage("slash_r.png")
 
     var s = 1
 
