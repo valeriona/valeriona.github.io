@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Iframe Swapper</title>
+<style>
+body {background-color:black;}
+iframe {width:100%;height:100%;position:fixed;left:0px;top:0px;border:none;}
+</style>
+</head>
+<body>
+  <div id="iframeContainer">
+    <iframe id="iframe1" src="tracker.html"></iframe>
+    <iframe id="iframe2" src="" style="display: none;"></iframe>
+    
+  </div>
+
+  <script>
+  
+    var coinIds = prompt("Please paste in your coin ids to track:")
+    
+    document.getElementById("iframe1").src = "tracker.html#"+coinIds;
+  
+    var visibleIframe = "iframe1"
+    
+  
+    function swapIframes() {
+      var visibleIframeElement;
+      var hiddenIframeElement;
+      
+      if(visibleIframe == "iframe1") {
+      	visibleIframeElement = document.getElementById("iframe1")
+      	hiddenIframeElement = document.getElementById("iframe2")
+      	visibleIframe = "iframe2"
+      }
+      else {
+      	visibleIframeElement = document.getElementById("iframe2")
+      	hiddenIframeElement = document.getElementById("iframe1")
+      	visibleIframe = "iframe1"
+      }
+      
+
+      hiddenIframeElement.src = ""; // Clear the source first
+      hiddenIframeElement.src = "tracker.html#"+coinIds;
+
+      // Wait for the hidden iframe to reload (or for 1 second)
+      setTimeout(() => {
+        // Hide the currently visible iframe and show the reloaded one
+        visibleIframeElement.style.display = "none";
+        hiddenIframeElement.style.display = "block";
+        visibleIframeElement.src = ""; // Clear the source first
+
+        // Schedule the next swap after 5 seconds
+        setTimeout(swapIframes, 5000);
+      }, 1500);
+    }
+
+    // Start the swap cycle after an initial delay of 5 seconds
+    setTimeout(swapIframes, 5000);
+  </script>
+</body>
+</html>
