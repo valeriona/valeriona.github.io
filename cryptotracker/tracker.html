@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+
+<style>
+
+table, th, td {border: 2px solid #005566;border-collapse: collapse;background-color:#001122;color:white;font-family:arial;z-index:10001;}
+
+th,td {padding:10px;}
+
+.icon {width:20px;height:20px;position:absolute;left:20px;margin-top:-10px;}
+
+.name {position:absolute;left:50px;margin-top:-8px;font-family:arial;color:white;}
+
+a {text-decoration:none;color:white;}
+
+th {width:150px;}
+
+#cryptosInfo {z-index:1000;}
+
+#coinmarketcap-widget-coin-price-block, #coinPriceBlock-container {z-index:-1000;display:none;}
+
+</style>
+
+<body>
+
+
+<div style="position:fixed;left:0px;top:0px;right:0px;bottom:0px;background-color:black;z-index:-1;"></div>
+
+<div id="coinmarketcap-widget-coin-price-block" coins="" currency="USD" theme="dark" transparent="false" show-symbol-logo="true"></div>
+
+<script>
+function getWebsiteUrl() {
+        var url = window.location.href;
+        var prefix = "https://sat-link.github.io/sat-link/";
+        
+        // Remove the prefix
+        var websiteUrl = url.substring(url.indexOf(prefix) + prefix.length);
+        
+        // Remove "/#"
+        websiteUrl = websiteUrl.replace("/#", '');
+
+        // Remove "#"
+        websiteUrl = websiteUrl.replace("#", '');
+        
+        // Remove "%20APPS/CryptoTracker/tracker.html"
+        websiteUrl = websiteUrl.replace("%20APPS/CryptoTracker/tracker.html", '');
+        
+        
+
+        return websiteUrl;
+    }
+    
+    // CAN EITHER BE websiteurl.com#coins OR websiteurl.com/#coins (doesnt work locally with a slash)
+    
+    document.getElementById("coinmarketcap-widget-coin-price-block").setAttribute("coins", getWebsiteUrl())
+    
+    //alert(getWebsiteUrl())
+    
+    </script>
+
+<script id="coinscript" type="text/javascript" src="https://files.coinmarketcap.com/static/widget/coinPriceBlock.js"></script>
+
+<table id="cryptosInfo"></table>
+
+
+<script>
+
+function getWebsiteUrl() {
+        var url = window.location.href;
+        var prefix = "https://sat-link.github.io/sat-link/";
+        
+        // Remove the prefix
+        var websiteUrl = url.substring(url.indexOf(prefix) + prefix.length);
+        
+        // Remove "/#"
+        websiteUrl = websiteUrl.replace("/#", '');
+
+        // Remove "#"
+        websiteUrl = websiteUrl.replace("#", '');
+
+        return websiteUrl;
+    }
+
+setInterval(function() {
+	document.getElementById("coinPriceBlock-container").style.display = "none"
+    document.getElementById("coinmarketcap-widget-coin-price-block").style.display = "none"
+},100)
+
+setInterval(function() {
+// Get the existing script element
+const existingScript = document.getElementById("coinscript");
+
+// Remove it from the DOM
+if (existingScript) {
+    existingScript.parentNode.removeChild(existingScript);
+}
+
+// Create a new script element with the same ID and source
+const newScript = document.createElement("script");
+newScript.id = "coinscript";
+newScript.src = "https://files.coinmarketcap.com/static/widget/coinPriceBlock.js";  // Replace with the actual script URL if different
+
+// Append the new script to the head of the document
+document.head.appendChild(newScript);
+},3000)
+
+var cryptos = []
+
+setTimeout(function() {
+
+
+  var coinContainer = document.getElementById("coinPriceBlock-container")
+
+
+  if (coinContainer) {
+      // Get the children
+      const children = coinContainer.children;
+
+      // Loop through each child
+      
+      cryptos = []
+      
+      let i = 0;
+      while (i < children.length) {
+          const child = children[i];
+
+
+          cryptos.push({
+          	name:child.getElementsByClassName("coinPriceBlock__title")[0].innerHTML,
+            icon:child.getElementsByClassName("coinPriceBlock__icon")[0].children[0].src,
+            changes:child.getElementsByClassName("coinPriceBlock__changes")[0].innerHTML,
+            price:child.getElementsByClassName("coinPriceBlock__price")[0].innerHTML,
+            
+          })
+
+
+          i++;
+      }
+  } else {
+      console.error("Element with ID 'coinPriceBlock-container' not found.");
+  }
+
+var i = 0
+var cryptosInfo = document.getElementById("cryptosInfo")
+
+cryptosInfo.innerHTML = ""
+
+while(i < cryptos.length) {
+
+cryptosInfo.innerHTML += "<tr>"+"<th>" + "<img class='icon' src='"+cryptos[i].icon+"'></img>" + "<span class='name'>" + cryptos[i].name+"</span>"+"</th>" + "<td>"+cryptos[i].price +"</td>"+ "<td>"+cryptos[i].changes +"</td>"+"</tr>"
+
+i += 1
+
+
+}
+
+},1000)
+</script>
+
+</body>
+</html>
