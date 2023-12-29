@@ -1,1 +1,2511 @@
+<!DOCTYPE html>
+<html>
 
+<head>
+  <meta charset="utf-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <title>Pocket CyberSplee</title>
+
+
+  <style>
+    * {
+      box-sizing: border-box;
+      outline: none;
+      user-select: none;
+      touch-action: manipulation;
+    }
+
+    body {
+      margin: 0px;
+      background-color:#000011
+
+    }
+
+    #placeholder {
+
+      position: absolute;
+      left: 0px;
+      top: 0px;
+      right: 0px;
+      bottom: 295px;
+    }
+
+    #game {
+      position: fixed;
+      background-color: black;
+
+    }
+
+    #controls {
+
+	position: absolute;
+	left:0px;
+	height:295px;
+	bottom:0px;
+	right:0px;
+	background-color:#000011
+    }
+
+    #left, #right, #ability, #abilityCooldown, #defend, #switchWeapon, #switchAbility {
+	border: 1px solid cyan;
+	border-radius: 5px;
+	background-color: #002233;
+	color: cyan;
+	position: absolute;
+    }
+
+    #left {
+
+	width: 47%;
+	left: 2%;
+	bottom: 8px;
+	height: 112px;
+	font-size:80px;
+	font-weight:bold;
+    }
+
+
+    #right {
+
+	width: 47%;
+	right: 2%;
+	bottom: 8px;
+	height: 112px;
+	font-size:80px;
+	font-weight:bold;
+    }
+
+    #ability {
+
+	width: 74%;
+	left: 24%;
+	right: 12%;
+	bottom: 128px;
+	height: 82px;
+	font-size:30px;
+	font-weight:bold;
+	background-color:#003344
+    }
+
+    #defend {
+
+	width: 20%;
+	left: 2%;
+	right: 2%;
+	bottom: 128px;
+	height: 82px;
+	font-size:30px;
+	font-weight:bold;
+	background-color:#005566
+    }
+
+    #abilityCooldown {
+
+	width: 74%;
+	left: 24%;
+	width: 2.90909%;
+	bottom: 128px;
+	height: 10px;
+	font-size:30px;
+	font-weight:bold;
+	background-color:#00AABB
+    }
+
+    #testreset {
+	position:fixed;
+	right:0px;
+	width:100px;
+	font-size:10px;
+	background-color:black;
+	color:white;
+	height:25px;
+	border:1px solid white;
+    }
+
+    #download {
+      position: fixed;
+      right: 100px;
+      width: 100px;
+      font-size: 10px;
+      background-color: #222222;
+      color: white;
+      height: 25px;
+      border: 1px solid white;
+      color: white;
+      text-decoration: none;
+    }
+    
+    #resetCoins {
+      position: fixed;
+      right: 200px;
+      width: 100px;
+      font-size: 10px;
+      background-color: #222222;
+      color: white;
+      height: 25px;
+      border: 1px solid white;
+      color: white;
+      text-decoration: none;
+    }
+
+
+  #switchWeapon {
+
+	width: 47%;
+	left: 51%;
+	right: 11%;
+	bottom: 218px;
+	height: 72px;
+	font-size:30px;
+	font-weight:bold;
+	background-color:#110011;
+	border:1px solid magenta;
+	color:magenta;
+    }
+    
+    #switchAbility {
+
+	width: 47%;
+	left: 2%;
+	right: 40%;
+	bottom: 218px;
+	height: 72px;
+	font-size:30px;
+	font-weight:bold;
+	background-color:#330033;
+	border:1px solid magenta;
+	color:magenta;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div id="placeholder"></div>
+
+  <canvas id="game"  ontouchstart="abilityStart()" ontouchend="abilityEnd()" onmousedown="abilityStart()" onmouseup="abilityEnd()"></canvas>
+
+  <div id="controls">
+  
+  <button id="left" ontouchstart="leftStart()" ontouchend="leftEnd()" onmousedown="leftStart()" onmouseup="leftEnd()">&lt;</button>
+  
+  <button id="right" ontouchstart="rightStart()" ontouchend="rightEnd()" onmousedown="rightStart()" onmouseup="rightEnd()">&gt;</button>
+
+  <button id="defend" ontouchstart="defendStart()" ontouchend="defendEnd()" onmousedown="defendStart()" onmouseup="defendEnd()"><img src="shield.png" style="width:60%;height:60%;left:20%;top:20%;position:absolute;"></img></button>
+
+  <!-- A second way to actiave the ability for convenience and cooldown visuals -->
+
+  <button id="ability" ontouchstart="abilityStart()" ontouchend="abilityEnd()" onmousedown="abilityStart()" onmouseup="abilityEnd()">ability</button>
+  
+  <button id="switchAbility" onmousedown="player1.switchAbility()"><img id="currentAbility" src="notinuse.png" style="width:50%;height:50%;left:20%;top:20%;position:inline;"></img> &#10227;</button>
+  
+  <button id="switchWeapon" onmousedown="player1.switchWeapon()"><img id="currentWeapon" src="sword3.png" style="width:50%;height:50%;left:20%;top:20%;position:inline;"></img> &#10227;</button>
+
+  <div id="abilityCooldown"></div>
+
+  </div>
+
+<button id="testreset" onclick="player1.reset();enemy1.reset();var i = 0;while(i<platforms.length){platforms[i].reset();i+=1;}">test reset</button>
+<button id="download"><a href="/download" style="text-decoration:none;color:white;">download</a></button>
+<button id="resetCoins" onclick="localStorage.coins = '0'">reset coins</button>
+  <script>
+
+    // Initialise game
+
+    var gameElement = document.getElementById("game")
+    var game = gameElement.getContext("2d")
+    var placeholder = document.getElementById("placeholder")
+    var w = placeholder.offsetWidth
+    var h = placeholder.offsetHeight
+
+    var mousex = w/2
+
+    var mousey = h/2	
+
+    gameElement.width = w + 0
+    gameElement.height = h + 0
+
+    function getMousePos(canvas, event) {
+            var rect = canvas.getBoundingClientRect();
+            return {
+                x: event.clientX - rect.left,
+                y: event.clientY - rect.top
+            };
+        }
+    
+
+    gameElement.addEventListener("mousemove", function (event) {
+            var mousePos = getMousePos(gameElement, event);
+            mousex = mousePos.x + 0
+	    mousey = mousePos.y + 0
+        });
+
+        gameElement.addEventListener("touchmove", function (event) {
+            var touch = event.touches[0];
+            var touchPos = getMousePos(gameElement, touch);
+            mousex = touchPos.x + 0
+	    mousey = touchPos.y + 0
+        });
+
+    function sound(src,vol) {
+
+            const audio = new Audio(src);
+
+	    audio.volume = vol
+
+            audio.play();
+
+            audio.onended = function() {
+                audio.remove();
+            };
+        }
+
+
+    
+    var projectiles = [] //constructor(image, x, y, w, h, vx, vy, damage, kx, ky, hittable, platform)
+    
+    //projectiles.push(new projectile(bubble_r, 50, 50, 30, 30, 5, 3, 50, 20, 20, false, null, 0, 10000))
+
+	
+    var cx = 0
+    var cy = 0
+    
+
+    //Images
+
+    function loadImage(image) {
+      var img = new Image();
+      img.addEventListener('load', function () {
+      }, false);
+      img.src = image;
+      return (img)
+    }
+
+    function drawImageRotation(image, angle, positionX, positionY, centerX, centerY) {
+	  //centerX,centerY is basically the offset from the centre of the image (set 0,0 for it to be center based)
+	  var angleInRad = Math.PI/180 * angle
+	  game.translate( positionX, positionY );
+	  game.rotate( angleInRad );
+	  game.drawImage( image, -centerX, -centerY );
+	  game.rotate( -angleInRad );
+	  game.translate( -positionX, -positionY );
+	}
+
+    //game.drawImage(image,x,y,w,h)
+
+
+
+    function calculateVelocity(targetOverallVelocity, startX, startY, targetX, targetY) {
+	    // Calculate the displacement in the x and y directions
+	    const deltaX = targetX - startX;
+	    const deltaY = targetY - startY;
+
+	    // Calculate the distance between the start and target positions
+	    const distance = Math.sqrt(deltaX ** 2 + deltaY ** 2);
+
+	    // Calculate the time it takes to reach the target position with the given overall velocity
+	    const time = distance / targetOverallVelocity;
+
+	    // Calculate the velocity components (velocity = displacement / time)
+	    const velocityX = deltaX / time;
+	    const velocityY = deltaY / time;
+
+            // Calculate the angle in degrees
+	    const angleInRadians = Math.atan2(deltaY, deltaX);
+	    const angleInDegrees = angleInRadians * (180 / Math.PI);
+
+	    return { x: velocityX, y: velocityY, r: angleInDegrees };
+	}
+
+
+    var frame = 0
+
+    var borderCollide = true
+
+    class player {
+	constructor(initx, inity, w, h, type, pName, health, strength) {
+		this.initx = initx + 0
+		this.inity = inity + 0
+		this.x = initx + 0
+		this.y = inity + 0
+		this.w = w
+		this.h = h
+		this.pName = pName
+		this.direction = 0
+		this.vx = 0
+		this.vy = 0
+		this.toJump = false
+		this.facing = "right"
+		this.abilityStart = false
+		this.ability = false
+		this.abilityCount = 0
+		this.enemy = null
+		this.enemies = []
+		this.health = health + 0
+		this.maxHealth = health + 0
+		this.dead = false
+		this.strength = strength
+		this.abilityCooldown = false
+		this.bloods = []
+		this.defend = false
+		this.type = type
+		this.rx = initx + 0
+		this.ry = inity + 0
+		this.damaged = false
+		this.coins = []
+		this.weapon = "sword"
+		this.shield = "bubble"
+		this.currentAbilityDuration = 16
+		this.abilities = []
+		this.weapons = []
+		this.weaponIndex = 0
+		this.abilityIndex = 0
+		this.abilityType = ""
+		this.idle = false
+		this.lastHealth = health + 0
+		this.beingDamaged = false
+	}
+	
+	switchWeapon() {
+	  if(this.ability == false) {
+	    this.weaponIndex += 1
+	    this.weaponIndex = this.weaponIndex % this.weapons.length
+	    this.weapon = this.weapons[this.weaponIndex]
+	    
+	    var currentWeapon = document.getElementById("currentWeapon")
+	    
+	    if(this.weapon == "sword") {
+	      currentWeapon.src = "sword3.png"
+	    }
+	    else if(this.weapon == "pistol") {
+	      currentWeapon.src = "bullet_r.png"
+	    }
+	  }
+	  
+	}
+	
+	switchAbility() {
+	  if(this.ability == false) {
+	    this.abilityIndex += 1
+	    this.abilityIndex = this.abilityIndex % this.abilities.length
+	    this.abilityType = this.abilities[this.abilityIndex]
+	    
+	    var currentAbility = document.getElementById("currentAbility")
+	    
+	    //if(this.weapon == "sword") {
+	    //  currentAbility.src = "sword3.png"
+	    //}
+	    //else if(this.weapon == "pistol") {
+	    //  currentAbility.src = "bullet_r.png"
+	    //}
+	  }
+	  
+	}
+
+	reset() {
+
+		if(this.type == "enemy") {
+			
+			this.bloods.push(new blood(this.rx,this.ry,60,"magenta", 5, 5,0))
+		}
+		else {
+
+			this.bloods.push(new blood(this.rx,this.ry,60,"cyan", 5, 5,0))
+		}
+
+		this.bloods[this.bloods.length-1].init()
+		
+		this.x = this.initx + 0
+		this.y = this.inity + 0
+		this.health = this.maxHealth + 0
+		this.vx = 0
+		this.vy = 0
+		this.dead = false
+		this.abilityCooldown = false
+		this.abilityCount = 0
+		this.direction = 0
+		this.usingAbility = false
+		this.rx = this.initx + 0
+		this.ry = this.inity + 0
+
+		
+	}
+
+	draw() {
+
+		if(this.type == "player") {
+			if(this.abilityCooldown == true) {
+				if(this.abilityCount >= 17) {
+					document.getElementById("abilityCooldown").style.width = String(((75-this.abilityCount)/(75-this.currentAbilityDuration))*100*0.74) + "%"
+				}
+				else {
+					document.getElementById("abilityCooldown").style.width = "74%"
+				}
+				document.getElementById("ability").style.backgroundColor = "#001122"
+				document.getElementById("defend").style.backgroundColor = "#002233"
+			}
+			else {
+
+				document.getElementById("ability").style.backgroundColor = "#003344"
+				document.getElementById("defend").style.backgroundColor = "#005566"
+			}
+		}
+		
+
+		var i = 0
+
+		while(i < this.bloods.length) {
+			this.bloods[i].draw()
+
+			if(this.bloods[i].frames > 30) {
+				this.bloods.splice(i,1)
+			}
+			i += 1
+		}
+		
+		
+
+		if(this.type == "player") {
+
+			if(this.facing == "left") {
+				game.drawImage(char1left, this.x, this.y, this.w, this.h)
+			}
+
+			else {
+				game.drawImage(char1right, this.x, this.y, this.w, this.h)
+			}
+
+		}
+
+		else {
+
+			if(this.facing == "left") {
+				game.drawImage(enemychar1left, this.x, this.y, this.w, this.h)
+			}
+
+			else {
+				game.drawImage(enemychar1right, this.x, this.y, this.w, this.h)
+			}
+	
+			
+		}
+
+		if(this.type == "enemy") {
+			game.fillStyle = "#FF00FF"
+			game.fillRect(this.x + this.w/2 - 10 + 1, this.y - 15, 20, 5)
+			game.fillStyle = "#770077"
+			game.fillRect(this.x + this.w/2 + 10 - ((this.maxHealth-this.health)/this.maxHealth)*20+1, this.y - 15, ((this.maxHealth-this.health)/this.maxHealth)*20, 5)
+			
+		}
+		else {
+			game.fillStyle = "#00FFFF"
+			game.fillRect(this.x + this.w/2 - 10, this.y - 15, 20, 5)
+			game.fillStyle = "#007777"
+			game.fillRect(this.x + this.w/2 + 10 - ((this.maxHealth-this.health)/this.maxHealth)*20+1, this.y - 15, ((this.maxHealth-this.health)/this.maxHealth)*20, 5)
+		}
+
+		var offset1 = 0
+
+		if((Math.floor(this.abilityCount/2) % 8) + 1 >= 6) {
+			offset1 = 22
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		// ABILITIES
+		// ABILITIES
+		// ABILITIES
+		
+		
+		// DO NOT MODIFY CX/CY HERE AUTOMATICALLY DONE IN PLAYER MOVE
+	  // DO NOT MODIFY CX/CY HERE AUTOMATICALLY DONE IN PLAYER MOVE
+	  // DO NOT MODIFY CX/CY HERE AUTOMATICALLY DONE IN PLAYER MOVE
+		
+		if(this.ability == true) {
+		
+		
+		
+		        
+
+			if(this.defend == false) {
+			
+			  //START OF ATTACK ABILITIES
+        //START OF ATTACK ABILITIES
+        //START OF ATTACK ABILITIES
+        
+        
+        
+        if(this.weapon == "sword") {
+        
+              this.currentAbilityDuration = 16
+
+				      if(this.facing == "left") {
+					      
+					      game.drawImage(swordsl[Math.floor(this.abilityCount/2) % 8], this.x - 18, this.y + offset1 - 6, 25, 25)
+
+					      //projectiles.push(new projectile(bullet_l, this.rx - 1 + vxy.x, this.ry + vxy.y, 15, 10, vxy.x, vxy.y, 10 * this.strength, -1*Math.floor(Math.random()*25), Math.floor(Math.random()*50-25), false, null, vxy.r,10000))
+					      
+					      //game.drawImage(bubble_r, this.x - 12 + this.w/2, this.y - 10, 42, 42)
+
+					      if(this.abilityCount == 0) {
+							projectiles.push(new projectile(slash_l, this.rx - 28 + this.w/2, this.ry - 10, 26, 26, -15, 0, 10 * this.strength, -1*Math.floor(Math.random()*12), Math.floor(Math.random()*25-12), false, null, 5, 200))
+							sound("slash.mp3",0.3)
+						}
+
+					      var i = 0
+
+					      var l = this.enemies.length
+
+					      if(l == 0) {
+					         l = 1
+					      }
+
+					      while(i < l) {
+
+						      if(this.enemies.length != 0) {
+							  this.enemy = this.enemies[i]
+						      }
+
+						      if(this.enemy.x > this.x - 22 && this.enemy.x < this.x - 18 + 25 + this.w && this.enemy.y > this.y - 6 && this.enemy.y < this.y - 6 + this.h && this.damaged == false) {
+							      console.log("oof")
+							      this.damaged = true
+							      this.enemy.vx = -30
+							      this.enemy.health -= 10 * this.strength
+
+							      if(this.enemy.type == "enemy") {
+								      
+								      this.enemy.bloods.push(new blood(this.enemy.rx,this.enemy.ry,15,"magenta", 5, 5, 10 * this.strength))
+							      }
+							      else {
+								      
+								      this.enemy.bloods.push(new blood(this.enemy.rx,this.enemy.ry,15,"cyan", 5, 5, 10 * this.strength))
+							      }
+
+							      this.enemy.bloods[this.enemy.bloods.length-1].init()
+						      }
+
+						      i += 1
+
+					      }
+					      
+				      }
+
+				      else {
+			      
+					      game.drawImage(swords[Math.floor(this.abilityCount/2) % 8], this.x + this.w - 6, this.y + offset1 - 6, 25, 25)
+		
+						if(this.abilityCount == 0) {
+							projectiles.push(new projectile(slash_r, this.rx - 4 + this.w/2, this.ry - 10, 26, 26, 15, 0, 10 * this.strength, -1*Math.floor(Math.random()*12), Math.floor(Math.random()*25-12), false, null, 5, 200))
+							sound("slash.mp3",0.3)						
+						}
+
+						var i = 0
+
+					      var l = this.enemies.length
+
+					      if(l == 0) {
+					         l = 1
+					      }
+
+					      while(i < l) {
+
+						      if(this.enemies.length != 0) {
+							  this.enemy = this.enemies[i]
+						      }					      
+
+							if(this.enemy.x > this.x + this.w - 6 - this.w && this.enemy.x < this.x + this.w - 6 + 25 && this.enemy.y > this.y - 6 && this.enemy.y < this.y - 6 + this.h && this.damaged == false) {
+							      console.log("oof")
+							      this.damaged = true
+							      this.enemy.vx = 30
+
+							      this.enemy.health -= 10 * this.strength
+
+
+							      if(this.enemy.type == "enemy") {
+								      
+								      this.enemy.bloods.push(new blood(this.enemy.rx,this.enemy.ry,15,"magenta", 5, 5, 10 * this.strength))
+							      }
+							      else {
+								      
+								      this.enemy.bloods.push(new blood(this.enemy.rx,this.enemy.ry,15,"cyan", 5, 5, 10 * this.strength))
+							      }
+							      this.enemy.bloods[this.enemy.bloods.length-1].init()
+							}
+						i += 1
+						}
+
+				      }
+
+				}
+				else if(this.weapon == "pistol") {
+        
+              this.currentAbilityDuration = 32
+
+				      if(this.facing == "left") {
+					      
+					      //game.drawImage(swordsl[Math.floor(this.abilityCount/2) % 8], this.x - 18, this.y + offset1 - 6, 25, 25)
+
+
+					      //MAKE SURE TO ANIMATE THE GUN
+					      
+					      if(this.abilityCount % 6 == 0) {
+
+						var vxy
+
+						if(this.type == "enemy") {
+							vxy = calculateVelocity(15, this.rx, this.ry, this.enemy.rx, this.enemy.ry) //Calculate with this.x, this.y
+						}
+
+						else {
+							vxy = calculateVelocity(15, this.x, this.y, mousex, mousey) //Calculate with this.x, this.y
+						}
+
+						
+					      
+					        projectiles.push(new projectile(bullet_l, this.rx - 1 + vxy.x, this.ry + vxy.y, 15, 10, vxy.x, vxy.y, 10 * this.strength, -1*Math.floor(Math.random()*25), Math.floor(Math.random()*50-25), false, null, vxy.r,10000))
+					        
+						sound("pistol.mp3",0.3)
+					      }
+					      
+					      //constructor(image, x, y, w, h, vx, vy, damage, kx, ky, hittable, platform, angle )
+					      
+    
+    
+					      
+				      }
+
+				      else {
+			      
+					      //game.drawImage(swords[Math.floor(this.abilityCount/2) % 8], this.x + this.w - 6, this.y + offset1 - 6, 25, 25)
+					      
+					      //MAKE SURE TO ANIMATE THE GUN
+
+					     
+					      
+					      if(this.abilityCount % 6 == 0) {
+
+						var vxy
+
+						if(this.type == "enemy") {
+							vxy = calculateVelocity(15, this.rx, this.ry, this.enemy.rx, this.enemy.ry) //Calculate with this.x, this.y
+						}
+
+						else {
+							vxy = calculateVelocity(15, this.x, this.y, mousex, mousey) //Calculate with this.x, this.y
+						}
+
+					        projectiles.push(new projectile(bullet_r, this.rx + 1 + vxy.x, this.ry + vxy.y, 15, 10, vxy.x, vxy.y, 10 * this.strength, Math.floor(Math.random()*25), Math.floor(Math.random()*50-25), false, null, vxy.r, 10000))
+					      
+
+						sound("pistol.mp3",0.3)
+					      }
+
+
+				      }
+				      
+				      
+				      
+				}
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+
+				this.abilityCount += 1
+
+				if(this.abilityCount == this.currentAbilityDuration) {
+					this.ability = false
+					this.abilityCooldown = true
+					this.abilityCount += 1
+					this.defend = false
+					this.usingAbility = false
+					this.damaged = false
+				}
+				
+				
+				
+				
+				//END OF ATTACK ABILITIES
+        //END OF ATTACK ABILITIES
+        //END OF ATTACK ABILITIES
+				
+				
+				
+			}
+			else {
+			
+			
+			
+			
+			
+			  //START OF DEFENCE ABILITIES
+        //START OF DEFENCE ABILITIES
+        //START OF DEFENCE ABILITIES
+        
+        
+        if(this.shield == "bubble") {
+        
+                this.currentAbilityDuration = 16
+			
+					
+			
+				        if(this.facing == "right") {
+					        game.drawImage(bubble_r, this.x - 12 + this.w/2, this.y - 10, 42, 42)
+				        }
+
+				        else {
+					        game.drawImage(bubble_l, this.x - 12, this.y - 10, 42, 42)
+				        }
+
+					var i = 0
+
+				      var l = this.enemies.length
+
+				      if(l == 0) {
+				         l = 1
+				      }
+
+				      while(i < l) {
+
+						if(this.enemies.length != 0) {
+							  this.enemy = this.enemies[i]
+						      }
+
+
+						      if(this.enemies.length != 0) {
+							  this.enemy = this.enemies[i]
+						      }
+						
+
+						if(this.enemy.x > this.x - 12 - this.enemy.w && this.enemy.x < this.x - 12 + 42 && this.enemy.y > this.y - 10 - this.enemy.h && this.enemy.y < this.y - 10 + 42) {
+							console.log("oof")
+							
+
+							if(this.facing == "right") {
+								this.enemy.vx = 16
+							}
+							else {
+								this.enemy.vx = -16
+							}
+
+						}
+						i += 1
+
+				      }
+				        
+				        
+				}
+			
+
+
+				this.abilityCount += 1
+
+				if(this.abilityCount == this.currentAbilityDuration) {
+					this.ability = false
+					this.abilityCooldown = true
+					this.abilityCount += 1
+					this.defend = false
+					this.usingAbility = false
+				}
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				//END OF DEFENCE ABILITIES
+        //END OF DEFENCE ABILITIES
+        //END OF DEFENCE ABILITIES
+
+
+			}
+			
+
+		}
+		
+		
+		
+		
+		
+	}
+
+	move() {
+
+
+		if(this.health <= 0 && this.dead == false) {
+
+			if(this.type == "enemy") {
+				
+				this.bloods.push(new blood(this.rx,this.ry,60,"magenta", 5, 5, 0))
+			}
+			else {
+
+				this.bloods.push(new blood(this.rx,this.ry,60,"cyan", 5, 5, 0))
+			}
+			this.bloods[this.bloods.length-1].init()
+			
+			if(this.dead == false && this.type == "enemy") {
+			  //localStorage.coins = String(Number(localStorage.coins)+Math.floor(1*this.strength*this.maxHealth))
+			  this.coins.push(new coinObject(this.rx,this.ry,Math.floor(1*this.strength*this.maxHealth)))
+			}
+			
+			this.dead = true
+
+			this.x = -100000
+
+			this.y = -100000
+
+			this.rx = -100000
+			this.ry = -100000
+
+
+			
+		
+		}
+		
+		
+		// COOLDOWN CODE - BIGGER COOLDOWN TO ALLOW VARIED ABILITIES BUT COOLDOWN CANNOT VARY
+
+		if(this.abilityCount >= this.currentAbilityDuration + 1) {
+			this.abilityCount += 1
+			
+			
+			this.abilityStart = false
+
+			if(this.abilityCount == 75) {
+				this.abilityCount = 0
+				this.abilityCooldown = false
+			}
+		}
+
+		
+		
+		
+		
+		
+		
+		
+		
+
+
+		if(this.abilityStart == true && this.ability == false && this.abilityCooldown == false) {
+			this.ability = true
+			this.abilityStart = false
+			this.abilityCount = 0
+			this.abilityCooldown = true
+			this.usingAbility = true
+		}
+
+
+		var col1 = ""
+
+		if(this.type == "enemy") {
+						
+			col1 = "magenta"
+		}
+		else {
+			
+			col1 = "cyan"
+		}
+
+
+
+		
+		if(this.rx <= -5) {
+			this.vx = 15
+			this.health -= 25
+
+			this.bloods.push(new blood(this.rx,this.ry,15,col1, 5, 5, 25))
+			this.bloods[this.bloods.length-1].init()
+		}
+		else if(this.rx >= 2000 - this.w) {
+			this.vx = -15
+			this.health -= 25
+
+
+			this.bloods.push(new blood(this.rx,this.ry,15,col1, 5, 5, 25))
+			this.bloods[this.bloods.length-1].init()
+		}
+		else if(this.ry <= -5) {
+			this.vy = 15
+			this.health -= 25
+
+
+			this.bloods.push(new blood(this.rx,this.ry,15,col1, 5, 5, 25))
+			this.bloods[this.bloods.length-1].init()
+		}
+
+		else if(this.ry >= 1000 - this.h && borderCollide == true) {
+			this.vy = -20
+			this.health -= 25
+
+
+			this.bloods.push(new blood(this.rx,this.ry,15,col1, 5, 5, 25))
+			this.bloods[this.bloods.length-1].init()
+		}
+
+		
+
+
+		if(this.direction == -1 && this.vx > -6) {
+			this.vx -= 2
+		}
+		if(this.direction == 1 && this.vx < 6) {
+			this.vx += 2
+		}
+		if(this.direction == 0) {
+			if(this.vx > 0) {
+				this.vx -= 3
+			}
+			else if(this.vx < 0) {
+				this.vx += 3
+			}
+
+			if(this.vx < 3 && this.vx > -3) {
+				this.vx = 0
+			}
+			
+			
+		}
+
+
+
+		if(this.vy < 5) {
+			this.vy += 1
+		}
+
+
+		if(this.toJump == true) {
+			this.toJump = false
+			this.vy = -10
+		}
+
+
+		this.rx += this.vx
+
+		this.ry += this.vy
+
+		if(this.type == "enemy") {
+			
+
+			this.x = this.rx - cx
+
+			this.y = this.ry - cy
+		}
+
+		else {
+
+			cx += this.vx
+
+			cy += this.vy
+
+			var i = 0
+
+			while(i < platforms.length) {
+				platforms[i].x = platforms[i].initx - cx
+				platforms[i].y = platforms[i].inity - cy
+				i += 1
+			}
+
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	}
+
+	moveToPlayer(p) {
+		if(p.x < this.x) {
+			this.direction = -1
+			this.facing = "left"
+		}
+		else {
+			this.direction = 1
+			this.facing = "right"
+		}
+	}
+
+	moveToPlatform() {
+		var i = 0
+
+		var nearestDistance = 100000000000000
+
+		var nearestX = 10000000000000
+
+		var distance = 0
+
+		while(i < platforms.length) {
+			distance = platforms[i].x + (platforms[i].w/2) - this.x
+
+			if(distance < 0) {
+				distance = distance * -1
+			}
+
+
+			if(distance < nearestDistance) {
+				nearestX = platforms[i].x + (platforms[i].w/2)
+
+				nearestDistance = distance + 0
+			}
+			
+			i += 1
+		}
+
+		if(this.x > nearestX) {
+			this.direction = -1
+			this.facing = "left"
+		}
+		else {
+			this.direction = 1
+			this.facing = "right"
+		}
+	}
+
+	distanceToPlayer(p) {
+		
+
+		var distance = 0
+
+		distance = p.x - this.x
+
+		if(distance < 0) {
+			distance = distance * -1
+		}
+
+		return(distance + 0)
+	}
+
+    }
+
+    class platform {
+	constructor(x, y, w, h, type) {
+		this.x = x
+		this.y = y
+		this.initx = x + 0
+		this.inity = y + 0
+		this.w = w
+		this.h = h
+		this.type = type
+		this.damage = 0
+	}
+
+	collide(p) {
+		if(this.damage < 8) {
+
+
+			
+
+			//Check this before y level
+
+			if(p.y + p.h > this.y + 5 && p.x + p.w > this.x && p.x < this.x + this.w && p.y < this.y + this.h) {
+
+				if(p.x + p.w/2 < this.x + this.w/2) {
+					p.vx = -2
+				}
+				else {
+					p.vx = 2
+				}
+			
+			}
+
+
+
+
+			else if(p.x > this.x - p.w + 5 && p.x < this.x + this.w - 5 && p.y < this.y + this.h && p.y > this.y - p.h) {
+
+				
+
+				  var offset1 = -3
+				  
+				  //p.y -= 3
+
+				  if(p.y > this.y - p.h) {
+					  //p.y -= 5
+					  
+					  offset1 = -8
+				  }
+
+				  
+
+				  if(p.type == "enemy") {
+
+					  p.y += offset1
+					  
+
+					  this.y += offset1
+				  }
+
+				  else if(p.type == "player") {
+
+					  var i = 0
+
+					  while(i < platforms.length) {
+						  platforms[i].y = platforms[i].inity - cy
+						  i += 1
+					  }
+
+				  }
+
+        
+				  if(p.idle == false) {
+				  	this.damage += 1
+				  }
+				
+				
+				
+			
+				
+
+				
+				
+				return(true)
+			}
+
+			//disableEnemy()
+
+			
+		}
+		else if(this.damage >= 8) {
+			this.x = -1000000
+			this.y = -1000000
+			this.draw()
+		}
+		
+
+	}
+
+	draw() {
+
+
+		if(this.type == "normal") {
+
+			game.fillStyle = "#FF99FF"
+
+
+			if(this.damage < 2) {
+				game.drawImage(platform_s1,this.x,this.y)
+			}
+			else if(this.damage < 4) {
+				game.drawImage(platform_s2,this.x,this.y)
+			}
+			else if(this.damage < 6) {
+				game.drawImage(platform_s3,this.x,this.y)
+			}
+			else if(this.damage < 8) {
+				game.drawImage(platform_s4,this.x,this.y)
+			}
+			
+		}
+
+		else if(this.type = "crate") {
+
+			if(this.damage < 8) {
+
+				game.drawImage(crate,this.x,this.y)
+
+			}
+			
+		}
+		
+		
+		
+		
+		
+	}
+
+	reset() {
+		this.x = this.initx + 0
+		this.y = this.inity + 0
+		this.damage = 0
+		cx = 0
+		cy = 0
+		
+	}
+    }
+    
+    
+    
+     class coinObject {
+	constructor(x, y, quantity) {
+		this.x = x
+		this.y = y
+		this.initx = x + 0
+		this.inity = y + 0
+		this.quantity = quantity
+
+	}
+
+	collide(p) {
+			if(p.rx > this.x - p.w && p.rx < this.x + 30 && p.ry < this.y + 30 && p.ry > this.y - p.h) {
+        localStorage.coins = String(Number(localStorage.coins)+this.quantity)
+        this.x = -1000000
+        console.log("COINS COLLECTED",this.quantity)
+			  return(true)
+		}
+		
+		
+
+	}
+
+	draw(p) {
+
+      game.drawImage(coin,this.x-3-cx,this.y-cy,15,15)
+		
+			game.drawImage(coin,this.x-cx,this.y-cy-3,15,15)
+			
+			game.drawImage(coin,this.x+3-cx,this.y-cy,15,15)
+			
+			game.font = "bold 16px Arial";
+		  game.fillStyle = "yellow"
+		  game.fillText(String(this.quantity), this.x-cx - 6, this.y-cy-20);
+		  
+		  if(p.rx < this.x) {
+		    if(this.x - p.rx < 10) {
+		      this.x -= 1
+		    }
+		    else {
+		      this.x -= 5
+		    }
+		    
+		  }
+		  else {
+		    if(p.rx - this.x < 10) {
+		      this.x += 1
+		    }
+		    else {
+		      this.x += 5
+		    }
+		  }
+		  
+		if(p.ry < this.y) {
+		  if(this.y - p.ry < 10) {
+		      this.y -= 1
+		    }
+		    else {
+		      this.y -= 5
+		    }
+		    
+		  }
+		  else {
+		    if(p.ry - this.y < 10) {
+		      this.y += 1
+		    }
+		    else {
+		      this.y += 5
+		    }
+		  }
+		  
+		  
+		
+	}
+
+	
+    }
+    
+    
+    class projectile {
+	constructor(image, x, y, w, h, vx, vy, damage, kx, ky, hittable, platform, angle, lifetime) {
+	  this.image = image
+		this.x = x
+		this.y = y
+		this.w = w
+		this.h = h
+		this.vx = vx
+		this.vy = vy
+		this.initx = x + 0
+		this.inity = y + 0
+		this.damage = damage
+		this.kx = kx
+		this.ky = ky
+		this.hittable = hittable
+		this.initvx = vx + 0
+		this.initvy = vy + 0
+		this.immume = ""
+		this.platform = platform
+		this.angle = angle
+		if(this.hittable == true) {
+		  this.vx = 0
+		  this.vy = 0
+		}
+		
+		setTimeout(function() {
+			projectiles.splice(projectiles.indexOf(this),1)
+		},lifetime)
+		
+
+	}
+
+	collide(p) {
+
+		var i = 0
+
+		while(i < platforms.length) {
+		
+			var pl = platforms[i]
+
+			
+
+			if (pl.initx < this.x + this.w && pl.initx + pl.w > this.x && pl.inity < this.y + this.h && pl.inity + pl.h > this.y && platforms[i].damage < 8) {
+			
+				platforms[i].damage += 2
+
+				var c = ""
+
+				if(pl.type == "crate") {
+					c = "lightbrown"
+				}
+
+				p.bloods.push(new blood(pl.initx,pl.inity,10,c, 5, 5,0))
+
+				p.bloods[p.bloods.length-1].init()
+
+				projectiles.splice(projectiles.indexOf(this),1)
+
+			}
+	
+			i += 1
+
+		}
+	    
+		if(p.rx > this.x - p.w && p.rx < this.x + this.w && p.ry < this.y + this.h && p.ry > this.y - p.h) {
+		
+		  if(this.hittable == true) {
+		    if(p.usingAbility == true) {
+		      if(p.facing == "right") {
+			this.x += p.w * 2
+			this.vx = this.initvx + 0
+			this.vy = this.initvy + 0
+		      }
+		      else {
+			this.vx = this.initvx * -1
+			this.vy = this.initvy + 0
+			this.x -= p.w * 2
+		      }
+		      this.hittable = false
+		      this.immune = p.pName + "" //Immune is fixed
+		    }
+		  }
+		  else if(p.pName != this.immume) {
+			  p.health -= this.damage
+			  p.vx = this.kx
+			  p.vy = this.ky
+			  this.x = -1000000
+			  console.log("HIT",this.damage)
+			  
+			  
+			  
+			  
+			  if(p.type == "enemy") {
+					
+				      p.bloods.push(new blood(p.rx,p.ry,60,"magenta", 5, 5,this.damage))
+			      }
+			      else {
+
+				      p.bloods.push(new blood(p.rx,p.ry,60,"cyan", 5, 5,this.damage))
+			      }
+			      
+			      p.bloods[p.bloods.length-1].init()
+		  
+		  
+				    return(true)
+				  }
+	 }
+				
+				
+
+	}
+
+	draw() {
+
+      //game.drawImage(this.image,this.x-cx,this.y-cy)
+
+      drawImageRotation(this.image, this.angle, this.x-cx, this.y-cy, 0, 0)
+      
+       if(this.vy != 0 || this.vx != 0) {
+        this.vy += 0.2
+      }
+      
+      this.x += this.vx
+      this.y += this.vy
+      
+      
+
+      if(this.platform != null) {
+        if(this.platform.damage >= 8 && this.vx == 0 && this.vy == 0) {
+          this.vy = 5
+        }
+      }
+      
+     
+      
+      
+	
+		
+	}
+
+	
+    }
+        
+
+    function rgbToHex(rgb) {
+	//Input format: "r,g,b"
+	//E.g. "255,255,255"
+	var rgbValues = rgb.split(",")
+	var i = 0
+	var currentValue = 0
+	var currentDivision = 0
+	var currentRemainder = 0
+	var first = ""
+	var second = ""
+	var hex = "0123456789ABCDEF"
+	var result = "#"
+	while(i < 3) {
+		currentValue = Number(rgbValues[i]) + 0
+		currentDivision = Math.floor(currentValue/16)
+		currentRemainder = currentValue % 16
+		first = hex[currentDivision]+""
+		second = hex[currentRemainder]+""
+		result = result + first + second
+		i += 1
+	}
+	return(result)
+	
+    }
+
+
+    class blood {
+	constructor(initX,initY,quantity,color,w,h,damage) {
+		this.initX = initX
+		this.initY = initY
+		this.px = []
+		this.py = []
+		this.vx = []
+		this.vy = []
+		this.quantity = quantity
+		this.color = color
+		this.w = w
+		this.h = h
+		this.frames = 0
+		this.damage = damage
+		this.damagex = initX + Math.floor(Math.random()*20-10)
+		this.damagey = initY + Math.floor(Math.random()*20-10)
+		this.colors = []
+	}
+	init() {
+		var i = 0
+		var r = 0
+		var g = 0
+		var b = 0
+		while(i < this.quantity) {
+			this.px.push(this.initX)
+			this.py.push(this.initY)
+			this.vx.push(Math.random()*24-12)
+			this.vy.push(Math.random()*24-18)
+			if(this.color == "magenta") {
+				r = 105 + Math.floor(Math.random()*150)
+				b = 105 + Math.floor(Math.random()*150)
+				this.colors.push(rgbToHex(String(r)+",0,"+String(b)))
+			}
+			else if(this.color == "cyan") {
+				g = 155 + Math.floor(Math.random()*100)
+				b = 155 + Math.floor(Math.random()*100)
+				this.colors.push(rgbToHex("0,"+String(g)+","+String(b)))
+			}
+			else if(this.color == "lightbrown") {
+				r = 155 + Math.floor(Math.random()*100);
+				g = 105 + Math.floor(Math.random()*50);
+				b = 40 + Math.floor(Math.random()*60);
+				this.colors.push(rgbToHex(String(r)+","+String(g)+","+String(b)))
+			}
+			
+			i += 1
+		}
+	}
+	draw() {
+		var i = 0
+		while(i < this.quantity) {
+			this.px[i] = this.px[i] + this.vx[i]
+			this.py[i] = this.py[i] + this.vy[i]
+
+			this.vy[i] += 1
+
+			game.fillStyle = this.colors[i]
+			
+
+			if(this.initX == w/2) {
+				game.fillRect(this.px[i],this.py[i],this.w,this.h)
+			}
+
+			else {
+				game.fillRect(this.px[i] - cx,this.py[i] - cy,this.w,this.h)
+
+			}
+
+			i += 1
+		}
+
+		game.font = "bold 20px Arial";
+		game.fillStyle = this.color
+
+		if(this.color == "magenta") {
+			game.fillStyle = "#FF00FF"
+		}
+		else if(this.color == "cyan") {
+			game.fillStyle = "#00FFFF"
+		}
+		
+
+		if(this.damage != 0) {
+		
+			if(this.initX == w/2) {
+
+				game.fillText("-"+String(this.damage), this.damagex, this.damagey);
+
+				
+
+			}
+
+			else {
+				game.fillText("-"+String(this.damage), this.damagex - cx, this.damagey - cy);
+
+			}
+
+		}
+
+		this.frames += 1
+
+		
+	}
+    }
+
+
+
+
+
+
+
+
+
+
+    //############################################################
+    //############################################################
+    //############################################################
+    //PLAYER DATA
+    //PLAYER DATA
+    //PLAYER DATA
+    
+    var currentUpdateId = "1" // Increase this number if an update requires a reset of localstorage variables
+    
+    if(localStorage.updateId == undefined || localStorage.updateId == "") {
+      localStorage.updateId = currentUpdateId + ""
+      localStorage.coins = "0"
+      console.log("UPDATE SET UP!")
+    }
+    
+    if(localStorage.updateId != currentUpdateId) {
+      localStorage.updateId = currentUpdateId + ""
+      localStorage.coins = "0"
+      console.log("UPDATING CLIENT!")
+    }
+    
+    
+    if(localStorage.coins == undefined || localStorage.coins == "") {
+      localStorage.coins = "0"
+      console.log("COINS SET UP!")
+    }
+    
+    
+    
+    
+    //############################################################
+    //############################################################
+    //############################################################
+    
+
+
+
+
+
+
+
+
+
+    var player1 = new player(w/2,h/2, 15, 20, "player", "player1",100, 1)
+    
+    if(w>h) {
+      player1.initx = 150
+      player1.inity = 150
+      player1.x = 150
+      player1.y = 150
+      player1.rx = 150
+      player1.ry = 150
+      console.log("PC TESTING MODE: ON")
+    }
+	
+    
+    var enemy1 = new player(2000-3*40,500, 15, 20, "enemy", "enemy1",200, 1) // Treat enemy1 as boss
+
+    var enemy2 = new player(2000-16*40,500, 15, 20, "enemy", "enemy2",100, 1)
+
+    var enemy3 = new player(2000-24*40,500, 15, 20, "enemy", "enemy3",100, 1)
+
+    var enemies = [enemy1, enemy2, enemy3]
+
+    player1.enemies = [enemy1, enemy2, enemy3]
+
+    enemy1.enemy = player1
+    
+    enemy2.enemy = player1
+
+    enemy3.enemy = player1
+
+   
+
+    function disableEnemy() {
+
+	enemy1.y = -500000000000
+
+	enemy1.vy = -500000000000
+
+    }
+    
+    player1.weapon = "sword"
+    
+    player1.weapons = ["sword","pistol"]
+    
+    enemy1.weapons = ["sword","pistol"]
+
+    
+    var char1left = loadImage("char1left.png")
+    
+    var char1right = loadImage("char1right.png")
+
+	
+    var enemychar1left = loadImage("enemychar1left.png")
+    
+    var enemychar1right = loadImage("enemychar1right.png")
+
+
+    var bubble_l = loadImage("bubble_l.png")
+
+    var bubble_r = loadImage("bubble_r.png")
+
+    var swords = []
+
+    var swordsl = []
+    
+    var background1 = loadImage("background1.png")
+    
+    
+    var platform_s1 = loadImage("platform_s1.png")
+    
+    var platform_s2 = loadImage("platform_s2.png")
+
+    var platform_s3 = loadImage("platform_s3.png")
+    
+    var platform_s4 = loadImage("platform_s4.png")
+    
+    var coin = loadImage("coin.png")
+    
+    var crate = loadImage("crate.png")
+    
+    
+    var bullet_l = loadImage("bullet_l.png")
+
+    var bullet_r = loadImage("bullet_r.png")
+
+    var slash_l = loadImage("slash_l.png")
+
+    var slash_r = loadImage("slash_r.png")
+
+    var s = 1
+
+    while(s <= 8) {
+	    swords.push(loadImage("sword"+String(s)+".png"))
+	    swordsl.push(loadImage("sword"+String(s)+"l.png"))
+	    s += 1
+    }
+
+    var platforms = []
+    
+    
+
+
+    var i = 0
+
+    var i0 = 0
+
+
+
+
+    
+    var collision = false
+
+    var initialFrame1 = 0
+    
+    var baselootplayer = {
+    	x:0,
+    	y:700,
+    	w:60,
+    	h:20
+    }
+
+
+    var baselootenemy = {
+    	x:0,
+    	y:700,
+    	w:60,
+    	h:20
+    }
+
+   function newPlatform(name, x, y) {
+	
+	var names = [
+		"normal",
+		"crate"	
+	]
+
+	var data = [
+		{w:80,h:10},
+		{w:40,h:40}
+	]
+
+	var d = data[names.indexOf(name)]
+	
+
+	var tplat = new platform(x,y,d.w,d.h,name)
+	platforms.push(tplat)
+   }
+
+
+    main = setInterval(function() {
+    
+    game.fillStyle = "#444455"
+	
+	  game.fillRect(0, 0, w, h)
+    
+    game.drawImage(background1,0-cx/4-50,0-cy,w*4+100,h*2-12)
+    
+   
+
+	
+
+
+	if(frame == 0) {
+
+		console.log("LOADING!!!")
+
+		i = 0
+		i0 = 0
+		platforms = []
+
+		
+		    while(i0 < 4) {
+
+
+			    i = 0
+
+			    while(i < 7) {
+
+				
+			       
+			       
+			       if(Math.floor(Math.random()*2) == 1) {
+			          var tx = 30 + i * 200 + Math.random()*75
+			          var ty = 100 + i0 * 60 + Math.random()*50 + 300+100
+			          //var tplat = new platform(tx,ty,80,10, "normal")
+
+
+				  //newPlatform("normal", tx, ty)
+		
+
+			          //platforms.push(tplat)
+			          //projectiles.push(new projectile(crate, tx+20, ty-40, 40, 40, 10, 0, 25, Math.floor(Math.random()*40-20), Math.floor(Math.random()*40-20),true, tplat, 0, 10000)) //Change the vx and vy later as soon as the player hits the projectile with an ability, by default "hittable" are vx,vy 0
+			       }
+			       else {
+			          //platforms.push(new platform(30 + i * 200 + Math.random()*75,100 + i0 * 60 + Math.random()*50 + 300+100,80,10, "normal"))
+			      }
+
+				i += 1
+			    }
+
+
+			    i0 += 1
+
+		    }
+
+		i = 0
+
+
+		while(i < 14) {
+			newPlatform("crate",i*40,1000-40)
+
+			newPlatform("crate",i*40,1000-40*21)
+
+			i += 1
+		}
+
+
+		i = 0
+
+		while(i < 14) {
+			newPlatform("crate",13*40,1000-40*7-40*i)
+
+			i += 1
+		}
+
+		i = 0
+
+
+		while(i < 20) {
+	
+
+			newPlatform("crate",0,1000-40-40*i)
+
+			i += 1
+		
+		}
+
+
+		newPlatform("crate",7*40,1000-40*2)
+
+		newPlatform("crate",8*40,1000-40*2)
+		newPlatform("crate",8*40,1000-40*3)
+
+			
+
+
+		newPlatform("crate",11*40,1000-40*2)
+
+
+		newPlatform("crate",12*40,1000-40*2)
+		newPlatform("crate",12*40,1000-40*3)
+
+		
+		newPlatform("crate",13*40,1000-40*2)
+		newPlatform("crate",13*40,1000-40*3)
+		newPlatform("crate",13*40,1000-40*4)
+
+		i = 0
+
+
+		while(i < 22) {
+			newPlatform("crate",14*40+i*40,1000-40*4)
+
+
+			if(i == 5 || i == 10 || i == 11 || i == 16) {
+					
+				newPlatform("crate",14*40+i*40,1000-40*5)
+
+				newPlatform("crate",14*40+i*40,1000-40*6)
+
+			}
+
+
+			i += 1
+		}
+
+		
+		
+
+
+
+
+
+		i = 0
+
+
+		while(i < 14) {
+
+			newPlatform("crate",2000-14*40,1000-40*7-40*i)
+
+
+			newPlatform("crate",2000-40-i*40,1000-40*21)
+
+			i += 1
+		}
+
+
+		i = 0
+
+		while(i < 20) {
+	
+
+			newPlatform("crate",2000-40,1000-40-40*i)
+
+			i += 1
+		
+		}
+
+
+
+		newPlatform("crate",2000-12*40,1000-40*2)
+
+
+		newPlatform("crate",2000-13*40,1000-40*2)
+		newPlatform("crate",2000-13*40,1000-40*3)
+
+		
+		newPlatform("crate",2000-14*40,1000-40*2)
+		newPlatform("crate",2000-14*40,1000-40*3)
+		newPlatform("crate",2000-14*40,1000-40*4)
+
+
+
+		newPlatform("crate",2000-8*40,1000-40*2)
+
+		newPlatform("crate",2000-9*40,1000-40*2)
+		newPlatform("crate",2000-9*40,1000-40*3)
+
+
+
+		i = 0
+
+		while(i < 14) {
+			newPlatform("crate",1960-i*40,1000-40)
+
+			i += 1
+		}
+
+	
+	}
+
+	
+
+
+
+	
+
+
+
+
+
+	
+
+
+	i = 0
+
+ 
+	//player1.y += 3
+
+	while(i < platforms.length) {
+		platforms[i].draw()
+		
+		collision = false		
+		
+		collision = platforms[i].collide(player1)
+
+		if(collision == true) {
+			player1.toJump = true
+		}
+
+
+		collision = platforms[i].collide(enemy1)
+
+		if(collision == true) {
+			enemy1.toJump = true
+		}
+		
+		collision = platforms[i].collide(enemy2)
+
+		if(collision == true) {
+			enemy2.toJump = true
+		}
+
+		collision = platforms[i].collide(enemy3)
+
+		if(collision == true) {
+			enemy3.toJump = true
+		}
+		
+
+		i += 1
+	}
+
+
+	game.fillStyle = "magenta"
+
+
+	if(borderCollide == true) {
+		game.fillRect(-5-cx,1000-cy,2005,5)
+	}
+
+	game.fillRect(-5-cx,-5-cy,2000,5)
+
+	game.fillRect(2000-cx,-5-cy,5,1010)
+
+	game.fillRect(-5-cx,-5-cy,5,1005)
+
+
+	i = 0 // Don't forget this lol
+	
+	if(enemy1.dead == true && enemy1.coins.length == 0) {
+		if(initialFrame1 == 0) {
+			initialFrame1 = frame + 0
+		}
+		borderCollide = false
+		while(i < platforms.length) {
+			platforms[i].inity += 10 + Math.floor(Math.random()*10)
+			player1.vy = 10
+			platforms[i].y = platforms[i].inity + cy
+			platforms[i].draw()
+			i += 1
+		}
+
+		game.fillStyle = "black"
+		game.fillRect(0,0,w,(frame-initialFrame1)*10)
+
+		if((frame-initialFrame1)*10 >= h) {
+			frame = -1
+			cx = 0
+			cy = 0
+			player1.reset()
+			var i00 = 0
+			while(i < enemies.length) {
+				enemies[i].reset()				
+				i += 1
+			}
+			initialFrame1 = 0
+			borderCollide = true
+			
+		}
+	}
+
+
+
+
+
+
+	game.fillStyle = "black"
+
+	game.fillRect(0,0,w,h-frame*30)
+
+
+
+  game.font = "bold 25px Arial";
+	game.fillStyle = "yellow"
+	game.fillText(localStorage.coins, 70, 54);
+	
+	//game.fillRect(30,30,30,30)
+	game.drawImage(coin,30,30)
+	
+	i = 0
+	while(i < enemy1.coins.length) {
+			enemy1.coins[i].draw(player1)
+			enemy1.coins[i].collide(player1)
+
+			if(enemy1.coins[i].x < -1000) {
+				enemy1.coins.splice(i,1)
+			}
+			i += 1
+		}
+		
+		
+		
+		i = 0
+	while(i < projectiles.length) {
+
+			
+				projectiles[i].draw()
+				projectiles[i].collide(player1)
+			if(projectiles[i] != undefined) {
+				projectiles[i].collide(enemy1)
+			}
+			if(projectiles[i] != undefined) {
+				projectiles[i].collide(enemy2)
+			}
+			if(projectiles[i] != undefined) {
+				projectiles[i].collide(enemy3)
+			}
+			if(projectiles[i] != undefined) {
+				if(projectiles[i].x < -1000) {
+					projectiles.splice(i,1)
+				}
+			}
+			
+			i += 1
+		}
+
+
+  var damageColor = "magenta"
+
+  var i = 0
+
+  
+
+  while(i < enemies.length) {
+	
+	  damageColor = "magenta"
+  
+	  if(enemies[i].health != enemies[i].lastHealth) {
+	    if(enemies[i].beingDamaged == true) {
+	      clearTimeout(tout)
+	    }
+	  
+	    enemies[i].beingDamaged = true
+
+	    var tout
+	    
+	    (function (index) {
+	      tout = setTimeout(function () {
+		enemies[index].beingDamaged = false;
+	      }, 1000);
+	    })(i)
+	  }
+	  
+	  if(enemies[i].beingDamaged == true) {
+	    damageColor = "red"
+	  }
+
+	  
+
+	  if(enemies[i].x >= w) {
+	    game.fillStyle = damageColor
+	    game.fillRect(w-10,enemies[i].y,10,10)  
+	  }
+	  else if(enemies[i].x <= 0-enemies[i].w) {
+	    game.fillStyle = damageColor
+	    game.fillRect(0,enemy1.y,10,10)
+	  }
+
+
+	  if(enemies[i].y >= h) {
+	    game.fillStyle = damageColor
+	    game.fillRect(w-10,enemies[i].x,10,10)  
+	  }
+	  else if(enemies[i].y <= 0-enemies[i].h) {
+	    game.fillStyle = damageColor
+	    game.fillRect(0,enemy1.x,10,10)
+	  }
+	i += 1
+  }
+  
+  
+  
+  
+  
+  
+  // Base loot
+  
+  
+  
+  // Player Base
+  
+  baselootplayer.x = 0-cx
+  baselootplayer.y = 700-cy
+  
+  game.fillStyle="yellow"
+  game.fillRect(baselootplayer.x,baselootplayer.y,baselootplayer.w,baselootplayer.h)
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  i = 0
+
+  while(i < enemies.length) {
+	enemies[i].lastHealth = enemies[i].health + 0
+	i += 1
+  }
+  
+  
+  
+  //SAMPLE SYNTAX FOR STATIONARY OBJECT POSITIONING
+  //game.fillStyle="red"
+  //game.fillRect(0-cx,500-cy,30,30)
+
+	//drawImageRotation(crate, frame%360, 200+frame*3, 200+frame*3, 0, 0) 
+
+	
+  
+
+	//=======================================================================================================================
+	//MAKE SURE TO KEEP THIS CODE AT THE END OF THE GAME LOOP OR ELSE CAMERA WILL BREAK
+	//MAKE SURE TO KEEP THIS CODE AT THE END OF THE GAME LOOP OR ELSE CAMERA WILL BREAK
+	//MAKE SURE TO KEEP THIS CODE AT THE END OF THE GAME LOOP OR ELSE CAMERA WILL BREAK
+
+	player1.move()
+
+	player1.draw()
+
+	enemy1.move()
+
+	enemy1.draw()
+
+	enemy2.move()
+
+	enemy2.draw()
+
+	enemy3.move()
+
+	enemy3.draw()
+	
+	
+	// This is to slow down AI reactions
+
+
+	var i = 0
+
+	while(i < enemies.length) {
+
+		if(frame%4 == 0) {
+
+			if(enemies[i].distanceToPlayer(player1) < 200 && player1.weapon == "sword") {
+
+
+				enemies[i].moveToPlayer(player1)
+
+				enemies[i].idle = false
+
+	      if(enemies[i].ability == false) {
+			    enemies[i].weapon = "sword"
+			  }
+			}
+
+			else {
+			
+			  if(enemies[i].ability == false) {
+			    enemies[i].weapon = "pistol"
+			  }
+
+
+				//enemy1.moveToPlatform()
+
+				
+
+				//                   enemies[i].moveToPlayer(player1)
+				
+				//                   enemies[i].abilityStart = true
+
+				enemies[i].idle = true
+
+			}
+
+		}
+
+		// Don't make it too easy and do some stuff instantly
+
+		if(enemies[i].distanceToPlayer(player1) < 200) {
+
+	    if(enemies[i].ability == false) {
+		    enemies[i].weapon = "sword"
+		  }
+			
+			//Note: seems broken because its only x axis distance, potentially fix later
+			if(enemies[i].defend == false && enemies[i].ability == false && player1.usingAbility == true && player1.defend == false) {
+				enemies[i].defend = true
+				
+			}
+			else {
+				enemies[i].moveToPlayer(player1)
+			}
+
+			
+			enemies[i].abilityStart = true
+			enemies[i].idle = false
+		}
+
+		if(player1.weapon == "pistol") {
+			enemies[i].weapon = "pistol"
+			
+		}
+
+		if(enemies[i].health < enemies[i].maxHealth) {
+			enemies[i].moveToPlayer(player1)
+			enemies[i].idle = false
+		}
+
+		i += 1
+	}
+
+
+	frame += 1
+
+	//MAKE SURE TO KEEP THIS CODE AT THE END OF THE GAME LOOP OR ELSE CAMERA WILL BREAK
+	//MAKE SURE TO KEEP THIS CODE AT THE END OF THE GAME LOOP OR ELSE CAMERA WILL BREAK
+	//MAKE SURE TO KEEP THIS CODE AT THE END OF THE GAME LOOP OR ELSE CAMERA WILL BREAK
+	//=======================================================================================================================
+
+
+    },40)
+
+
+
+
+
+
+
+
+
+function leftStart() {
+
+
+	player1.direction = -1
+	player1.facing = "left"
+
+
+}
+
+function rightStart() {
+	
+	player1.direction = 1
+	player1.facing = "right"
+}
+
+function abilityStart() {
+
+	if(player1.ability == false) {
+		player1.abilityStart = true
+		player1.defend = false
+	}
+	
+}
+
+
+function defendStart() {
+	if(player1.ability == false) {
+		player1.abilityStart = true
+		player1.defend = true
+	}
+}
+
+
+
+
+function leftEnd() {
+
+
+	//If statement to prevent the direction being reset for no reason
+	if(player1.direction == -1) {
+		player1.direction = 0
+	}
+}
+
+function rightEnd() {
+	
+	//If statement to prevent the direction being reset for no reason
+	if(player1.direction == 1) {
+		player1.direction = 0
+	}
+}
+
+function abilityEnd() {
+	
+}
+
+function defendEnd() {
+	
+}
+
+
+
+
+document.onkeydown = function (e) {
+    e = e || window.event;
+    if(e.keyCode == 65) {
+		//leftStart1()
+		player1.direction = -1
+		player1.facing = "left"
+		
+	}
+	else if(e.keyCode == 68) {
+		//rightStart1()
+		player1.direction = 1
+		player1.facing = "right"
+	}
+	else if(e.keyCode == 83 && player1.ability == false) {
+		//abilityStart1()
+		player1.abilityStart = true
+	}
+	else if(e.keyCode == 87 && player1.ability == false) {
+		//abilityStart1()
+		player1.abilityStart = true
+		player1.defend = true
+	}
+	else if(e.keyCode == 37) {
+		//leftStart2()
+	}
+	else if(e.keyCode == 39) {
+		//rightStart2()
+	}
+	else if(e.keyCode == 40) {
+		//abilityStart2()
+	}
+};
+
+
+document.onkeyup = function (e) {
+    e = e || window.event;
+    if(e.keyCode == 65) {
+		//leftEnd1()
+
+		//If statement to prevent the direction being reset for no reason
+		if(player1.direction == -1) {
+			player1.direction = 0
+		}
+		
+	}
+	else if(e.keyCode == 68) {
+		//rightEnd1()
+
+		//If statement to prevent the direction being reset for no reason
+		if(player1.direction == 1) {
+			player1.direction = 0
+		}
+	}
+	else if(e.keyCode == 83) {
+		//abilityEnd1()
+	}
+	else if(e.keyCode == 37) {
+		//leftEnd2()
+	}
+	else if(e.keyCode == 39) {
+		//rightEnd2()
+	}
+	else if(e.keyCode == 40) {
+		//abilityEnd2()
+	}
+};
+
+
+
+  </script>
+
+</body>
+
+</html>
