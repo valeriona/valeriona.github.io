@@ -9,7 +9,7 @@ iframe {width:100%;height:100%;position:fixed;left:0px;top:0px;border:none;}
 </head>
 <body>
   <div id="iframeContainer">
-    <iframe id="iframe1" src="/tracker.html"></iframe>
+    <iframe id="iframe1" src="https://cyberchillgithub.github.io/cryptotracker/tracker.html"></iframe>
     <iframe id="iframe2" src="" style="display: none;"></iframe>
     
   </div>
@@ -18,7 +18,7 @@ iframe {width:100%;height:100%;position:fixed;left:0px;top:0px;border:none;}
   
     var coinIds = prompt("Please paste in your coin ids to track:")
     
-    document.getElementById("iframe1").src = "/tracker.html#"+coinIds;
+    document.getElementById("iframe1").src = "https://cyberchillgithub.github.io/cryptotracker/tracker.html#"+coinIds;
   
     var visibleIframe = "iframe1"
     
@@ -40,7 +40,7 @@ iframe {width:100%;height:100%;position:fixed;left:0px;top:0px;border:none;}
       
 
       hiddenIframeElement.src = ""; // Clear the source first
-      hiddenIframeElement.src = "/tracker.html#"+coinIds;
+      hiddenIframeElement.src = "https://cyberchillgithub.github.io/cryptotracker/tracker.html#"+coinIds;
 
       // Wait for the hidden iframe to reload (or for 1 second)
       setTimeout(() => {
