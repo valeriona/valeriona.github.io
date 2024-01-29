@@ -1,1 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temporary Window</title>
+</head>
+<body>
 
+<script>
+    // Function to parse the URL parameters
+    function getParameterByName(name, url) {
+        if (!url) url = window.location.href;
+        name = name.replace(/[\[\]]/g, '\\$&');
+        var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
+
+    // Get the website URL from the parameters
+    var websiteUrl = getParameterByName('url');
+
+    // Open a new browser window
+    var newWindow = window.open('https://www.google.com/search?q=' + websiteUrl, '_blank', 'width=500,height=500,top=300,left=300');
+
+    // Close the window after 30 seconds
+    setTimeout(function () {
+        newWindow.close();
+    }, 30000);
+</script>
+
+</body>
+</html>
