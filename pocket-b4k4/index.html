@@ -1,0 +1,218 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zombie Game</title>
+    <style>
+    	body {
+			margin:0px;        
+        }
+        
+        * {box-sizing:border-box;margin:0px;}
+    
+    	#placeholderDiv {
+			width:100%;
+            height:100%;
+            position:fixed;
+            margin:0px;
+}
+    
+        canvas {
+            border: 1px solid black;
+            position:fixed;
+            display: block;
+            margin: 0px;
+            background-color:#BBBBBB;
+        }
+    </style>
+</head>
+<body>
+	<div id="placeholderDiv"></div>
+    <canvas id="gameCanvas" width="200" height="400"></canvas>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        canvas.width = document.getElementById('placeholderDiv').offsetWidth
+        canvas.height = document.getElementById('placeholderDiv').offsetHeight
+        const ctx = canvas.getContext('2d');
+
+        // Player properties
+        let player = {
+            x: 50,
+            y: canvas.height - 100,
+            width: 50,
+            height: 50,
+            speedY: 0,
+            jumpPower: 12,
+            gravity: 0.6,
+            health: 100,
+            isJumping: false,
+            isAttacking: false
+        };
+
+        // Zombie properties
+        let zombies = [];
+        const zombieWidth = 50;
+        const zombieHeight = 50;
+        const zombieSpeed = 2;
+        const maxZombies = 5;
+        const attackDamage = 10; // Adjust the attack damage as needed
+        const attackRange = 100; // Adjust the attack range as needed
+
+        // Game properties
+        let score = 0;
+        let isGameOver = false;
+        let lastTapTime = 0;
+        const doubleTapDelay = 300;
+
+        // Event listener
+        canvas.addEventListener('mousedown', handleTap);
+
+        // Functions
+        function handleTap(event) {
+            event.preventDefault();
+            let currentTime = new Date().getTime();
+            if (!isGameOver) {
+                if (currentTime - lastTapTime <= doubleTapDelay) {
+                    // Double tap detected, initiate attack
+                    player.isAttacking = true;
+                    // Check if any zombie is near the player and within attack range
+                    for (let i = 0; i < zombies.length; i++) {
+                        let distance = Math.sqrt(Math.pow((player.x - zombies[i].x), 2) + Math.pow((player.y - zombies[i].y), 2));
+                        if (distance <= attackRange) {
+                            // Zombie hit by attack
+                            zombies.splice(i, 1);
+                            score += 10; // Increase score for killing a zombie
+                            break; // Stop checking for more zombies
+                        }
+                    }
+                    setTimeout(() => {
+                        player.isAttacking = false;
+                    }, 200);
+                } else {
+                    // Single tap detected, initiate jump
+                    if (!player.isJumping) {
+                        player.isJumping = true;
+                        player.speedY = -player.jumpPower;
+                    }
+                }
+            } else {
+                resetGame();
+            }
+            lastTapTime = currentTime;
+        }
+
+        function resetGame() {
+            zombies = [];
+            score = 0;
+            player.y = canvas.height - 100;
+            player.health = 100;
+            isGameOver = false;
+            spawnZombies();
+            update();
+        }
+
+        function spawnZombies() {
+            for (let i = 0; i < maxZombies; i++) {
+                zombies.push({
+                    x: canvas.width + Math.random() * canvas.width,
+                    y: canvas.height - 100,
+                    width: zombieWidth,
+                    height: zombieHeight,
+                    speedX: zombieSpeed + Math.random() * 2
+                });
+            }
+        }
+
+        function drawPlayer() {
+            ctx.fillStyle = 'blue';
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+        }
+
+        function drawZombies() {
+            ctx.fillStyle = 'green';
+            for (let zombie of zombies) {
+                ctx.fillRect(zombie.x, zombie.y, zombie.width, zombie.height);
+            }
+        }
+
+        function updatePlayer() {
+            if (player.isJumping) {
+                player.y += player.speedY;
+                player.speedY += player.gravity;
+                if (player.y >= canvas.height - player.height) {
+                    player.y = canvas.height - player.height;
+                    player.isJumping = false;
+                    player.speedY = 0;
+                }
+            }
+        }
+
+        function updateZombies() {
+            for (let zombie of zombies) {
+                zombie.x -= zombie.speedX;
+                if (zombie.x + zombie.width <= 0) {
+                    zombie.x = canvas.width + Math.random() * canvas.width;
+                }
+                // Collision detection with player
+                if (
+                    player.x < zombie.x + zombie.width &&
+                    player.x + player.width > zombie.x &&
+                    player.y < zombie.y + zombie.height &&
+                    player.y + player.height > zombie.y
+                ) {
+                    // Zombie hit player
+                    player.health -= attackDamage;
+                    if (player.health <= 0) {
+                        isGameOver = true;
+                    }
+                }
+            }
+        }
+
+        function updateScore() {
+            score++;
+        }
+
+        function drawScore() {
+            ctx.fillStyle = 'black';
+            ctx.font = '24px Arial';
+            ctx.fillText('Score: ' + score, 10, 30);
+        }
+
+        function drawHealth() {
+            ctx.fillStyle = 'red';
+            ctx.fillRect(10, 50, player.health * 2, 20);
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawPlayer();
+            drawZombies();
+            drawScore();
+            drawHealth();
+            if (isGameOver) {
+                ctx.fillStyle = 'red';
+                ctx.font = '48px Arial';
+                ctx.fillText('Game Over', canvas.width / 2 - 150, canvas.height / 2);
+                ctx.fillText('Tap to play again', canvas.width / 2 - 200, canvas.height / 2 + 50);
+            }
+        }
+
+        function update() {
+            if (!isGameOver) {
+                updatePlayer();
+                updateZombies();
+                updateScore();
+                draw();
+                requestAnimationFrame(update);
+            }
+        }
+
+        // Initialize game
+        spawnZombies();
+        update();
+    </script>
+</body>
+</html>
