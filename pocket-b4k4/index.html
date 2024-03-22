@@ -31,10 +31,23 @@
 	<div id="placeholderDiv"></div>
     <canvas id="gameCanvas" width="200" height="400"></canvas>
     <script>
+		
+
+		
+		
         const canvas = document.getElementById('gameCanvas');
         canvas.width = document.getElementById('placeholderDiv').offsetWidth
         canvas.height = document.getElementById('placeholderDiv').offsetHeight
         const ctx = canvas.getContext('2d');
+        
+        
+        const targetFPS = 60;
+		const frameDelay = 1000 / targetFPS;
+		let lastFrameTime = 0;
+        
+        
+        
+        
 
         // Player properties
         let player = {
@@ -57,9 +70,9 @@
         
         while(i < 10) {
 			platforms.push({
-				x: Math.random()*3000,
+				x: Math.random()*6000,
 				y: canvas.height - 50 - Math.random()*100,
-				w: 100,
+				w: 300,
 				h: 10,
 				draw : function() {
 						ctx.fillStyle = "black"
@@ -80,45 +93,46 @@
         // Game properties
         let score = 0;
         let isGameOver = false;
-        let lastTapTime = 0;
-        const doubleTapDelay = 300;
+
 
         // Event listener
-        canvas.addEventListener('mousedown', handleTap);
+        canvas.addEventListener('click', handleTap);
 
         // Functions
         function handleTap(event) {
-            event.preventDefault();
-            let currentTime = new Date().getTime();
-            if (!isGameOver) {
-                if (currentTime - lastTapTime <= doubleTapDelay) {
-                    // Double tap detected, initiate attack
-                    player.isAttacking = true;
-                    // Check if any zombie is near the player and within attack range
-                    for (let i = 0; i < zombies.length; i++) {
-                        let distance = Math.sqrt(Math.pow((player.x - zombies[i].x), 2) + Math.pow((player.y - zombies[i].y), 2));
-                        if (distance <= attackRange) {
-                            // Zombie hit by attack
-                            zombies.splice(i, 1);
-                            score += 10; // Increase score for killing a zombie
-                            break; // Stop checking for more zombies
-                        }
-                    }
-                    setTimeout(() => {
-                        player.isAttacking = false;
-                    }, 200);
-                } else {
-                    // Single tap detected, initiate jump
-                    if (!player.isJumping || player.collide == true) {
-                        player.isJumping = true;
-                        player.speedY = -player.jumpPower;
-                    }
-                }
-            } else {
-                resetGame();
-            }
-            lastTapTime = currentTime;
-        }
+			event.preventDefault();
+			let tapX = event.offsetX;
+
+			if (tapX < canvas.width / 2) {
+				// Left side of the screen, initiate jump
+				if (!isGameOver && !player.isJumping && !player.isAttacking) {
+					player.isJumping = true;
+					player.speedY = -player.jumpPower;
+				}
+			} else {
+				// Right side of the screen, initiate attack
+				if (!isGameOver) {
+					player.isAttacking = true;
+					console.log("attack");
+
+					// Check if any zombie is near the player and within attack range
+					for (let i = 0; i < zombies.length; i++) {
+						let distance = Math.sqrt(Math.pow((player.x - zombies[i].x), 2) + Math.pow((player.y - zombies[i].y), 2));
+						if (distance <= attackRange) {
+							// Zombie hit by attack
+							zombies.splice(i, 1);
+							score += 10; // Increase score for killing a zombie
+							break; // Stop checking for more zombies
+						}
+					}
+
+					player.isAttacking = false;
+				}
+			}
+
+		}
+
+
 
         function resetGame() {
             zombies = [];
@@ -242,20 +256,28 @@
         }
 
         function update() {
-            if (!isGameOver) {
-                updatePlayer();
-                updateZombies();
-                updateScore();
-                draw();
-                i = 0
-                while(i < platforms.length) {
-					platforms[i].draw()
-					platforms[i].x -= 2
+			let currentTime = performance.now();
+			let elapsedTime = currentTime - lastFrameTime;
+
+			if (elapsedTime > frameDelay) {
+				lastFrameTime = currentTime - (elapsedTime % frameDelay);
+				if (!isGameOver) {
+					updatePlayer();
+					updateZombies();
+					updateScore();
+					draw();
+					i = 0
+					while(i < platforms.length) {
+						platforms[i].draw()
+						platforms[i].x -= 2
+						
+						i += 1
+					}
 					
-					i += 1
 				}
-                requestAnimationFrame(update);
-            }
+			}
+            requestAnimationFrame(update);
+            
         }
 
         // Initialize game
