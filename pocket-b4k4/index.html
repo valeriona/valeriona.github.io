@@ -25,11 +25,34 @@
             margin: 0px;
             background-color:#BBBBBB;
         }
+        
+        #left {
+				position:fixed;
+				left:0px;
+				top:0px;
+				bottom:0px;
+				width:50%;
+				border:none;
+				background:none;
+		}
+		
+		
+        #right {
+				position:fixed;
+				right:0px;
+				top:0px;
+				bottom:0px;
+				width:50%;
+				border:none;
+				background:none;
+		}
     </style>
 </head>
 <body>
 	<div id="placeholderDiv"></div>
     <canvas id="gameCanvas" width="200" height="400"></canvas>
+    <button id="left" onmousedown="if(mode=='m'){handleLeftTap()}" ontouchstart="handleLeftTap()"></button>
+    <button id="right" onmousedown="if(mode=='m'){handleRightTap()}" ontouchstart="handleRightTap()"></button>
     <script>
 		
 		mode = prompt("Are you using a mouse (m) or a touchscreen (t): ")
@@ -99,53 +122,56 @@
         let isGameOver = false;
 
 
-        // Event listener
-        
-        if(mode == "m") {
-			canvas.addEventListener('mousedown', handleTap);
+       
 
-		}
-		
-		else {
-			canvas.addEventListener('touchstart', handleTap);
 
-		}
-        
-        
         // Functions
-        function handleTap(event) {
-			event.preventDefault();
-			let tapX = event.offsetX;
-
-			if (tapX < canvas.width / 2) {
-				// Left side of the screen, initiate jump
-				if (!isGameOver && (!player.isJumping || player.collide)) {
-					player.isJumping = true;
-					player.speedY = -player.jumpPower;
-				}
-			} else {
-				// Right side of the screen, initiate attack
-				if (!isGameOver) {
-					player.isAttacking = true;
-					console.log("attack");
-
-					// Check if any zombie is near the player and within attack range
-					for (let i = 0; i < zombies.length; i++) {
-						let distance = Math.sqrt(Math.pow((player.x - zombies[i].x), 2) + Math.pow((player.y - zombies[i].y), 2));
-						if (distance <= attackRange) {
-							// Zombie hit by attack
-							zombies.splice(i, 1);
-							score += 10; // Increase score for killing a zombie
-
-						}
-					}
-
-					player.isAttacking = false;
-				}
+        function handleLeftTap() {
+			
+			
+		
+			
+			
+			
+			// Left side of the screen, initiate jump
+			if (!isGameOver && (!player.isJumping || player.collide)) {
+				player.isJumping = true;
+				player.speedY = -player.jumpPower;
 			}
+		
 
 		}
 
+		function handleRightTap() {
+			
+			
+		
+			
+			
+			
+
+			
+			// Right side of the screen, initiate attack
+			if (!isGameOver) {
+				player.isAttacking = true;
+				console.log("attack");
+
+				// Check if any zombie is near the player and within attack range
+				for (let i = 0; i < zombies.length; i++) {
+					let distance = Math.sqrt(Math.pow((player.x - zombies[i].x), 2) + Math.pow((player.y - zombies[i].y), 2));
+					if (distance <= attackRange) {
+						// Zombie hit by attack
+						zombies.splice(i, 1);
+						score += 10; // Increase score for killing a zombie
+
+					}
+				}
+
+				player.isAttacking = false;
+			}
+		
+
+		}
 
 
         function resetGame() {
