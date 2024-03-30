@@ -88,7 +88,7 @@
         const zombieSpeed = 2;
         const maxZombies = 5;
         const attackDamage = 10; // Adjust the attack damage as needed
-        const attackRange = 100; // Adjust the attack range as needed
+        const attackRange = 250; // Adjust the attack range as needed
 
         // Game properties
         let score = 0;
@@ -96,7 +96,7 @@
 
 
         // Event listener
-        canvas.addEventListener('click', handleTap);
+        canvas.addEventListener('mousedown', handleTap);
 
         // Functions
         function handleTap(event) {
@@ -105,7 +105,7 @@
 
 			if (tapX < canvas.width / 2) {
 				// Left side of the screen, initiate jump
-				if (!isGameOver && !player.isJumping && !player.isAttacking) {
+				if (!isGameOver && (!player.isJumping || player.collide)) {
 					player.isJumping = true;
 					player.speedY = -player.jumpPower;
 				}
@@ -143,15 +143,18 @@
             spawnZombies();
             update();
         }
-
+		
         function spawnZombies() {
+			var p = {}
             for (let i = 0; i < maxZombies; i++) {
+				p = platforms[Math.floor((platforms.length-1)*Math.random())]
+                
                 zombies.push({
-                    x: canvas.width + Math.random() * canvas.width,
-                    y: canvas.height - 50,
+                    x: p.x,
+                    y: p.y - 50,
                     width: zombieWidth,
                     height: zombieHeight,
-                    speedX: zombieSpeed + Math.random() * 2
+                    speedX: 2
                 });
             }
         }
@@ -256,34 +259,38 @@
         }
 
         function update() {
-			let currentTime = performance.now();
-			let elapsedTime = currentTime - lastFrameTime;
-
-			if (elapsedTime > frameDelay) {
-				lastFrameTime = currentTime - (elapsedTime % frameDelay);
-				if (!isGameOver) {
-					updatePlayer();
-					updateZombies();
-					updateScore();
-					draw();
-					i = 0
-					while(i < platforms.length) {
-						platforms[i].draw()
-						platforms[i].x -= 2
-						
-						i += 1
-					}
+		
+			if (!isGameOver) {
+				updatePlayer();
+				updateZombies();
+				updateScore();
+				draw();
+				i = 0
+				while(i < platforms.length) {
+					platforms[i].draw()
+					platforms[i].x -= 2
 					
+					i += 1
 				}
+				
 			}
-            requestAnimationFrame(update);
+		
+            //requestAnimationFrame(update);
             
         }
+        
+        function update2() {
+			
+				update()
+				update()
+				
+		}
 
         // Initialize game
-        spawnZombies();
-        update();
+        spawnZombies()
+        
+		gaem = setInterval(update2,1000/30)
+        
     </script>
 </body>
 </html>
-
