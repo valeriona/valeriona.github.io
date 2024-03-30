@@ -32,7 +32,11 @@
     <canvas id="gameCanvas" width="200" height="400"></canvas>
     <script>
 		
-
+		mode = prompt("Are you using a mouse (m) or a touchscreen (t): ")
+		
+		if(mode != "m") {
+				mode = "t"
+		}
 		
 		
         const canvas = document.getElementById('gameCanvas');
@@ -96,8 +100,18 @@
 
 
         // Event listener
-        canvas.addEventListener('mousedown', handleTap);
+        
+        if(mode == "m") {
+			canvas.addEventListener('mousedown', handleTap);
 
+		}
+		
+		else {
+			canvas.addEventListener('touchstart', handleTap);
+
+		}
+        
+        
         // Functions
         function handleTap(event) {
 			event.preventDefault();
@@ -122,6 +136,7 @@
 							// Zombie hit by attack
 							zombies.splice(i, 1);
 							score += 10; // Increase score for killing a zombie
+
 						}
 					}
 
