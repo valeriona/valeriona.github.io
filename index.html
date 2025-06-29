@@ -1,23 +1,124 @@
 <!DOCTYPE html>
+
 <html>
+
 <head>
+
 <style>
-* {box-sizing:border-box;}
-body {margin:0;background-color:#FFFFFF;}
-div {position:absolute;left:25px;right:25px;top:25px;bottom:25px;background-color:#EEEEEE;border-radius:25px;border:1px solid #960000;}
-h1 {font-family:arial;text-align:center;font-size:50px;position:absolute;top:0px;left:0px;right:0px;color:#960000;}
-h2 {font-family:arial;text-align:center;left:25px;right:25px;position:absolute;top:100px;font-size:20px;}
-img {left:50%;width:200px;height:200px;bottom:100px;position:absolute;margin-left:-100px;}
+
+* {box-sizing:border-box;margin:0px;font-family:arial;}
+
+body {background-color:#000011;box-sizing:border-box;position:absolute;left:0px;top:0px;bottom:0px;right:0px;}
+
+#title {color:#00AAAA;font-family:arial;position:relative;left:0px;top:0px;font-size:30px;border-left:5px solid #00AAAA;padding-left:15px;padding-top:15px;padding-bottom:15px;}
+
+#navigation {width:100%;position:relative;height:70px;background-color:#000505;top:0px;border-bottom:1px solid #005555;}
+
+#introduction {width:42.5%;position:relative;height:240px;background-color:#000505;top:30px;left:5%;border-radius:10px;box-shadow:0px 0px 10px #005555;padding:20px;}
+
+#intro {color:#CCCCCC;font-family:arial;position:relative;left:30px;top:30px;font-size:25px;top:15px;}
+
+#intro-description {color:#CCCCCC;font-family:arial;position:relative;left:30px;top:50px;font-size:20px;width:80%;line-height:1.2;}
+
+#in-development {position:fixed;left:10%;right:10%;top:10%;bottom:10%;background-color:#001111;border-bottom:1px solid #005555;text-align:centre;padding:30px;padding-top:100px;;color:white;border-radius:10px;box-shadow:0px 0px 30px #005555;font-family:arial;font-size:30px;}
+
+#products-and-services {position:absolute;height:240px;background-color:#001122;top:400px;left:5%;right:30px;border-radius:10px;padding:20px;height:1200px;}
+
+#products-and-services-title {color:#EEEEEE;font-family:arial;position:relative;left:0px;top:0px;font-size:25px;left:15px;top:15px;}
+
+#search {position:absolute;height:240px;background-color:#000000;top:100px;left:30px;right:30px;border-radius:10px;padding:20px;}
+
+#b4k4-games {position:absolute;height:240px;background-color:#000000;top:400px;left:30px;right:30px;border-radius:10px;padding:20px;color:white;}
+
+
+#socials  {width:42.5%;position:absolute;height:240px;background-color:#000505;top:100px;right:5%;border-radius:10px;box-shadow:0px 0px 10px #005555;padding:20px;width:45%;}
+
+#socials-title {color:#CCCCCC;font-family:arial;position:relative;left:0px;top:0px;font-size:25px;left:15px;top:15px;}
+
+
+
+/* width */
+::-webkit-scrollbar {
+  width: 20px;
+  background: #001122;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 5px #00FFFF; 
+  border-radius: 0px;
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #000015; 
+  border-radius: 0px;
+  box-shadow: inset 0 0 5px #00FFFF; 
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #003333; 
+}
+
+a {
+color:#CC00CC;font-size:20px;
+}
+
 </style>
+
 </head>
+
 <body>
 
-<div>
+<div id="navigation">
 
-<h1>We're moving!</h1>
-<h2>Due to github banning all my accounts one by one for creating alts (I only just read that it's in the TOS), I had to move to a new domain. I will look through my projects and publish them here.</h2>
-<img src="https://cyberchillgithub.github.io/cybersystem90s/logo.png">
+<h1 id="title">Valeriona</h1>
+
+</div>
+
+
+<div id="introduction">
+<h2 id="intro">Luxury that you can afford...</h2>
+<p id="intro-description">We believe Luxury should be accessible to everyone. This is why we aim to provide high quality products at affordable prices.</p>
+</div>
+
+
+<div id="socials">
+<h2 id="socials-title">Join our community!</h2>
+<br>
+<br>
+<a href="https://discord.gg/khGmYm6gPP" style="padding-left:30px;">Discord server</a>
+</div>
+
+
+<div id="products-and-services">
+<h1 id="products-and-services-title">Our products and services</h1>
+<div id="search">
+<a href="https://valeriona.github.io/search">Search: https://valeriona.github.io/search</a></div>
+<div id="b4k4-games">b4k4 games - no games fully ready, updates on our Discord server</div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+<div id="in-development" onclick="document.getElementById('in-development').remove()">
+<h1 style="font-size:40px;">Important notice</h1>
+<br>
+Please note our business is just starting up, so keep in mind the website is not yet complete, and there may not be many services available yet. But you are welcome to have a look around.
+<br><br>
+Press anywhere on this popup to continue. 
 </div>
 
 </body>
+
 </html>
