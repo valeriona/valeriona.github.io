@@ -18,25 +18,28 @@
       color: #4ee4ff;
     }
 
-    select, input[type="text"] {
-      padding: 10px;
+    select,
+    input[type="text"] {
+      padding: 15px;
       margin: 10px;
       border-radius: 8px;
       border: none;
       background-color: #121c2b;
       color: #c0faff;
-      width: 80%;
-      max-width: 400px;
+      width: 90%;
+      max-width: 600px;
+      font-size: 1.1rem;
     }
 
     button {
-      padding: 10px 20px;
+      padding: 15px 25px;
       margin: 10px 5px;
       border: none;
       border-radius: 8px;
       background-color: #093951;
       color: #c0faff;
       cursor: pointer;
+      font-size: 1rem;
     }
 
     button:hover {
@@ -48,14 +51,24 @@
     }
 
     @media (max-width: 600px) {
-      input[type="text"], select {
+      input[type="text"],
+      select {
+        font-size: 1rem;
+        padding: 12px;
         width: 95%;
+      }
+
+      button {
+        font-size: 0.95rem;
+        padding: 12px 20px;
       }
     }
   </style>
 </head>
 <body>
   <h1>Valeriona Search</h1>
+
+  <input type="text" id="searchInput" placeholder="Enter search query" autofocus />
 
   <select id="engineSelect">
     <option value="brave">Brave</option>
@@ -64,9 +77,6 @@
     <option value="duckduckgo">DuckDuckGo</option>
     <option value="bing">Bing</option>
   </select>
-
-  <br />
-  <input type="text" id="searchInput" placeholder="Enter search query" autofocus />
 
   <div class="button-group">
     <button id="sameTabBtn">Same Tab</button>
@@ -115,8 +125,8 @@
 
     function setOpenMode(mode) {
       localStorage.setItem("openMode", mode);
-      sameTabBtn.style.backgroundColor = (mode === "sameTab") ? "#0db1cc" : "#093951";
-      newTabBtn.style.backgroundColor = (mode === "newTab") ? "#0db1cc" : "#093951";
+      sameTabBtn.style.backgroundColor = mode === "sameTab" ? "#0db1cc" : "#093951";
+      newTabBtn.style.backgroundColor = mode === "newTab" ? "#0db1cc" : "#093951";
     }
 
     function doSearch() {
