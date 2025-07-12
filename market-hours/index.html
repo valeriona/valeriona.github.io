@@ -18,7 +18,7 @@
       font-family: 'Orbitron', sans-serif;
       background: #0a0a0a;
       color: #00ffe1;
-      overflow: hidden; /* Prevent scrolling */
+      overflow: hidden;
     }
 
     body {
@@ -52,6 +52,7 @@
       width: 100%;
       max-width: 500px;
       flex-grow: 1;
+      justify-content: space-evenly;
     }
 
     .market-panel {
@@ -91,7 +92,7 @@
       text-align: right;
       font-weight: bold;
       display: inline-block;
-      min-width: 9ch; /* Prevent width shift */
+      min-width: 12ch;
     }
 
     .open {
@@ -145,6 +146,21 @@
       return `${hours}h ${minutes}m ${seconds}s`;
     }
 
+    function getNextOpenTime(openHour, openMin, localDate) {
+      const next = new Date(localDate);
+      next.setHours(openHour, openMin, 0, 0);
+
+      // If current time is past today's open time, move to next day
+      if (next <= localDate) next.setDate(next.getDate() + 1);
+
+      // Skip to Monday if weekend
+      while (next.getDay() === 0 || next.getDay() === 6) {
+        next.setDate(next.getDate() + 1);
+      }
+
+      return next;
+    }
+
     function renderMarkets() {
       container.innerHTML = "";
 
@@ -161,15 +177,22 @@
         const closeTime = new Date(localDate);
         closeTime.setHours(closeHour, closeMin, 0, 0);
 
-        const isOpen = localDate >= openTime && localDate <= closeTime;
+        const day = localDate.getDay(); // 0 = Sunday, 6 = Saturday
+        const isWeekend = (day === 0 || day === 6);
+
+        const isOpen = !isWeekend && localDate >= openTime && localDate <= closeTime;
 
         let statusText = isOpen
           ? `<span class="value open">OPEN</span>`
           : `<span class="value closed">CLOSED</span>`;
 
-        let countdownText = isOpen
-          ? `Closes in ${formatTimeDiff(closeTime - localDate)}`
-          : `Opens in ${formatTimeDiff(openTime > localDate ? openTime - localDate : openTime.setDate(openTime.getDate() + 1) - localDate)}`;
+        let countdownText;
+        if (isOpen) {
+          countdownText = `Closes in ${formatTimeDiff(closeTime - localDate)}`;
+        } else {
+          const nextOpen = getNextOpenTime(openHour, openMin, localDate);
+          countdownText = `Opens in ${formatTimeDiff(nextOpen - localDate)}`;
+        }
 
         const localTimeStr = localDate.toTimeString().split(" ")[0];
 
