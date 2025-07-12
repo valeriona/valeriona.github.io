@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Market Sessions - Cyberpunk</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap');
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Orbitron', sans-serif;
+      background: #0a0a0a;
+      color: #00ffe1;
+      overflow: hidden; /* Prevent scrolling */
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 2vh 2vw;
+    }
+
+    h1 {
+      font-size: clamp(1rem, 5vw, 1.8rem);
+      color: #00ffe1;
+      text-shadow: 0 0 6px #00ffe1, 0 0 15px #0088aa;
+      margin-bottom: 1vh;
+      text-align: center;
+    }
+
+    .neon-line {
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #00ffe1, transparent);
+      animation: flicker 2s infinite ease-in-out;
+      margin: 1vh 0 2vh;
+    }
+
+    #marketsContainer {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2vh;
+      width: 100%;
+      max-width: 500px;
+      flex-grow: 1;
+    }
+
+    .market-panel {
+      flex: 1;
+      background: rgba(0, 255, 234, 0.06);
+      border: 1px solid #00ffe1;
+      box-shadow: 0 0 10px #00ffe1;
+      border-radius: 8px;
+      padding: 1vh 2vw;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 17%;
+    }
+
+    .market-name {
+      font-size: clamp(0.9rem, 3.5vw, 1.2rem);
+      margin-bottom: 0.6vh;
+      color: #00ffe1;
+      text-shadow: 0 0 5px #00ffe1;
+    }
+
+    .data-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: clamp(0.7rem, 3vw, 0.95rem);
+      padding: 0.3vh 0;
+    }
+
+    .label {
+      color: #888;
+      flex: 1;
+    }
+
+    .value {
+      flex: 1;
+      text-align: right;
+      font-weight: bold;
+      display: inline-block;
+      min-width: 9ch; /* Prevent width shift */
+    }
+
+    .open {
+      color: #0f0;
+      text-shadow: 0 0 8px #0f0;
+    }
+
+    .closed {
+      color: #f00;
+      text-shadow: 0 0 8px #f00;
+    }
+
+    @keyframes flicker {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    @media (max-height: 500px) {
+      .market-panel {
+        min-height: 22%;
+      }
+    }
+
+    @media (max-height: 400px) {
+      .market-panel {
+        min-height: 25%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>🌐 Global Market Sessions</h1>
+  <div class="neon-line"></div>
+  <div id="marketsContainer"></div>
+
+  <script>
+    const markets = [
+      { name: "London", id: "london", tz: "Europe/London", open: "08:00", close: "16:00" },
+      { name: "New York", id: "newyork", tz: "America/New_York", open: "09:30", close: "16:00" },
+      { name: "Tokyo", id: "tokyo", tz: "Asia/Tokyo", open: "09:00", close: "15:00" },
+      { name: "Sydney", id: "sydney", tz: "Australia/Sydney", open: "09:00", close: "16:00" }
+    ];
+
+    const container = document.getElementById("marketsContainer");
+
+    function formatTimeDiff(ms) {
+      const totalSeconds = Math.floor(ms / 1000);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      return `${hours}h ${minutes}m ${seconds}s`;
+    }
+
+    function renderMarkets() {
+      container.innerHTML = "";
+
+      markets.forEach(market => {
+        const localNowStr = new Date().toLocaleString("en-US", { timeZone: market.tz });
+        const localDate = new Date(localNowStr);
+
+        const [openHour, openMin] = market.open.split(":").map(Number);
+        const [closeHour, closeMin] = market.close.split(":").map(Number);
+
+        const openTime = new Date(localDate);
+        openTime.setHours(openHour, openMin, 0, 0);
+
+        const closeTime = new Date(localDate);
+        closeTime.setHours(closeHour, closeMin, 0, 0);
+
+        const isOpen = localDate >= openTime && localDate <= closeTime;
+
+        let statusText = isOpen
+          ? `<span class="value open">OPEN</span>`
+          : `<span class="value closed">CLOSED</span>`;
+
+        let countdownText = isOpen
+          ? `Closes in ${formatTimeDiff(closeTime - localDate)}`
+          : `Opens in ${formatTimeDiff(openTime > localDate ? openTime - localDate : openTime.setDate(openTime.getDate() + 1) - localDate)}`;
+
+        const localTimeStr = localDate.toTimeString().split(" ")[0];
+
+        const panel = document.createElement("div");
+        panel.className = "market-panel";
+        panel.innerHTML = `
+          <div class="market-name">${market.name}</div>
+          <div class="data-row"><span class="label">Status:</span> ${statusText}</div>
+          <div class="data-row"><span class="label">Local Time:</span> <span class="value">${localTimeStr}</span></div>
+          <div class="data-row"><span class="label">Countdown:</span> <span class="value">${countdownText}</span></div>
+        `;
+        container.appendChild(panel);
+      });
+    }
+
+    renderMarkets();
+    setInterval(renderMarkets, 1000);
+  </script>
+</body>
+</html>
