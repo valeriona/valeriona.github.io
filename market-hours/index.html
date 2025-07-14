@@ -38,10 +38,10 @@
     }
 
     .neon-line {
-  width: 100%;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, #00ffe1, transparent);
-  margin: 1vh 0 2vh
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #00ffe1, transparent);
+      margin: 1vh 0 2vh;
     }
 
     #marketsContainer {
@@ -103,23 +103,6 @@
       color: #f00;
       text-shadow: 0 0 8px #f00;
     }
-
-    @keyframes flicker {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
-
-    @media (max-height: 500px) {
-      .market-panel {
-        min-height: 22%;
-      }
-    }
-
-    @media (max-height: 400px) {
-      .market-panel {
-        min-height: 25%;
-      }
-    }
   </style>
 </head>
 <body>
@@ -129,10 +112,10 @@
 
   <script>
     const markets = [
-      { name: "London", id: "london", tz: "Europe/London", open: "08:00", close: "16:00" },
+      { name: "London", id: "london", tz: "Europe/London", open: "08:00", close: "16:30" },
       { name: "New York", id: "newyork", tz: "America/New_York", open: "09:30", close: "16:00" },
       { name: "Tokyo", id: "tokyo", tz: "Asia/Tokyo", open: "09:00", close: "15:00" },
-      { name: "Sydney", id: "sydney", tz: "Australia/Sydney", open: "09:00", close: "16:00" }
+      { name: "Sydney", id: "sydney", tz: "Australia/Sydney", open: "09:00", close: "17:00" }
     ];
 
     const container = document.getElementById("marketsContainer");
@@ -149,10 +132,8 @@
       const next = new Date(localDate);
       next.setHours(openHour, openMin, 0, 0);
 
-      // If current time is past today's open time, move to next day
       if (next <= localDate) next.setDate(next.getDate() + 1);
 
-      // Skip to Monday if weekend
       while (next.getDay() === 0 || next.getDay() === 6) {
         next.setDate(next.getDate() + 1);
       }
@@ -164,6 +145,7 @@
       container.innerHTML = "";
 
       markets.forEach(market => {
+        // Get market local time
         const localNowStr = new Date().toLocaleString("en-US", { timeZone: market.tz });
         const localDate = new Date(localNowStr);
 
@@ -176,7 +158,8 @@
         const closeTime = new Date(localDate);
         closeTime.setHours(closeHour, closeMin, 0, 0);
 
-        const day = localDate.getDay(); // 0 = Sunday, 6 = Saturday
+        // Weekend check based on market local day
+        const day = localDate.getDay(); // Sunday = 0, Saturday = 6
         const isWeekend = (day === 0 || day === 6);
 
         const isOpen = !isWeekend && localDate >= openTime && localDate <= closeTime;
