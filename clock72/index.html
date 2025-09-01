@@ -29,6 +29,7 @@ body {
 .superday-name { font-weight:bold; font-size:1.2em; color:#ff8a65; }
 .realday-name { font-weight:bold; font-size:1.1em; color:#ba68c8; }
 h1 { color:#ffffff; }
+input[type=range] { width:300px; margin-top:10px; }
 </style>
 </head>
 <body>
@@ -41,6 +42,13 @@ h1 { color:#ffffff; }
 <div class="box" id="superdayInfo">Loading superday info...</div>
 <div class="box" id="realTime">Loading real time...</div>
 <div class="box" id="realDay">Loading real day...</div>
+
+<!-- Slider -->
+<div class="box">
+  <label for="timeSlider">Convert 24h ↔ 72h:</label><br>
+  <input type="range" id="timeSlider" min="0" max="24" step="0.01" value="12">
+  <p>24h: <span id="slider24">04:00</span> → 72h: <span id="slider72">12:00</span> </p>
+</div>
 
 <script>
 // CONFIG
@@ -144,6 +152,22 @@ function updateClock(){
   const realDayName = daysOfWeek[now.getDay()===0?6:now.getDay()-1];
   document.getElementById('realDay').innerHTML = `<p>24h Day: <span class="realday-name">${realDayName}</span></p>`;
 }
+
+// Slider logic
+const slider = document.getElementById('timeSlider');
+const slider24 = document.getElementById('slider24');
+const slider72 = document.getElementById('slider72');
+
+function updateSliderDisplay(){
+  const val72 = parseFloat(slider.value);
+  slider72.textContent = formatHourRounded(val72);
+  // convert 24h → 72h superday
+  const val24 = val72 / 24;
+  slider24.textContent = formatHourRounded(val24 % 24 * 72);
+}
+
+slider.addEventListener('input', updateSliderDisplay);
+updateSliderDisplay();
 
 setInterval(updateClock, 1000);
 updateClock();
