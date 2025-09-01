@@ -138,7 +138,7 @@ function updateClock(){
   document.getElementById('superdayInfo').innerHTML = `<p>72h Day: <span class="superday-name">${daysOfWeek[dayIndex]}</span></p>`;
 
   // Real 24h clock
-  document.getElementById('realTime').innerHTML = `<p>Real Time: ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}</p>`;
+  document.getElementById('realTime').innerHTML = `<p>24h Time: ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}</p>`;
 
   // Real day of week
   const realDayName = daysOfWeek[now.getDay()===0?6:now.getDay()-1];
