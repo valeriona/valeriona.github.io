@@ -3,19 +3,37 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>72h Clock</title>
+<title>72h Clock - Dark Mode</title>
 <style>
-body { font-family: Arial; background:#f0f4f8; display:flex; flex-direction:column; align-items:center; padding:20px; }
-.box { background:#fff; padding:20px 30px; margin:10px 0; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1); text-align:center; width:400px; }
-.highlight { font-weight:bold; color:#1e90ff; }
-.market { font-weight:bold; color:#28a745; }
-.superday-name { font-weight:bold; font-size:1.2em; color:#ff6347; }
-.realday-name { font-weight:bold; font-size:1.1em; color:#6a5acd; }
+body {
+  font-family: Arial;
+  background:#121212;
+  color:#e0e0e0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:20px;
+}
+.box {
+  background:#1e1e1e;
+  padding:20px 30px;
+  margin:10px 0;
+  border-radius:10px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.7);
+  text-align:center;
+  width:400px;
+  color:#e0e0e0;
+}
+.highlight { font-weight:bold; color:#4fc3f7; }
+.market { font-weight:bold; color:#81c784; }
+.superday-name { font-weight:bold; font-size:1.2em; color:#ff8a65; }
+.realday-name { font-weight:bold; font-size:1.1em; color:#ba68c8; }
+h1 { color:#ffffff; }
 </style>
 </head>
 <body>
 
-<h1>72h Clock</h1>
+<h1>72h Clock - Dark Mode</h1>
 
 <div class="box" id="superdayClock">Loading 72h clock...</div>
 <div class="box" id="sleepTimes">Loading sleep times...</div>
@@ -73,12 +91,10 @@ function generateRepeats(period){
                    ? period.end - period.start 
                    : period.end + 24 - period.start; // handle overnight
 
-  // repeat 3 times over 72h
   for(let i=0;i<3;i++){
     let start = period.start + i*24;
     let end = start + duration;
 
-    // map start/end to 0-72h superday
     let startMapped = (start % superdayLengthHours) * 24 / superdayLengthHours;
     let endMapped = (end % superdayLengthHours) * 24 / superdayLengthHours;
 
@@ -94,10 +110,9 @@ function updateClock(){
   const deltaHours = (now - superdayStart)/(1000*60*60);
   const superHour = (deltaHours % superdayLengthHours) * 24 / superdayLengthHours;
 
-  // Live 72h superday clock with seconds
   document.getElementById('superdayClock').innerHTML = `<div style="font-size:2em;">72h Clock: ${formatHourWithSeconds(superHour)}</div>`;
 
-  // Sleep repeats (rounded to nearest minute)
+  // Sleep repeats
   let sleepDisplay = '';
   sleepPeriods.forEach(p=>{
     const repeats = generateRepeats(p);
@@ -107,7 +122,7 @@ function updateClock(){
   });
   document.getElementById('sleepTimes').innerHTML = sleepDisplay;
 
-  // Market repeats (rounded to nearest minute)
+  // Market repeats
   let marketDisplay = '';
   marketSessions.forEach(p=>{
     const repeats = generateRepeats(p);
@@ -122,7 +137,7 @@ function updateClock(){
   const dayIndex = totalSuperdays % 7;
   document.getElementById('superdayInfo').innerHTML = `<p>72h Day: <span class="superday-name">${daysOfWeek[dayIndex]}</span></p>`;
 
-  // Real 24h clock with seconds
+  // Real 24h clock
   document.getElementById('realTime').innerHTML = `<p>Real Time: ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}</p>`;
 
   // Real day of week
