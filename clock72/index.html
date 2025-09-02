@@ -4,38 +4,175 @@
 <meta charset="UTF-8">
 <title>72h Clock Week Scheduler</title>
 <style>
-    body { font-family: 'Segoe UI', sans-serif; margin: 20px; background-color: #121212; color: #eee; }
-    h1, h3 { color: #fff; }
-    .scheduler { display: flex; gap: 40px; flex-wrap: wrap; align-items: flex-start; }
-    .form { background: #1e1e1e; padding: 20px; border-radius: 12px; box-shadow: 0 0 20px #000; max-width: 350px; flex-shrink:0; }
-    .form label { display: block; margin-bottom: 10px; }
-    input, select, textarea { width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: none; background: #2c2c2c; color: #eee; box-sizing: border-box; font-size: 16px; }
-    button { padding: 12px; border-radius: 8px; border: none; background: #3a86ff; color: #fff; cursor: pointer; margin-top: 10px; width: 100%; box-sizing: border-box; font-size: 16px; }
-    button:hover { background: #5aa0ff; }
-    .events { max-width: 700px; flex:1; overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
-    th, td { border: 1px solid #333; padding: 8px; text-align: center; }
-    th { background-color: #222; }
-    tr:nth-child(even) { background-color: #1b1b1b; }
-    .stats { margin-bottom: 20px; background: #1e1e1e; padding: 15px; border-radius: 12px; box-shadow: 0 0 15px #000; font-size: 16px; }
-    .importExport { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
-    .importExport button { width: 100%; display: block; }
-    .importExport textarea { margin-top: 8px; resize: vertical; font-size: 14px; }
-    td button { padding: 6px 10px; width: auto; background: #ff5f5f; font-size: 14px; }
-    td button:hover { background: #ff7f7f; }
+/* --- Body & General --- */
+body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 40px;              /* comfortable space from edges */
+    background-color: #121212;
+    color: #eee;
+}
 
-    /* --- Responsive --- */
-    @media screen and (max-width: 700px) {
-        .scheduler { flex-direction: column; gap: 20px; }
-        .form, .events { max-width: 100%; }
-        table { font-size: 13px; }
-        input, select, textarea, button { font-size: 16px; }
+/* Center scheduler and constrain max width for readability */
+.scheduler {
+    display: flex;
+    flex-direction: column;     /* stacked layout */
+    gap: 30px;
+    max-width: 1200px;          /* keeps content from stretching too wide */
+    margin: 0 auto;             /* center horizontally */
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Headings */
+h1, h3 {
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+/* --- Stats Box --- */
+.stats {
+    margin-bottom: 20px;
+    background: #1e1e1e;
+    padding: 20px 25px;         /* padding for readability */
+    border-radius: 12px;
+    box-shadow: 0 0 15px #000;
+    font-size: 16px;
+}
+
+/* --- Form --- */
+.form {
+    background: #1e1e1e;
+    padding: 25px;               /* comfortable inner padding */
+    border-radius: 12px;
+    box-shadow: 0 0 20px #000;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+input, select, textarea, button {
+    width: 100%;
+    max-width: 100%;
+    padding: 10px;               /* enough space for touch/desktop */
+    margin-top: 4px;
+    border-radius: 6px;
+    border: none;
+    background: #2c2c2c;
+    color: #eee;
+    box-sizing: border-box;
+    font-size: 16px;
+}
+
+/* --- Buttons --- */
+button {
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background: #3a86ff;
+    color: #fff;
+    cursor: pointer;
+    margin-top: 10px;
+    width: 100%;
+    font-size: 16px;
+}
+
+button:hover {
+    background: #5aa0ff;
+}
+
+/* --- Events Table --- */
+.events {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;            /* horizontal scroll if table is too wide */
+}
+
+table {
+    width: 100% !important;      /* ensure table spans full container */
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 14px;
+    table-layout: auto;          /* flexible column widths */
+}
+
+th, td {
+    border: 1px solid #333;
+    padding: 10px;               /* comfortable spacing */
+    text-align: center;
+    word-break: break-word;      /* wrap long content */
+}
+
+th {
+    background-color: #222;
+}
+
+tr:nth-child(even) {
+    background-color: #1b1b1b;
+}
+
+td button {
+    padding: 6px 10px;
+    width: auto;
+    background: #ff5f5f;
+    font-size: 14px;
+}
+
+td button:hover {
+    background: #ff7f7f;
+}
+
+/* --- Import / Export Section --- */
+.importExport {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.importExport button {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+textarea {
+    width: 100%;
+    box-sizing: border-box;
+    resize: vertical;
+    font-size: 14px;
+    padding: 10px;
+}
+
+/* --- Responsive Adjustments --- */
+@media screen and (max-width: 700px) {
+    body {
+        padding: 20px;            /* slightly less padding on smaller screens */
     }
-    @media screen and (max-width: 400px) {
-        input, select, textarea, button { font-size: 15px; padding: 10px; }
-        table { font-size: 12px; }
-        td button { font-size: 12px; padding: 5px 8px; }
+
+    table {
+        font-size: 13px;
     }
+}
+
+@media screen and (max-width: 400px) {
+    input, select, textarea, button {
+        font-size: 15px;
+        padding: 10px;
+    }
+
+    table {
+        font-size: 12px;
+    }
+
+    td button {
+        font-size: 12px;
+        padding: 5px 8px;
+    }
+}
 </style>
 
 </head>
@@ -46,6 +183,24 @@
 <div class="stats" id="currentStats"></div>
 
 <div class="scheduler">
+
+
+	<div class="events">
+        <h3>Scheduled Tasks</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>72h Time</th>
+                    <th>24h Time</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="eventTableBody"></tbody>
+        </table>
+    </div>
+    
+    
     <div class="form">
         <h3>Add Task</h3>
         <label>Title:<input type="text" id="eventTitle"></label>
@@ -78,20 +233,7 @@
         </div>
     </div>
 
-    <div class="events">
-        <h3>Scheduled Tasks</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>72h Time</th>
-                    <th>24h Time</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="eventTableBody"></tbody>
-        </table>
-    </div>
+    
 </div>
 
 <script>
