@@ -208,7 +208,7 @@ textarea {
         <label>Input Type:
             <select id="inputType">
                 <option value="triplex">72h</option>
-                <option value="earth">24h</option>
+                <option value="standard">24h</option>
             </select>
         </label>
 
@@ -217,9 +217,9 @@ textarea {
             <label>72h Time (HH:MM):<input type="text" id="triplexTime" placeholder="HH:MM"></label>
         </div>
 
-        <div id="earthInputs" style="display:none;">
-            <label>24h Day (1-21):<input type="number" id="earthDay" min="1" max="21" value="1"></label>
-            <label>24h Time (HH:MM):<input type="text" id="earthTime" placeholder="HH:MM"></label>
+        <div id="standardInputs" style="display:none;">
+            <label>24h Day (1-21):<input type="number" id="standardDay" min="1" max="21" value="1"></label>
+            <label>24h Time (HH:MM):<input type="text" id="standardTime" placeholder="HH:MM"></label>
         </div>
 
         <button onclick="addEvent()">Add Task</button>
@@ -240,32 +240,32 @@ textarea {
 const TRIPLEX_DAY_HOURS = 72;
 const DISPLAY_HOURS = 24;
 const TRIPLEX_WEEK_DAYS = 7;
-const EARTH_DAYS_PER_WEEK = 21;
+const standard_DAYS_PER_WEEK = 21;
 const TRIPLEX_WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-const EARTH_WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const standard_WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 // --- Conversion Functions ---
-function earthToTriplex(date = new Date()) {
+function standardToTriplex(date = new Date()) {
     const localEpoch = new Date(1970,0,1);
     const msSinceEpoch = date - localEpoch;
-    const earthHours = msSinceEpoch / 3600000;
-    const triplexHour = earthHours % TRIPLEX_DAY_HOURS;
+    const standardHours = msSinceEpoch / 3600000;
+    const triplexHour = standardHours % TRIPLEX_DAY_HOURS;
     const displayHourFraction = (triplexHour / TRIPLEX_DAY_HOURS) * DISPLAY_HOURS;
     const hours = Math.floor(displayHourFraction);
     const minutes = Math.floor((displayHourFraction - hours) * 60);
     const seconds = Math.floor((((displayHourFraction - hours) * 60) - minutes) * 60);
-    const day = (Math.floor(earthHours / TRIPLEX_DAY_HOURS) % TRIPLEX_WEEK_DAYS) + 1; // 1-7
+    const day = (Math.floor(standardHours / TRIPLEX_DAY_HOURS) % TRIPLEX_WEEK_DAYS) + 1; // 1-7
     return { day, hours, minutes, seconds };
 }
 
-function triplexToEarth({ day=1, hours=0, minutes=0, seconds=0 }, referenceDate=new Date()) {
+function triplexTostandard({ day=1, hours=0, minutes=0, seconds=0 }, referenceDate=new Date()) {
     const localEpoch = new Date(1970,0,1);
     const msSinceEpoch = referenceDate - localEpoch;
-    const earthHoursSinceEpoch = msSinceEpoch / 3600000;
-    const triplexWeekNumber = Math.floor(earthHoursSinceEpoch / (TRIPLEX_DAY_HOURS * TRIPLEX_WEEK_DAYS));
+    const standardHoursSinceEpoch = msSinceEpoch / 3600000;
+    const triplexWeekNumber = Math.floor(standardHoursSinceEpoch / (TRIPLEX_DAY_HOURS * TRIPLEX_WEEK_DAYS));
     const triplexHour = (hours + minutes/60 + seconds/3600)/DISPLAY_HOURS*TRIPLEX_DAY_HOURS;
-    const totalEarthHours = triplexWeekNumber*TRIPLEX_DAY_HOURS*TRIPLEX_WEEK_DAYS + (day-1)*TRIPLEX_DAY_HOURS + triplexHour;
-    return new Date(localEpoch.getTime() + totalEarthHours*3600000);
+    const totalstandardHours = triplexWeekNumber*TRIPLEX_DAY_HOURS*TRIPLEX_WEEK_DAYS + (day-1)*TRIPLEX_DAY_HOURS + triplexHour;
+    return new Date(localEpoch.getTime() + totalstandardHours*3600000);
 }
 
 function formatTime({ hours, minutes, seconds }) {
@@ -280,7 +280,7 @@ function loadEvents() {
     const saved = localStorage.getItem("triplexScheduler");
     if(saved) {
         events = JSON.parse(saved);
-        events.forEach(e => e.earthDate = new Date(e.earthDate));
+        events.forEach(e => e.standardDate = new Date(e.standardDate));
         renderEvents();
     }
 }
@@ -298,14 +298,14 @@ function addEvent() {
         const day = parseInt(document.getElementById("triplexDay").value);
         const [hours, minutes] = document.getElementById("triplexTime").value.split(":").map(Number);
         event = { title, day, hours, minutes, seconds:0 };
-        event.earthDate = triplexToEarth(event);
-        event.earthDay = getEarthDayInWeek(event.earthDate);
+        event.standardDate = triplexTostandard(event);
+        event.standardDay = getstandardDayInWeek(event.standardDate);
     } else {
-        const earthDay = parseInt(document.getElementById("earthDay").value);
-        const [hours, minutes] = document.getElementById("earthTime").value.split(":").map(Number);
+        const standardDay = parseInt(document.getElementById("standardDay").value);
+        const [hours, minutes] = document.getElementById("standardTime").value.split(":").map(Number);
         const startOfWeek = new Date(); startOfWeek.setHours(0,0,0,0);
-        const earthDate = new Date(startOfWeek.getTime() + (earthDay-1)*24*3600000 + hours*3600000 + minutes*60000);
-        event = { title, earthDate, earthDay, ...earthToTriplex(earthDate) };
+        const standardDate = new Date(startOfWeek.getTime() + (standardDay-1)*24*3600000 + hours*3600000 + minutes*60000);
+        event = { title, standardDate, standardDay, ...standardToTriplex(standardDate) };
     }
 
     events.push(event);
@@ -313,11 +313,11 @@ function addEvent() {
     renderEvents();
 }
 
-// Get Earth day in current week
-function getEarthDayInWeek(date) {
+// Get standard day in current week
+function getstandardDayInWeek(date) {
     const startOfWeek = new Date(); startOfWeek.setHours(0,0,0,0);
     const diffDays = Math.floor((date - startOfWeek)/86400000);
-    return ((diffDays % EARTH_DAYS_PER_WEEK) + 1);
+    return ((diffDays % standard_DAYS_PER_WEEK) + 1);
 }
 
 function renderEvents() {
@@ -325,11 +325,11 @@ function renderEvents() {
     tbody.innerHTML = "";
     events.forEach((e,i) => {
         const triplexDayName = TRIPLEX_WEEKDAYS[(e.day-1)%7];
-        const earthDayName = EARTH_WEEKDAYS[(e.earthDay-1)%21];
+        const standardDayName = standard_WEEKDAYS[(e.standardDay-1)%21];
         const triplexStr = `Day ${e.day} (${triplexDayName}) ${formatTime(e)}`;
-        const earthStr = `Day ${e.earthDay} (${earthDayName}) ${e.earthDate.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`;
+        const standardStr = `Day ${e.standardDay} (${standardDayName}) ${e.standardDate.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`;
         const row = document.createElement("tr");
-        row.innerHTML = `<td>${e.title}</td><td>${triplexStr}</td><td>${earthStr}</td>
+        row.innerHTML = `<td>${e.title}</td><td>${triplexStr}</td><td>${standardStr}</td>
                          <td><button onclick="removeEvent(${i})">Delete</button></td>`;
         tbody.appendChild(row);
     });
@@ -337,15 +337,15 @@ function renderEvents() {
 
 function updateCurrentStats() {
     const now = new Date();
-    const triplex = earthToTriplex(now);
-    const earthDay = getEarthDayInWeek(now);
+    const triplex = standardToTriplex(now);
+    const standardDay = getstandardDayInWeek(now);
 
     const triplexDayName = TRIPLEX_WEEKDAYS[(triplex.day-1)%7];
-    const earthDayName = EARTH_WEEKDAYS[(earthDay-1)%21];
+    const standardDayName = standard_WEEKDAYS[(standardDay-1)%21];
 
     document.getElementById("currentStats").innerHTML = `
         <strong>Current 72h Time:</strong> Day ${triplex.day} (${triplexDayName}) ${formatTime(triplex)}<br>
-        <strong>Current 24h Time:</strong> Day ${earthDay} (${earthDayName}) ${now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'})}
+        <strong>Current 24h Time:</strong> Day ${standardDay} (${standardDayName}) ${now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'})}
     `;
 }
 
@@ -359,7 +359,7 @@ function removeEvent(index) {
 function exportTasks() {
     try {
         const txt = JSON.stringify(events, (k, v) => {
-            if (k === "earthDate" && v instanceof Date) return v.toISOString();
+            if (k === "standardDate" && v instanceof Date) return v.toISOString();
             return v;
         }, 2);
         const textarea = document.getElementById("taskText");
@@ -380,7 +380,7 @@ function importTasks() {
         const arr = JSON.parse(txt);
         if(!Array.isArray(arr)) throw new Error("Invalid format");
         arr.forEach(e=>{
-            e.earthDate = new Date(e.earthDate);
+            e.standardDate = new Date(e.standardDate);
         });
         events = arr;
         saveEvents();
@@ -396,10 +396,10 @@ function importTasks() {
 document.getElementById("inputType").addEventListener("change", e=>{
     if(e.target.value === "triplex"){
         document.getElementById("triplexInputs").style.display = "block";
-        document.getElementById("earthInputs").style.display = "none";
+        document.getElementById("standardInputs").style.display = "none";
     } else{
         document.getElementById("triplexInputs").style.display = "none";
-        document.getElementById("earthInputs").style.display = "block";
+        document.getElementById("standardInputs").style.display = "block";
     }
 });
 
