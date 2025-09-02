@@ -2,175 +2,248 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>72h Clock</title>
+<title>72h Clock Week Scheduler</title>
 <style>
-body {
-  font-family: Arial;
-  background:#121212;
-  color:#e0e0e0;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  padding:20px;
-}
-.box {
-  background:#1e1e1e;
-  padding:20px 30px;
-  margin:10px 0;
-  border-radius:10px;
-  box-shadow:0 4px 10px rgba(0,0,0,0.7);
-  text-align:center;
-  width:400px;
-  color:#e0e0e0;
-}
-.highlight { font-weight:bold; color:#4fc3f7; }
-.market { font-weight:bold; color:#81c784; }
-.superday-name { font-weight:bold; font-size:1.2em; color:#ff8a65; }
-.realday-name { font-weight:bold; font-size:1.1em; color:#ba68c8; }
-h1 { color:#ffffff; }
-input[type=range] { width:300px; margin-top:10px; }
+    body { font-family: 'Segoe UI', sans-serif; margin: 20px; background-color: #121212; color: #eee; }
+    h1, h3 { color: #fff; }
+    .scheduler { display: flex; gap: 40px; flex-wrap: wrap; align-items: flex-start; }
+    .form { background: #1e1e1e; padding: 20px; border-radius: 12px; box-shadow: 0 0 20px #000; max-width: 350px; flex-shrink:0; }
+    .form label { display: block; margin-bottom: 10px; }
+    input, select, textarea { width: 100%; padding: 6px; margin-top: 4px; border-radius: 6px; border: none; background: #2c2c2c; color: #eee; box-sizing: border-box; }
+    button { padding: 10px 15px; border-radius: 8px; border: none; background: #3a86ff; color: #fff; cursor: pointer; margin-top: 10px; width: 100%; box-sizing: border-box; }
+    button:hover { background: #5aa0ff; }
+    .events { max-width: 700px; flex:1; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #333; padding: 8px; text-align: center; }
+    th { background-color: #222; }
+    tr:nth-child(even) { background-color: #1b1b1b; }
+    .stats { margin-bottom: 20px; background: #1e1e1e; padding: 15px; border-radius: 12px; box-shadow: 0 0 15px #000; }
+    .importExport { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
+    .importExport button { width: 48%; display: inline-block; }
+    .importExport textarea { margin-top: 8px; resize: none; }
+    td button { padding: 4px 8px; width: auto; background: #ff5f5f; }
+    td button:hover { background: #ff7f7f; }
 </style>
 </head>
 <body>
 
-<h1>72h Clock</h1>
+<h1>72h Clock Week Scheduler</h1>
 
-<div class="box" id="superdayClock">Loading 72h clock...</div>
-<div class="box" id="sleepTimes">Loading sleep times...</div>
-<div class="box" id="marketTimes">Loading NY market times...</div>
-<div class="box" id="superdayInfo">Loading superday info...</div>
-<div class="box" id="realTime">Loading real time...</div>
-<div class="box" id="realDay">Loading real day...</div>
+<div class="stats" id="currentStats"></div>
 
-<!-- Slider -->
-<div class="box">
-  <label for="timeSlider">Convert 24h ↔ 72h:</label><br>
-  <input type="range" id="timeSlider" min="0" max="24" step="0.01" value="12">
-  <p>24h: <span id="slider24">04:00</span> → 72h: <span id="slider72">12:00</span> </p>
+<div class="scheduler">
+    <div class="form">
+        <h3>Add Task</h3>
+        <label>Title:<input type="text" id="eventTitle"></label>
+
+        <label>Input Type:
+            <select id="inputType">
+                <option value="triplex">72h</option>
+                <option value="earth">24h</option>
+            </select>
+        </label>
+
+        <div id="triplexInputs">
+            <label>72h Day (1-7):<input type="number" id="triplexDay" min="1" max="7" value="1"></label>
+            <label>72h Time (HH:MM):<input type="text" id="triplexTime" placeholder="HH:MM"></label>
+        </div>
+
+        <div id="earthInputs" style="display:none;">
+            <label>24h Day (1-21):<input type="number" id="earthDay" min="1" max="21" value="1"></label>
+            <label>24h Time (HH:MM):<input type="text" id="earthTime" placeholder="HH:MM"></label>
+        </div>
+
+        <button onclick="addEvent()">Add Task</button>
+
+        <div class="importExport">
+            <div style="display:flex; gap:4%;">
+                <button onclick="exportTasks()">Export Tasks</button>
+                <button onclick="importTasks()">Import Tasks</button>
+            </div>
+            <textarea id="taskText" rows="6" placeholder="Exported/imported tasks appear here..."></textarea>
+        </div>
+    </div>
+
+    <div class="events">
+        <h3>Scheduled Tasks</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>72h Time</th>
+                    <th>24h Time</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="eventTableBody"></tbody>
+        </table>
+    </div>
 </div>
 
 <script>
-// CONFIG
-const superdayStart = new Date('1970-01-01T00:00:00');
-const superdayLengthHours = 72;
+const TRIPLEX_DAY_HOURS = 72;
+const DISPLAY_HOURS = 24;
+const TRIPLEX_WEEK_DAYS = 7;
+const EARTH_DAYS_PER_WEEK = 21;
 
-// Inputs in 24h real time
-const sleepPeriods = [
-  { 
-    start: parseFloat(prompt("Sleep start (0.0-23.9): ")), 
-    end: parseFloat(prompt("Sleep end (0.0-23.9): "))
-  }
-];
-
-const marketSessions = [
-  { start: 14.5, end: 22 }
-];
-
-const daysOfWeek = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
-
-// Map real hour to superday display (0–24)
-function mapToSuperdayDisplay(realHour){
-  return (realHour / superdayLengthHours) * 24;
+// --- Conversion Functions ---
+function earthToTriplex(date = new Date()) {
+    const localEpoch = new Date(1970,0,1);
+    const msSinceEpoch = date - localEpoch;
+    const earthHours = msSinceEpoch / 3600000;
+    const triplexHour = earthHours % TRIPLEX_DAY_HOURS;
+    const displayHourFraction = (triplexHour / TRIPLEX_DAY_HOURS) * DISPLAY_HOURS;
+    const hours = Math.floor(displayHourFraction);
+    const minutes = Math.floor((displayHourFraction - hours) * 60);
+    const seconds = Math.floor((((displayHourFraction - hours) * 60) - minutes) * 60);
+    const day = (Math.floor(earthHours / TRIPLEX_DAY_HOURS) % TRIPLEX_WEEK_DAYS) + 1; // 1-7
+    return { day, hours, minutes, seconds };
 }
 
-// Format live time HH:MM:SS
-function formatHourWithSeconds(hour){
-  const h = Math.floor(hour);
-  const m = Math.floor((hour - h) * 60);
-  const s = Math.floor((((hour - h) * 60) - m) * 60);
-  return h.toString().padStart(2,'0') + ':' +
-         m.toString().padStart(2,'0') + ':' +
-         s.toString().padStart(2,'0');
+function triplexToEarth({ day=1, hours=0, minutes=0, seconds=0 }, referenceDate=new Date()) {
+    const localEpoch = new Date(1970,0,1);
+    const msSinceEpoch = referenceDate - localEpoch;
+    const earthHoursSinceEpoch = msSinceEpoch / 3600000;
+    const triplexWeekNumber = Math.floor(earthHoursSinceEpoch / (TRIPLEX_DAY_HOURS * TRIPLEX_WEEK_DAYS));
+    const triplexHour = (hours + minutes/60 + seconds/3600)/DISPLAY_HOURS*TRIPLEX_DAY_HOURS;
+    const totalEarthHours = triplexWeekNumber*TRIPLEX_DAY_HOURS*TRIPLEX_WEEK_DAYS + (day-1)*TRIPLEX_DAY_HOURS + triplexHour;
+    return new Date(localEpoch.getTime() + totalEarthHours*3600000);
 }
 
-// Format sleep/market time HH:MM rounded to nearest minute
-function formatHourRounded(hour){
-  const totalMinutes = Math.round(hour * 60);
-  const h = Math.floor(totalMinutes / 60) % 24;
-  const m = totalMinutes % 60;
-  return h.toString().padStart(2,'0') + ':' + m.toString().padStart(2,'0');
+function formatTime({ hours, minutes, seconds }) {
+    return [hours, minutes, seconds].map(n=>n.toString().padStart(2,'0')).join(':');
 }
 
-// Generate repeats for any period, handles overnight & multi-day spans
-function generateRepeats(period){
-  const repeats = [];
-  const duration = (period.end >= period.start) 
-                   ? period.end - period.start 
-                   : period.end + 24 - period.start; // handle overnight
+// --- Scheduler ---
+let events = [];
 
-  for(let i=0;i<3;i++){
-    let start = period.start + i*24;
-    let end = start + duration;
-
-    let startMapped = (start % superdayLengthHours) * 24 / superdayLengthHours;
-    let endMapped = (end % superdayLengthHours) * 24 / superdayLengthHours;
-
-    repeats.push({ start: startMapped, end: endMapped });
-  }
-
-  return repeats;
+// Load from localStorage
+function loadEvents() {
+    const saved = localStorage.getItem("triplexScheduler");
+    if(saved) {
+        events = JSON.parse(saved);
+        events.forEach(e => e.earthDate = new Date(e.earthDate));
+        renderEvents();
+    }
 }
 
+// Save to localStorage
+function saveEvents() { localStorage.setItem("triplexScheduler", JSON.stringify(events)); }
 
-function updateClock(){
-  const now = new Date();
-  const deltaHours = (now - superdayStart)/(1000*60*60);
-  const superHour = (deltaHours % superdayLengthHours) * 24 / superdayLengthHours;
+function addEvent() {
+    const title = document.getElementById("eventTitle").value.trim();
+    if(!title) { alert("Please enter a title."); return; }
+    const inputType = document.getElementById("inputType").value;
+    let event = null;
 
-  document.getElementById('superdayClock').innerHTML = `<div style="font-size:2em;">72h Clock: ${formatHourWithSeconds(superHour)}</div>`;
+    if(inputType === "triplex") {
+        const day = parseInt(document.getElementById("triplexDay").value);
+        const [hours, minutes] = document.getElementById("triplexTime").value.split(":").map(Number);
+        event = { title, day, hours, minutes, seconds:0 };
+        event.earthDate = triplexToEarth(event);
+        event.earthDay = getEarthDayInWeek(event.earthDate);
+    } else {
+        const earthDay = parseInt(document.getElementById("earthDay").value);
+        const [hours, minutes] = document.getElementById("earthTime").value.split(":").map(Number);
+        const startOfWeek = new Date(); startOfWeek.setHours(0,0,0,0);
+        const earthDate = new Date(startOfWeek.getTime() + (earthDay-1)*24*3600000 + hours*3600000 + minutes*60000);
+        event = { title, earthDate, earthDay, ...earthToTriplex(earthDate) };
+    }
 
-  // Sleep repeats
-  let sleepDisplay = '';
-  sleepPeriods.forEach(p=>{
-    const repeats = generateRepeats(p);
-    repeats.forEach((r,i)=>{
-      sleepDisplay += `<p>Sleep ${i+1}: <span class="highlight">${formatHourRounded(r.start)} – ${formatHourRounded(r.end)}</span></p>`;
+    events.push(event);
+    saveEvents();
+    renderEvents();
+}
+
+// Get Earth day in current week
+function getEarthDayInWeek(date) {
+    const startOfWeek = new Date(); startOfWeek.setHours(0,0,0,0);
+    const diffDays = Math.floor((date - startOfWeek)/86400000);
+    return ((diffDays % EARTH_DAYS_PER_WEEK) + 1);
+}
+
+function renderEvents() {
+    const tbody = document.getElementById("eventTableBody");
+    tbody.innerHTML = "";
+    events.forEach((e,i) => {
+        const row = document.createElement("tr");
+        const triplexStr = `Day ${e.day} ${formatTime(e)}`;
+        const earthStr = `Day ${e.earthDay} ${e.earthDate.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`;
+        row.innerHTML = `<td>${e.title}</td><td>${triplexStr}</td><td>${earthStr}</td>
+                         <td><button onclick="removeEvent(${i})">Delete</button></td>`;
+        tbody.appendChild(row);
     });
-  });
-  document.getElementById('sleepTimes').innerHTML = sleepDisplay;
-
-  // Market repeats
-  let marketDisplay = '';
-  marketSessions.forEach(p=>{
-    const repeats = generateRepeats(p);
-    repeats.forEach((r,i)=>{
-      marketDisplay += `<p>NY Market ${i+1}: <span class="market">${formatHourRounded(r.start)} – ${formatHourRounded(r.end)}</span></p>`;
-    });
-  });
-  document.getElementById('marketTimes').innerHTML = marketDisplay;
-
-  // 72h superday name
-  const totalSuperdays = Math.floor(deltaHours / superdayLengthHours);
-  const dayIndex = totalSuperdays % 7;
-  document.getElementById('superdayInfo').innerHTML = `<p>72h Day: <span class="superday-name">${daysOfWeek[dayIndex]}</span></p>`;
-
-  // Real 24h clock
-  document.getElementById('realTime').innerHTML = `<p>24h Time: ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}</p>`;
-
-  // Real day of week
-  const realDayName = daysOfWeek[now.getDay()===0?6:now.getDay()-1];
-  document.getElementById('realDay').innerHTML = `<p>24h Day: <span class="realday-name">${realDayName}</span></p>`;
 }
 
-// Slider logic
-const slider = document.getElementById('timeSlider');
-const slider24 = document.getElementById('slider24');
-const slider72 = document.getElementById('slider72');
-
-function updateSliderDisplay(){
-  const val72 = parseFloat(slider.value);
-  slider72.textContent = formatHourRounded(val72);
-  // convert 24h → 72h superday
-  const val24 = val72 / 24;
-  slider24.textContent = formatHourRounded(val24 % 24 * 72);
+function removeEvent(index) {
+    events.splice(index,1);
+    saveEvents();
+    renderEvents();
 }
 
-slider.addEventListener('input', updateSliderDisplay);
-updateSliderDisplay();
+// --- Import / Export ---
+function exportTasks() {
+    try {
+        const txt = JSON.stringify(events, (k, v) => {
+            if (k === "earthDate" && v instanceof Date) return v.toISOString();
+            return v;
+        }, 2);
+        const textarea = document.getElementById("taskText");
+        textarea.value = txt;
+        textarea.select();
+        //alert("Tasks exported! You can copy them from the textarea.");
+    } catch(e) {
+        alert("Error exporting tasks: "+e);
+    }
+}
 
-setInterval(updateClock, 1000);
-updateClock();
+
+function importTasks() {
+    const textarea = document.getElementById("taskText");
+    const txt = textarea.value.trim();
+    if(!txt) { alert("No data to import."); return; }
+    try {
+        const arr = JSON.parse(txt);
+        if(!Array.isArray(arr)) throw new Error("Invalid format");
+        arr.forEach(e=>{
+            e.earthDate = new Date(e.earthDate);
+        });
+        events = arr;
+        saveEvents();
+        renderEvents();
+        //alert("Tasks imported successfully!");
+    } catch(err) {
+        alert("Invalid task data: "+err.message);
+    }
+}
+
+
+// --- UI Switching ---
+document.getElementById("inputType").addEventListener("change", e=>{
+    if(e.target.value === "triplex"){
+        document.getElementById("triplexInputs").style.display = "block";
+        document.getElementById("earthInputs").style.display = "none";
+    } else{
+        document.getElementById("triplexInputs").style.display = "none";
+        document.getElementById("earthInputs").style.display = "block";
+    }
+});
+
+// --- Current Stats ---
+function updateCurrentStats() {
+    const now = new Date();
+    const triplex = earthToTriplex(now);
+    const earthDay = getEarthDayInWeek(now);
+    document.getElementById("currentStats").innerHTML = `
+        <strong>Current 72h Time:</strong> Day ${triplex.day} ${formatTime(triplex)}<br>
+        <strong>Current 24h Time:</strong> Day ${earthDay} ${now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'})}
+    `;
+}
+
+// --- Init ---
+setInterval(updateCurrentStats, 1000);
+updateCurrentStats();
+loadEvents();
 </script>
 
 </body>
