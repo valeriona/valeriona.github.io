@@ -9,21 +9,35 @@
     .scheduler { display: flex; gap: 40px; flex-wrap: wrap; align-items: flex-start; }
     .form { background: #1e1e1e; padding: 20px; border-radius: 12px; box-shadow: 0 0 20px #000; max-width: 350px; flex-shrink:0; }
     .form label { display: block; margin-bottom: 10px; }
-    input, select, textarea { width: 100%; padding: 6px; margin-top: 4px; border-radius: 6px; border: none; background: #2c2c2c; color: #eee; box-sizing: border-box; }
-    button { padding: 10px 15px; border-radius: 8px; border: none; background: #3a86ff; color: #fff; cursor: pointer; margin-top: 10px; width: 100%; box-sizing: border-box; }
+    input, select, textarea { width: 100%; padding: 8px; margin-top: 4px; border-radius: 6px; border: none; background: #2c2c2c; color: #eee; box-sizing: border-box; font-size: 16px; }
+    button { padding: 12px; border-radius: 8px; border: none; background: #3a86ff; color: #fff; cursor: pointer; margin-top: 10px; width: 100%; box-sizing: border-box; font-size: 16px; }
     button:hover { background: #5aa0ff; }
-    .events { max-width: 700px; flex:1; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    .events { max-width: 700px; flex:1; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
     th, td { border: 1px solid #333; padding: 8px; text-align: center; }
     th { background-color: #222; }
     tr:nth-child(even) { background-color: #1b1b1b; }
-    .stats { margin-bottom: 20px; background: #1e1e1e; padding: 15px; border-radius: 12px; box-shadow: 0 0 15px #000; }
+    .stats { margin-bottom: 20px; background: #1e1e1e; padding: 15px; border-radius: 12px; box-shadow: 0 0 15px #000; font-size: 16px; }
     .importExport { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
-    .importExport button { width: 48%; display: inline-block; }
-    .importExport textarea { margin-top: 8px; resize: none; }
-    td button { padding: 4px 8px; width: auto; background: #ff5f5f; }
+    .importExport button { width: 100%; display: block; }
+    .importExport textarea { margin-top: 8px; resize: vertical; font-size: 14px; }
+    td button { padding: 6px 10px; width: auto; background: #ff5f5f; font-size: 14px; }
     td button:hover { background: #ff7f7f; }
+
+    /* --- Responsive --- */
+    @media screen and (max-width: 700px) {
+        .scheduler { flex-direction: column; gap: 20px; }
+        .form, .events { max-width: 100%; }
+        table { font-size: 13px; }
+        input, select, textarea, button { font-size: 16px; }
+    }
+    @media screen and (max-width: 400px) {
+        input, select, textarea, button { font-size: 15px; padding: 10px; }
+        table { font-size: 12px; }
+        td button { font-size: 12px; padding: 5px 8px; }
+    }
 </style>
+
 </head>
 <body>
 
