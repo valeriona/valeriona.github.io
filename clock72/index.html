@@ -241,6 +241,8 @@ const TRIPLEX_DAY_HOURS = 72;
 const DISPLAY_HOURS = 24;
 const TRIPLEX_WEEK_DAYS = 7;
 const EARTH_DAYS_PER_WEEK = 21;
+const TRIPLEX_WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const EARTH_WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 // --- Conversion Functions ---
 function earthToTriplex(date = new Date()) {
@@ -322,13 +324,29 @@ function renderEvents() {
     const tbody = document.getElementById("eventTableBody");
     tbody.innerHTML = "";
     events.forEach((e,i) => {
+        const triplexDayName = TRIPLEX_WEEKDAYS[(e.day-1)%7];
+        const earthDayName = EARTH_WEEKDAYS[(e.earthDay-1)%21];
+        const triplexStr = `Day ${e.day} (${triplexDayName}) ${formatTime(e)}`;
+        const earthStr = `Day ${e.earthDay} (${earthDayName}) ${e.earthDate.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`;
         const row = document.createElement("tr");
-        const triplexStr = `Day ${e.day} ${formatTime(e)}`;
-        const earthStr = `Day ${e.earthDay} ${e.earthDate.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`;
         row.innerHTML = `<td>${e.title}</td><td>${triplexStr}</td><td>${earthStr}</td>
                          <td><button onclick="removeEvent(${i})">Delete</button></td>`;
         tbody.appendChild(row);
     });
+}
+
+function updateCurrentStats() {
+    const now = new Date();
+    const triplex = earthToTriplex(now);
+    const earthDay = getEarthDayInWeek(now);
+
+    const triplexDayName = TRIPLEX_WEEKDAYS[(triplex.day-1)%7];
+    const earthDayName = EARTH_WEEKDAYS[(earthDay-1)%21];
+
+    document.getElementById("currentStats").innerHTML = `
+        <strong>Current 72h Time:</strong> Day ${triplex.day} (${triplexDayName}) ${formatTime(triplex)}<br>
+        <strong>Current 24h Time:</strong> Day ${earthDay} (${earthDayName}) ${now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'})}
+    `;
 }
 
 function removeEvent(index) {
@@ -385,16 +403,7 @@ document.getElementById("inputType").addEventListener("change", e=>{
     }
 });
 
-// --- Current Stats ---
-function updateCurrentStats() {
-    const now = new Date();
-    const triplex = earthToTriplex(now);
-    const earthDay = getEarthDayInWeek(now);
-    document.getElementById("currentStats").innerHTML = `
-        <strong>Current 72h Time:</strong> Day ${triplex.day} ${formatTime(triplex)}<br>
-        <strong>Current 24h Time:</strong> Day ${earthDay} ${now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'})}
-    `;
-}
+
 
 // --- Init ---
 setInterval(updateCurrentStats, 1000);
