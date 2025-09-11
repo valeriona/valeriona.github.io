@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Text editor</title>
+<style>
+    body {
+        font-family: Georgia, serif;
+        line-height: 1.8;
+        transition: background-color 0.2s, color 0.2s, font-size 0.2s;
+        padding: 6rem 3rem 2rem 3rem;
+    }
+    h1 { margin-top:0; }
+    .controls {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0,0,0,0.05);
+        padding: 0.5rem 1rem;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        z-index: 1000;
+        flex-wrap: wrap;
+    }
+    label { font-size: 0.85rem; margin-right: 0.3rem; }
+    input[type=range] { width: 150px; }
+    .paragraphs { max-width: 900px; margin-top: 6rem; }
+    textarea {
+        width: 100%;
+        min-height: 400px;
+        font-family: Georgia, serif;
+        line-height: 1.6;
+        padding: 0.8rem;
+        border: none;
+        border-radius: 0;
+        background: transparent;
+        color: inherit;
+        resize: vertical;
+        outline: none;
+        transition: color 0.2s, background-color 0.2s, font-size 0.2s;
+    }
+</style>
+</head>
+<body>
+
+<div class="controls">
+    <div>
+        <label for="textSlider">Text Brightness:</label>
+        <input type="range" id="textSlider" min="0" max="255">
+        <span id="textValue"></span>
+    </div>
+    <div>
+        <label for="bgSlider">Background Brightness:</label>
+        <input type="range" id="bgSlider" min="0" max="255">
+        <span id="bgValue"></span>
+    </div>
+    <div>
+        <label for="fontSlider">Font Size (px):</label>
+        <input type="range" id="fontSlider" min="12" max="30">
+        <span id="fontValue"></span>
+    </div>
+</div>
+
+<div class="paragraphs">
+    <textarea id="editor" placeholder="Type your text here..."></textarea>
+</div>
+
+<script>
+const textSlider = document.getElementById("textSlider");
+const bgSlider = document.getElementById("bgSlider");
+const fontSlider = document.getElementById("fontSlider");
+const textValue = document.getElementById("textValue");
+const bgValue = document.getElementById("bgValue");
+const fontValue = document.getElementById("fontValue");
+const editor = document.getElementById("editor");
+
+// Load from localStorage or use defaults
+let textBrightness = parseInt(localStorage.getItem('textBrightness')) || 220;
+let bgBrightness = parseInt(localStorage.getItem('bgBrightness')) || 60;
+let fontSize = parseInt(localStorage.getItem('fontSize')) || 24;
+let savedText = localStorage.getItem('editorText') || '';
+
+textSlider.value = textBrightness;
+bgSlider.value = bgBrightness;
+fontSlider.value = fontSize;
+editor.value = savedText;
+
+function updateDisplay() {
+    const t = parseInt(textSlider.value);
+    const b = parseInt(bgSlider.value);
+    const f = parseInt(fontSlider.value);
+
+    textValue.textContent = t;
+    bgValue.textContent = b;
+    fontValue.textContent = f;
+
+    document.body.style.color = `rgb(${t},${t},${t})`;
+    document.body.style.backgroundColor = `rgb(${b},${b},${b})`;
+    document.body.style.fontSize = f + 'px';
+
+    editor.style.color = `rgb(${t},${t},${t})`;
+    editor.style.backgroundColor = `rgb(${b},${b},${b})`;
+    editor.style.fontSize = f + 'px';
+}
+
+// Event listeners
+textSlider.addEventListener("input", () => {
+    localStorage.setItem('textBrightness', textSlider.value);
+    updateDisplay();
+});
+
+bgSlider.addEventListener("input", () => {
+    localStorage.setItem('bgBrightness', bgSlider.value);
+    updateDisplay();
+});
+
+fontSlider.addEventListener("input", () => {
+    localStorage.setItem('fontSize', fontSlider.value);
+    updateDisplay();
+});
+
+// Autosave editor text every 5 seconds
+setInterval(() => {
+    localStorage.setItem('editorText', editor.value);
+}, 5000);
+
+// Initialize
+updateDisplay();
+</script>
+
+</body>
+</html>
