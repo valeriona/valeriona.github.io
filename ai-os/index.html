@@ -401,6 +401,10 @@ function execute(code) {
     node._content.style.color = opts.fg;
   }
 
+  if (opts.fs) {
+    node._content.style.fontSize = opts.fs + "px";
+  }
+
 
 
   if (mode === "FORMAT") {
