@@ -196,6 +196,8 @@ html, body {
 <div id="appMenu" class="app-menu hidden">
   <div class="app-item" data-app="terminal">Terminal</div>
   <div class="app-item" data-app="editor">Text Editor</div>
+  <div class="app-item" data-app="viewer">Text Viewer</div>
+
 </div>
 
 
@@ -213,6 +215,8 @@ html, body {
 const canvas = document.getElementById("canvas");
 const input = document.getElementById("bytecode");
 const terminals = {};
+const nodes = {};
+
 let z = 1;
 
 
@@ -352,6 +356,15 @@ function closeNode(n) {
 
 
 
+function parseOptions(str) {
+  if (!str) return {};
+  return Object.fromEntries(
+    str.split(/\s+/).map(p => {
+      const [k, v] = p.split("=");
+      return [k, v];
+    })
+  );
+}
 
 
 
@@ -359,26 +372,46 @@ function closeNode(n) {
 
 /* ===== BYTECODE EXEC ===== */
 function execute(code) {
-  // TERM <id> [TEXT|FORMAT] <<EOF ... EOF
-  const m = code.match(/TERM\s+(\d+)(?:\s+(TEXT|FORMAT))?\s+<<EOF\s*([\s\S]*?)\s*EOF/);
+  // NODE <id> [TEXT|FORMAT] <<EOF ... EOF
+  const m = code.match(
+  /NODE\s+(\d+)((?:\s+[a-z]+=[^\s<]+)*)\s*(TEXT|FORMAT)?\s+<<EOF\s*([\s\S]*?)\s*EOF/
+);
+
+
   if (!m) return;
 
   const id = m[1];
-  const mode = m[2] || "TEXT";
+  const opts = parseOptions(m[2].trim());
+  const mode = m[3] || "TEXT";
+  const content = decodeEscapes(m[4]);
 
-  // Transport decode here
-  const content = decodeEscapes(m[3]);
 
-  const term = terminals[id];
-  if (!term) return;
+
+
+  const node = nodes[id];
+  if (!node || !node._content) return;
+  
+  
+
+  if (opts.bg) {
+    node.style.background = opts.bg;
+  }
+
+  if (opts.fg) {
+    node._content.style.color = opts.fg;
+  }
+
+
 
   if (mode === "FORMAT") {
-    term.innerHTML = renderFormat(content);
+    node._content.innerHTML = renderFormat(content);
   } else {
-    term.textContent = content;
+    node._content.value !== undefined
+      ? node._content.value = content
+      : node._content.textContent = content;
   }
-}
 
+}
 
 
 
@@ -388,8 +421,12 @@ const apps = {
   },
   editor() {
     spawnEditor();
+  },
+  viewer() {
+    spawnTextViewer();
   }
 };
+
 
 document.querySelectorAll(".app-item").forEach(item => {
   item.onclick = e => {
@@ -407,6 +444,25 @@ function spawnTerminal() {
   const n = createNode(id, 120 + id * 20, 100 + id * 20);
 
   n._content.textContent = `user@node${id}:~$ `;
+}
+
+
+function spawnTextViewer() {
+  const id = Object.keys(terminals).length + 1;
+  const n = createNode(id, 200, 160);
+
+  const viewer = document.createElement("div");
+  viewer.style.width = "100%";
+  viewer.style.height = "100%";
+  viewer.style.overflowY = "auto";
+  viewer.style.whiteSpace = "pre-wrap";
+  viewer.style.fontFamily = "monospace";
+  viewer.style.padding = "14px";
+  viewer.style.color = "var(--text)";
+  viewer.textContent = "Text Viewer ready.\n\nLoad content via bytecode.";
+
+  n._content.replaceWith(viewer);
+  n._content = viewer;
 }
 
 
@@ -472,6 +528,7 @@ function createNode(id, x, y) {
   canvas.appendChild(n);
   terminals[id] = t;
   n._content = t;
+  nodes[id] = n;
 
 
   // focus on click
