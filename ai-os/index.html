@@ -53,7 +53,9 @@ html, body {
 }
 
 
-/* ===== Node ===== */
+
+
+/* ===== Window Animations ===== */
 .node {
   position: absolute;
   width: 380px;
@@ -67,7 +69,31 @@ html, body {
   flex-direction: column;
   resize: both;
   overflow: hidden;
+  transition:
+    transform 220ms ease,
+    opacity 180ms ease,
+    width 220ms ease,
+    height 220ms ease,
+    left 220ms ease,
+    top 220ms ease;
 }
+
+.node.dragging {
+  transition: none !important;
+}
+
+
+.node.minimized {
+  transform: scale(0.92) translateY(20px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.node.closing {
+  transform: scale(0.85);
+  opacity: 0;
+}
+
 
 .node.focused {
   box-shadow:
@@ -222,6 +248,62 @@ function renderFormat(text) {
   return out.replace(/\n/g, "<br>");
 }
 
+
+
+
+function minimizeNode(n) {
+  if (n._state.minimized) return;
+  n._state.minimized = true;
+  n.classList.add("minimized");
+}
+
+function toggleMaximize(n) {
+  if (!n._state.maximized) {
+    n._state.prev = {
+      left: n.style.left,
+      top: n.style.top,
+      width: n.style.width,
+      height: n.style.height
+    };
+
+    n.style.left = "0px";
+    n.style.top = "0px";
+    n.style.width = "100%";
+    n.style.height = "calc(100%)";
+    n.style.resize = "none";
+
+    n._state.maximized = true;
+  } else {
+    const p = n._state.prev;
+    if (p) {
+      n.style.left = p.left;
+      n.style.top = p.top;
+      n.style.width = p.width;
+      n.style.height = p.height;
+    }
+    n.style.resize = "both";
+    n._state.maximized = false;
+  }
+}
+
+function closeNode(n) {
+  n.classList.add("closing");
+  setTimeout(() => {
+    delete terminals[n.dataset?.id];
+    n.remove();
+  }, 180);
+}
+
+
+
+
+
+
+
+
+
+
+
 /* ===== BYTECODE EXEC ===== */
 function execute(code) {
   // TERM <id> [TEXT|FORMAT] <<EOF ... EOF
@@ -254,11 +336,27 @@ function createNode(id, x, y) {
 
   const h = document.createElement("div");
   h.className = "node-header";
-  h.innerHTML = `node ${id} · linux <div class="controls"><span>–</span><span>▢</span><span>×</span></div>`;
+  h.innerHTML = `
+    node ${id} · linux
+    <div class="controls">
+      <span data-action="min">–</span>
+      <span data-action="max">▢</span>
+      <span data-action="close">×</span>
+    </div>
+  `;
+
 
   const t = document.createElement("div");
   t.className = "terminal";
   t.textContent = `user@node${id}:~$ `;
+
+
+  n._state = {
+    minimized: false,
+    maximized: false,
+    prev: null
+  };
+
 
   n.append(h, t);
   canvas.appendChild(n);
@@ -270,6 +368,10 @@ function createNode(id, x, y) {
   // drag header
   h.onmousedown = e => {
     focusNode(n);
+
+    // Disable animations while dragging
+    n.classList.add("dragging");
+
     const ox = e.clientX - n.offsetLeft;
     const oy = e.clientY - n.offsetTop;
 
@@ -277,17 +379,40 @@ function createNode(id, x, y) {
       n.style.left = (e2.clientX - ox) + "px";
       n.style.top = (e2.clientY - oy) + "px";
     };
+
     document.onmouseup = () => {
       document.onmousemove = null;
       document.onmouseup = null;
+
+      // Re-enable animations after drag
+      n.classList.remove("dragging");
     };
   };
+
+  
+  h.querySelectorAll(".controls span").forEach(btn => {
+    btn.onclick = e => {
+      e.stopPropagation();
+      const action = btn.dataset.action;
+
+      if (action === "min") minimizeNode(n);
+      if (action === "max") toggleMaximize(n);
+      if (action === "close") closeNode(n);
+    };
+  });
+
 }
 
 function focusNode(n) {
   document.querySelectorAll(".node").forEach(x => x.classList.remove("focused"));
   n.classList.add("focused");
   n.style.zIndex = ++z;
+  
+  if (n._state.minimized) {
+    n._state.minimized = false;
+    n.classList.remove("minimized");
+  }
+
 }
 
 /* ===== Input ===== */
