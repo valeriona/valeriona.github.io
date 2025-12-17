@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Flux Desk</title>
+
+<style>
+:root {
+  --bg: #0b0e13;
+  --panel: #141821;
+  --panel-hi: #1b2130;
+  --text: #d6d8dc;
+  --muted: #8b90a0;
+  --accent: #5eead4;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: radial-gradient(1200px at top, #10151f, #080a0f);
+  color: var(--text);
+  font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+  overflow: hidden;
+}
+
+/* ===== Command Rail ===== */
+#rail {
+  height: 46px;
+  background: linear-gradient(180deg, #141821, #0f131b);
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+}
+
+#rail span {
+  color: var(--muted);
+  margin-right: 12px;
+  letter-spacing: 0.4px;
+}
+
+#bytecode {
+  flex: 1;
+  height: 28px;
+  background: #07090d;
+  color: var(--accent);
+  border-radius: 8px;
+  border: none;
+  padding: 0 10px;
+  font-family: monospace;
+  outline: none;
+}
+
+/* ===== Canvas ===== */
+#canvas {
+  position: absolute;
+  top: 46px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+/* ===== Node ===== */
+.node {
+  position: absolute;
+  width: 360px;
+  height: 270px;
+  background: linear-gradient(180deg, var(--panel-hi), var(--panel));
+  border-radius: 18px;
+  box-shadow:
+    0 18px 40px rgba(0,0,0,.55),
+    inset 0 1px 0 rgba(255,255,255,.03);
+  display: flex;
+  flex-direction: column;
+  resize: both;
+  overflow: hidden;
+}
+
+.node.focused {
+  box-shadow:
+    0 0 32px rgba(94,234,212,.35),
+    0 30px 60px rgba(0,0,0,.75);
+}
+
+/* ===== Header ===== */
+.node-header {
+  height: 36px;
+  background: linear-gradient(180deg, #1f2534, #151a25);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  font-size: 13px;
+  color: var(--muted);
+  cursor: move;
+  user-select: none;
+}
+
+.node-title {
+  color: var(--text);
+  letter-spacing: .3px;
+}
+
+/* ===== Custom Controls ===== */
+.controls {
+  display: flex;
+  gap: 10px;
+  font-family: monospace;
+  font-size: 14px;
+}
+
+.ctrl {
+  opacity: .6;
+  cursor: pointer;
+  transition: opacity .15s, transform .15s;
+}
+
+.ctrl:hover {
+  opacity: 1;
+  transform: translateY(-1px);
+}
+
+.ctrl.close { color: #ff6b6b; }
+.ctrl.min   { color: #f5c26b; }
+.ctrl.max   { color: var(--accent); }
+
+/* ===== Terminal ===== */
+.terminal {
+  flex: 1;
+  background: radial-gradient(900px at top, #05070c, #000);
+  color: var(--text);
+  font-family: monospace;
+  font-size: 13px;
+  padding: 14px;
+  white-space: pre-wrap;
+  overflow-y: auto;
+}
+</style>
+</head>
+
+<body>
+
+<!-- Command Rail -->
+<div id="rail">
+  <span>flux</span>
+  <input id="bytecode" placeholder="bytecode · enter to run">
+</div>
+
+<!-- Canvas -->
+<div id="canvas"></div>
+
+<script>
+const canvas = document.getElementById("canvas");
+const input = document.getElementById("bytecode");
+
+let z = 1;
+const terminals = {};
+
+/* ===== Create Node ===== */
+function createNode(id, x, y) {
+  const node = document.createElement("div");
+  node.className = "node";
+  node.style.left = x + "px";
+  node.style.top = y + "px";
+  node.style.zIndex = ++z;
+
+  const header = document.createElement("div");
+  header.className = "node-header";
+
+  const title = document.createElement("div");
+  title.className = "node-title";
+  title.textContent = `node ${id} · linux`;
+
+  const controls = document.createElement("div");
+  controls.className = "controls";
+  controls.innerHTML = `
+    <span class="ctrl min">–</span>
+    <span class="ctrl max">▢</span>
+    <span class="ctrl close">×</span>
+  `;
+
+  header.append(title, controls);
+
+  const term = document.createElement("div");
+  term.className = "terminal";
+  term.textContent = `user@node${id}:~$ `;
+
+  node.append(header, term);
+  canvas.appendChild(node);
+
+  terminals[id] = term;
+
+  focus(node);
+  drag(node, header);
+}
+
+/* ===== Focus ===== */
+function focus(node) {
+  document.querySelectorAll(".node").forEach(n => n.classList.remove("focused"));
+  node.classList.add("focused");
+  node.style.zIndex = ++z;
+}
+
+/* ===== Drag ===== */
+function drag(node, handle) {
+  let ox, oy;
+  handle.onmousedown = e => {
+    focus(node);
+    ox = e.clientX - node.offsetLeft;
+    oy = e.clientY - node.offsetTop;
+    document.onmousemove = e2 => {
+      node.style.left = e2.clientX - ox + "px";
+      node.style.top = e2.clientY - oy + "px";
+    };
+    document.onmouseup = () => {
+      document.onmousemove = null;
+      document.onmouseup = null;
+    };
+  };
+}
+
+/* ===== Bytecode ===== */
+function run(code) {
+  const m = code.match(/TERM\s+(\d+)\s+<<EOF\s*(.*?)\s*EOF/);
+  if (!m) return;
+
+  const id = m[1];
+  const content = m[2].replace(/\\n/g, "\n");
+
+  if (terminals[id]) {
+    terminals[id].textContent = content;
+  }
+}
+
+input.addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    run(input.value);
+    input.value = "";
+  }
+});
+
+/* ===== Init ===== */
+createNode(1, 60, 70);
+createNode(2, 480, 140);
+createNode(3, 280, 420);
+</script>
+
+</body>
+</html>
