@@ -52,14 +52,6 @@ html, body {
   outline: none;
 }
 
-/* ===== Canvas ===== */
-#canvas {
-  position: absolute;
-  top: 46px;
-  bottom: 0;
-  left: 0;
-  right: 0;
-}
 
 /* ===== Node ===== */
 .node {
@@ -115,6 +107,21 @@ html, body {
   padding: 14px;
   overflow-y: auto;
 }
+
+/* ===== Canvas ===== */
+#canvas {
+  position: absolute;
+  top: 46px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+
 </style>
 </head>
 
@@ -122,8 +129,18 @@ html, body {
 
 <div id="rail">
   <span>flux</span>
+  <span id="wallpaperBtn" style="cursor:pointer">wallpaper</span>
   <input id="bytecode" placeholder="TERM 1 FORMAT <<EOF ... (use \\n for newlines)">
 </div>
+
+
+<input
+  id="wallpaperPicker"
+  type="file"
+  accept="image/*"
+  style="display:none"
+/>
+
 
 <div id="canvas"></div>
 
@@ -132,6 +149,22 @@ const canvas = document.getElementById("canvas");
 const input = document.getElementById("bytecode");
 const terminals = {};
 let z = 1;
+
+
+const wallpaperBtn = document.getElementById("wallpaperBtn");
+const wallpaperPicker = document.getElementById("wallpaperPicker");
+
+wallpaperBtn.onclick = () => wallpaperPicker.click();
+
+wallpaperPicker.onchange = e => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const url = URL.createObjectURL(file);
+  canvas.style.backgroundImage = `url(${url})`;
+};
+
+
 
 /* ===== NEWLINE DECODER (transport layer) =====
    - user types literal \n in the bytecode input
