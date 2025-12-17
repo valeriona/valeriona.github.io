@@ -64,8 +64,8 @@ html, body {
 /* ===== Node ===== */
 .node {
   position: absolute;
-  width: 360px;
-  height: 270px;
+  width: 380px;
+  height: 280px;
   background: linear-gradient(180deg, var(--panel-hi), var(--panel));
   border-radius: 18px;
   box-shadow:
@@ -79,7 +79,7 @@ html, body {
 
 .node.focused {
   box-shadow:
-    0 0 32px rgba(94,234,212,.35),
+    0 0 36px rgba(94,234,212,.35),
     0 30px 60px rgba(0,0,0,.75);
 }
 
@@ -97,33 +97,13 @@ html, body {
   user-select: none;
 }
 
-.node-title {
-  color: var(--text);
-  letter-spacing: .3px;
-}
-
-/* ===== Custom Controls ===== */
-.controls {
-  display: flex;
-  gap: 10px;
+.controls span {
+  margin-left: 10px;
   font-family: monospace;
-  font-size: 14px;
-}
-
-.ctrl {
-  opacity: .6;
   cursor: pointer;
-  transition: opacity .15s, transform .15s;
+  opacity: .6;
 }
-
-.ctrl:hover {
-  opacity: 1;
-  transform: translateY(-1px);
-}
-
-.ctrl.close { color: #ff6b6b; }
-.ctrl.min   { color: #f5c26b; }
-.ctrl.max   { color: var(--accent); }
+.controls span:hover { opacity: 1; }
 
 /* ===== Terminal ===== */
 .terminal {
@@ -133,7 +113,6 @@ html, body {
   font-family: monospace;
   font-size: 13px;
   padding: 14px;
-  white-space: pre-wrap;
   overflow-y: auto;
 }
 </style>
@@ -141,77 +120,129 @@ html, body {
 
 <body>
 
-<!-- Command Rail -->
 <div id="rail">
   <span>flux</span>
-  <input id="bytecode" placeholder="bytecode · enter to run">
+  <input id="bytecode" placeholder="TERM 1 FORMAT <<EOF ... (use \\n for newlines)">
 </div>
 
-<!-- Canvas -->
 <div id="canvas"></div>
 
 <script>
 const canvas = document.getElementById("canvas");
 const input = document.getElementById("bytecode");
-
-let z = 1;
 const terminals = {};
+let z = 1;
 
-/* ===== Create Node ===== */
+/* ===== NEWLINE DECODER (transport layer) =====
+   - user types literal \n in the bytecode input
+   - we convert \\n -> actual newline char
+   - leaves real newlines alone (if any exist)
+*/
+function decodeEscapes(s) {
+  return s
+    .replace(/\\n/g, "\n")
+    .replace(/\\t/g, "\t")
+    .replace(/\\r/g, "\r");
+}
+
+/* ===== FORMAT RENDERER (safe, semantic) ===== */
+function renderFormat(text) {
+  const colors = {
+    red:"#ff6b6b", green:"#6bff95", yellow:"#f5c26b",
+    blue:"#6fa8ff", magenta:"#c77dff", cyan:"#5eead4",
+    gray:"#9aa0aa", white:"#ffffff"
+  };
+
+  // escape HTML
+  let out = text
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;");
+
+  // headers
+  out = out.replace(/^## (.*)$/gm,
+    "<div style='font-size:14px;font-weight:600;margin-top:6px'>$1</div>");
+  out = out.replace(/^# (.*)$/gm,
+    "<div style='font-size:16px;font-weight:700;margin-top:10px'>$1</div>");
+
+  // bold / dim
+  out = out.replace(/\*\*(.*?)\*\*/g, "<span style='font-weight:650'>$1</span>");
+  out = out.replace(/~~(.*?)~~/g, "<span style='opacity:.55'>$1</span>");
+
+  // divider
+  out = out.replace(/^---.*$/gm,
+    "<hr style='border:none;border-top:1px solid #222;margin:8px 0'>");
+
+  // color blocks
+  out = out.replace(
+    /\[color=([a-z]+)(.*?)\]([\s\S]*?)\[\/color\]/g,
+    (_, c, mods, body) => {
+      const style = [];
+      if (colors[c]) style.push(`color:${colors[c]}`);
+      if (mods.includes("bold")) style.push("font-weight:650");
+      if (mods.includes("dim")) style.push("opacity:.6");
+      return `<span style="${style.join(";")}">${body}</span>`;
+    }
+  );
+
+  // IMPORTANT: render actual newlines as <br>
+  return out.replace(/\n/g, "<br>");
+}
+
+/* ===== BYTECODE EXEC ===== */
+function execute(code) {
+  // TERM <id> [TEXT|FORMAT] <<EOF ... EOF
+  const m = code.match(/TERM\s+(\d+)(?:\s+(TEXT|FORMAT))?\s+<<EOF\s*([\s\S]*?)\s*EOF/);
+  if (!m) return;
+
+  const id = m[1];
+  const mode = m[2] || "TEXT";
+
+  // Transport decode here
+  const content = decodeEscapes(m[3]);
+
+  const term = terminals[id];
+  if (!term) return;
+
+  if (mode === "FORMAT") {
+    term.innerHTML = renderFormat(content);
+  } else {
+    term.textContent = content;
+  }
+}
+
+/* ===== NODE ===== */
 function createNode(id, x, y) {
-  const node = document.createElement("div");
-  node.className = "node";
-  node.style.left = x + "px";
-  node.style.top = y + "px";
-  node.style.zIndex = ++z;
+  const n = document.createElement("div");
+  n.className = "node";
+  n.style.left = x + "px";
+  n.style.top = y + "px";
+  n.style.zIndex = ++z;
 
-  const header = document.createElement("div");
-  header.className = "node-header";
+  const h = document.createElement("div");
+  h.className = "node-header";
+  h.innerHTML = `node ${id} · linux <div class="controls"><span>–</span><span>▢</span><span>×</span></div>`;
 
-  const title = document.createElement("div");
-  title.className = "node-title";
-  title.textContent = `node ${id} · linux`;
+  const t = document.createElement("div");
+  t.className = "terminal";
+  t.textContent = `user@node${id}:~$ `;
 
-  const controls = document.createElement("div");
-  controls.className = "controls";
-  controls.innerHTML = `
-    <span class="ctrl min">–</span>
-    <span class="ctrl max">▢</span>
-    <span class="ctrl close">×</span>
-  `;
+  n.append(h, t);
+  canvas.appendChild(n);
+  terminals[id] = t;
 
-  header.append(title, controls);
+  // focus on click
+  n.addEventListener("mousedown", () => focusNode(n));
 
-  const term = document.createElement("div");
-  term.className = "terminal";
-  term.textContent = `user@node${id}:~$ `;
+  // drag header
+  h.onmousedown = e => {
+    focusNode(n);
+    const ox = e.clientX - n.offsetLeft;
+    const oy = e.clientY - n.offsetTop;
 
-  node.append(header, term);
-  canvas.appendChild(node);
-
-  terminals[id] = term;
-
-  focus(node);
-  drag(node, header);
-}
-
-/* ===== Focus ===== */
-function focus(node) {
-  document.querySelectorAll(".node").forEach(n => n.classList.remove("focused"));
-  node.classList.add("focused");
-  node.style.zIndex = ++z;
-}
-
-/* ===== Drag ===== */
-function drag(node, handle) {
-  let ox, oy;
-  handle.onmousedown = e => {
-    focus(node);
-    ox = e.clientX - node.offsetLeft;
-    oy = e.clientY - node.offsetTop;
     document.onmousemove = e2 => {
-      node.style.left = e2.clientX - ox + "px";
-      node.style.top = e2.clientY - oy + "px";
+      n.style.left = (e2.clientX - ox) + "px";
+      n.style.top = (e2.clientY - oy) + "px";
     };
     document.onmouseup = () => {
       document.onmousemove = null;
@@ -220,30 +251,24 @@ function drag(node, handle) {
   };
 }
 
-/* ===== Bytecode ===== */
-function run(code) {
-  const m = code.match(/TERM\s+(\d+)\s+<<EOF\s*(.*?)\s*EOF/);
-  if (!m) return;
-
-  const id = m[1];
-  const content = m[2].replace(/\\n/g, "\n");
-
-  if (terminals[id]) {
-    terminals[id].textContent = content;
-  }
+function focusNode(n) {
+  document.querySelectorAll(".node").forEach(x => x.classList.remove("focused"));
+  n.classList.add("focused");
+  n.style.zIndex = ++z;
 }
 
+/* ===== Input ===== */
 input.addEventListener("keydown", e => {
   if (e.key === "Enter") {
-    run(input.value);
+    execute(input.value);
     input.value = "";
   }
 });
 
-/* ===== Init ===== */
+/* ===== INIT ===== */
 createNode(1, 60, 70);
-createNode(2, 480, 140);
-createNode(3, 280, 420);
+createNode(2, 480, 130);
+createNode(3, 260, 420);
 </script>
 
 </body>
