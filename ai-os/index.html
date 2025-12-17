@@ -147,6 +147,40 @@ html, body {
   background-repeat: no-repeat;
 }
 
+/* ===== App Menu ===== */
+.app-menu {
+  position: absolute;
+  top: 46px;
+  left: 12px;
+  width: 200px;
+  background: linear-gradient(180deg, #1b2130, #141821);
+  border-radius: 12px;
+  box-shadow: 0 20px 50px rgba(0,0,0,.6);
+  padding: 8px;
+  z-index: 1000;
+  animation: menuIn 160ms ease;
+}
+
+.app-menu.hidden {
+  display: none;
+}
+
+.app-item {
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.app-item:hover {
+  background: var(--panel-hi);
+}
+
+@keyframes menuIn {
+  from { transform: translateY(6px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
 
 </style>
 </head>
@@ -154,9 +188,14 @@ html, body {
 <body>
 
 <div id="rail">
-  <span>flux</span>
+  <span id="fluxBtn" style="cursor:pointer">flux</span>
   <span id="wallpaperBtn" style="cursor:pointer">wallpaper</span>
   <input id="bytecode" placeholder="TERM 1 FORMAT <<EOF ... (use \\n for newlines)">
+</div>
+
+<div id="appMenu" class="app-menu hidden">
+  <div class="app-item" data-app="terminal">Terminal</div>
+  <div class="app-item" data-app="editor">Text Editor</div>
 </div>
 
 
@@ -175,6 +214,20 @@ const canvas = document.getElementById("canvas");
 const input = document.getElementById("bytecode");
 const terminals = {};
 let z = 1;
+
+
+const fluxBtn = document.getElementById("fluxBtn");
+const appMenu = document.getElementById("appMenu");
+
+fluxBtn.onclick = e => {
+  e.stopPropagation();
+  appMenu.classList.toggle("hidden");
+};
+
+document.body.onclick = () => {
+  appMenu.classList.add("hidden");
+};
+
 
 
 const wallpaperBtn = document.getElementById("wallpaperBtn");
@@ -326,6 +379,64 @@ function execute(code) {
   }
 }
 
+
+
+
+const apps = {
+  terminal() {
+    spawnTerminal();
+  },
+  editor() {
+    spawnEditor();
+  }
+};
+
+document.querySelectorAll(".app-item").forEach(item => {
+  item.onclick = e => {
+    e.stopPropagation();
+    const app = item.dataset.app;
+    appMenu.classList.add("hidden");
+    apps[app]?.();
+  };
+});
+
+
+
+function spawnTerminal() {
+  const id = Object.keys(terminals).length + 1;
+  const n = createNode(id, 120 + id * 20, 100 + id * 20);
+
+  n._content.textContent = `user@node${id}:~$ `;
+}
+
+
+
+function spawnEditor() {
+  const id = Object.keys(terminals).length + 1;
+  const n = createNode(id, 160, 140);
+
+  const textarea = document.createElement("textarea");
+  textarea.style.width = "100%";
+  textarea.style.height = "100%";
+  textarea.style.background = "transparent";
+  textarea.style.color = "var(--text)";
+  textarea.style.border = "none";
+  textarea.style.resize = "none";
+  textarea.style.outline = "none";
+  textarea.style.fontFamily = "monospace";
+  textarea.placeholder = "Start typing…";
+
+  n._content.replaceWith(textarea);
+  n._content = textarea;
+}
+
+
+
+function enableDrag(n, h) { /* existing drag logic */ }
+function wireControls(n, h) { /* minimize/max/close logic */ }
+
+
+
 /* ===== NODE ===== */
 function createNode(id, x, y) {
   const n = document.createElement("div");
@@ -348,7 +459,6 @@ function createNode(id, x, y) {
 
   const t = document.createElement("div");
   t.className = "terminal";
-  t.textContent = `user@node${id}:~$ `;
 
 
   n._state = {
@@ -361,6 +471,8 @@ function createNode(id, x, y) {
   n.append(h, t);
   canvas.appendChild(n);
   terminals[id] = t;
+  n._content = t;
+
 
   // focus on click
   n.addEventListener("mousedown", () => focusNode(n));
@@ -400,6 +512,7 @@ function createNode(id, x, y) {
       if (action === "close") closeNode(n);
     };
   });
+  return n;
 
 }
 
@@ -422,11 +535,6 @@ input.addEventListener("keydown", e => {
     input.value = "";
   }
 });
-
-/* ===== INIT ===== */
-createNode(1, 60, 70);
-createNode(2, 480, 130);
-createNode(3, 260, 420);
 </script>
 
 </body>
