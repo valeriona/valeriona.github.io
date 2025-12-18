@@ -212,6 +212,14 @@ html, body {
 <div id="canvas"></div>
 
 <script>
+
+
+
+
+let clipboardReady = false;
+
+
+
 const canvas = document.getElementById("canvas");
 const input = document.getElementById("bytecode");
 const terminals = {};
@@ -596,6 +604,30 @@ input.addEventListener("keydown", e => {
     input.value = "";
   }
 });
+
+
+
+document.addEventListener("dblclick", async e => {
+  const tag = e.target.tagName;
+  if (tag === "INPUT" || tag === "TEXTAREA") return;
+
+  try {
+    // First run: this triggers permission prompt
+    const text = await navigator.clipboard.readText();
+    clipboardReady = true;
+
+    if (!text.trim()) return;
+
+    execute(text);
+  } catch (err) {
+    console.warn("Clipboard blocked:", err);
+    alert("Allow clipboard access to enable double-click execution.");
+  }
+});
+
+console.log("Clipboard execution requires HTTPS or localhost.");
+
+
 </script>
 
 </body>
