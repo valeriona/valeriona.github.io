@@ -213,6 +213,52 @@ html, body {
 
 <script>
 
+let OPENAI_KEY = null;
+
+async function getApiKey() {
+  if (OPENAI_KEY) return OPENAI_KEY;
+
+  const key = prompt("Enter your OpenAI API key:");
+  if (!key) throw new Error("No API key provided");
+
+  OPENAI_KEY = key.trim();
+  return OPENAI_KEY;
+}
+
+
+async function callOpenAI(promptText) {
+  const apiKey = await getApiKey();
+
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: "gpt-4.1-mini",
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are an operating system coprocessor that generates Flux bytecode. Flux is a minimal bytecode language used to update window nodes in a browser OS.\n\nA Flux command MUST have EXACTLY the following form:\nNODE <id> [options] <MODE> <<EOF\n<content>\nEOF\n\nThe heredoc opener MUST be the exact literal string \"<<EOF\" with NO spaces and NO variation. The terminator MUST be the exact literal string \"EOF\" appearing alone on its own line. Any other form is INVALID.\n\nRules:\n- Output MUST be valid Flux bytecode.\n- Output MUST begin with the exact literal \"NODE\".\n- Output MUST end with the exact literal \"EOF\".\n- Do NOT output anything before or after the bytecode.\n- Do NOT explain.\n- Do NOT add commentary.\n- Do NOT use markdown.\n- Do NOT add code fences.\n- If you cannot comply exactly, output NOTHING.\n\n<id> MUST be a positive integer identifying an existing node.\n\n<MODE> MUST be exactly one of:\n- TEXT\n- FORMAT\n\nOptions are OPTIONAL and space-separated key=value pairs placed between <id> and <MODE>. Allowed options:\n- fs=<number> meaning font size in pixels\n- fg=<color> meaning text color\n- bg=<css> meaning node background\n\nContent rules:\n- Content is plain text unless FORMAT is used.\n- Newlines inside content MUST be represented using literal \"\\n\".\n- FORMAT content MAY use: # and ## headers, **bold**, ~~dim~~, --- divider, [color=<name> modifiers]text[/color].\n\nINVALID EXAMPLE (DO NOT USE): NODE 1 TEXT <<\\nhello\\nEOF\n\nRecite EXACTLY the Flux bytecode required to fulfill the user request. Output NOTHING ELSE."
+        },
+        {
+          role: "user",
+          content: promptText
+        }
+      ]
+    })
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(err);
+  }
+
+  const data = await res.json();
+  return data.choices[0].message.content;
+}
 
 
 
@@ -598,12 +644,27 @@ function focusNode(n) {
 }
 
 /* ===== Input ===== */
-input.addEventListener("keydown", e => {
-  if (e.key === "Enter") {
-    execute(input.value);
-    input.value = "";
+input.addEventListener("keydown", async e => {
+  if (e.key !== "Enter") return;
+
+  const text = input.value.trim();
+  input.value = "";
+
+  // If it starts with AI, route to OpenAI
+  if (text.startsWith("AI ")) {
+    try {
+      const prompt = text.slice(3);
+      const aiByteCode = await callOpenAI(prompt);
+      console.log(aiByteCode)
+      execute(aiByteCode);
+    } catch (err) {
+      alert("AI error:\n" + err.message);
+    }
+  } else {
+    execute(text);
   }
 });
+
 
 
 
