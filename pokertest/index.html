@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Texas Hold’em</title>
+
+<style>
+body{background:#0b3d2e;color:#eee;font-family:system-ui;margin:0;padding:10px}
+.panel{background:#124734;padding:10px;border-radius:10px;margin-bottom:10px}
+.players{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px}
+.player{background:#0f2f24;border-radius:8px;padding:8px;text-align:center}
+.me{border:2px solid gold}
+.cards span{background:#fff;color:#000;padding:4px 6px;margin:2px;border-radius:4px;display:inline-block;font-weight:600}
+button{padding:12px;margin:4px;font-size:16px;border:none;border-radius:6px;background:#1f7a5a;color:#fff}
+button:disabled{opacity:.4}
+.log{height:140px;overflow:auto;background:#061f18;padding:6px;border-radius:6px;font-size:14px}
+</style>
+</head>
+
+<body>
+
+<div class="panel">
+<label>Players <input id="numPlayers" type="number" min="2" max="6" value="6"></label>
+<label>Starting Chips <input id="startChips" type="number" value="100"></label>
+<label>Small Blind <input id="sb" type="number" value="1"></label>
+<label>Big Blind <input id="bb" type="number" value="2"></label>
+<button onclick="startGame()">Start Game</button>
+</div>
+
+<div class="panel">
+<h3>Community</h3>
+<div id="community" class="cards"></div>
+</div>
+
+<div class="panel players" id="players"></div>
+
+<div class="panel">
+<button onclick="act('fold')">Fold</button>
+<button onclick="act('call')">Call / Check</button>
+<button onclick="act('raise')">Raise</button>
+</div>
+
+<div class="panel log" id="log"></div>
+
+<script>
+/* ================== CONSTANTS ================== */
+const SUITS=["♠","♥","♦","♣"];
+const RANKS=["2","3","4","5","6","7","8","9","T","J","Q","K","A"];
+
+/* ================== GAME STATE ================== */
+let players=[],deck=[],community=[];
+let pot=0,stage=0,turn=0;
+let sb=1,bb=2,raiseSize=10;
+
+/* ================== UTIL ================== */
+function log(m){logDiv.innerHTML+=m+"<br>";logDiv.scrollTop=logDiv.scrollHeight}
+function shuffle(){
+  deck=[];
+  for(let s of SUITS)for(let r of RANKS)deck.push({r,s});
+  deck.sort(()=>Math.random()-.5);
+}
+function draw(){return deck.pop()}
+
+/* ================== HAND EVAL ================== */
+function rankHand(cards){
+  const v=cards.map(c=>RANKS.indexOf(c.r)).sort((a,b)=>b-a);
+  const s=cards.map(c=>c.s);
+  const count={};
+  v.forEach(x=>count[x]=(count[x]||0)+1);
+
+  const flush=SUITS.some(x=>s.filter(y=>y===x).length>=5);
+  const uniq=[...new Set(v)];
+  let straight=null;
+  for(let i=0;i<=uniq.length-5;i++)
+    if(uniq[i]-uniq[i+4]===4) straight=uniq[i];
+  if(uniq.includes(12)&&uniq.slice(-4).join()==="3,2,1,0") straight=3;
+
+  const g=Object.entries(count).sort((a,b)=>b[1]-a[1]||b[0]-a[0]);
+
+  if(straight!==null&&flush)return[8,straight];
+  if(g[0][1]===4)return[7,+g[0][0]];
+  if(g[0][1]===3&&g[1]?.[1]>=2)return[6,+g[0][0]];
+  if(flush)return[5,Math.max(...v)];
+  if(straight!==null)return[4,straight];
+  if(g[0][1]===3)return[3,+g[0][0]];
+  if(g[0][1]===2&&g[1][1]===2)return[2,Math.max(+g[0][0],+g[1][0])];
+  if(g[0][1]===2)return[1,+g[0][0]];
+  return[0,Math.max(...v)];
+}
+
+/* ================== GAME ================== */
+function startGame(){
+  players=[];community=[];pot=0;stage=0;turn=0;
+  logDiv.innerHTML="";
+  shuffle();
+  sb=+sbInput.value;bb=+bbInput.value;
+  const n=+numPlayers.value,stack=+startChips.value;
+
+  for(let i=0;i<n;i++){
+    players.push({
+      name:i===0?"You":"AI "+i,
+      chips:stack,
+      bet:0,
+      cards:[draw(),draw()],
+      active:true,
+      ai:i!==0
+    });
+  }
+  players[0].chips-=sb;
+  players[1].chips-=bb;
+  players[0].bet=sb;
+  players[1].bet=bb;
+  pot=sb+bb;
+
+  log("New hand");
+  render();
+}
+
+function nextStage(){
+  players.forEach(p=>p.bet=0);
+  stage++;
+  turn=0;
+
+  if(stage===1)community.push(draw(),draw(),draw());
+  if(stage===2)community.push(draw());
+  if(stage===3)community.push(draw());
+  if(stage===4)return showdown();
+
+  log(["Flop","Turn","River"][stage-1]);
+  render();
+}
+
+function showdown(){
+  let best=null,winner=null;
+  players.filter(p=>p.active).forEach(p=>{
+    const r=rankHand([...p.cards,...community]);
+    if(!best||r[0]>best[0]||(r[0]===best[0]&&r[1]>best[1])){
+      best=r;winner=p;
+    }
+  });
+  winner.chips+=pot;
+  log(`${winner.name} wins ${pot}`);
+  pot=0;
+  stage=0;
+  render();
+}
+
+function act(a){
+  const p=players[turn];
+  if(!p||!p.active)return;
+
+  const maxBet=Math.max(...players.map(x=>x.bet));
+
+  if(a==="fold"){
+    p.active=false;
+    log(`${p.name} folds`);
+  }
+  if(a==="call"){
+    const d=Math.min(maxBet-p.bet,p.chips);
+    p.chips-=d;p.bet+=d;pot+=d;
+    log(`${p.name} calls`);
+  }
+  if(a==="raise"){
+    const r=Math.min(raiseSize,p.chips);
+    p.chips-=r;p.bet+=r;pot+=r;
+    log(`${p.name} raises ${r}`);
+  }
+
+  nextTurn();
+}
+
+function nextTurn(){
+  if(players.filter(p=>p.active).length<=1){
+    const w=players.find(p=>p.active);
+    w.chips+=pot;pot=0;render();return;
+  }
+
+  turn=(turn+1)%players.length;
+  if(!players[turn].active)return nextTurn();
+
+  const maxBet=Math.max(...players.map(p=>p.bet));
+  const done=players.every(p=>!p.active||p.bet===maxBet||p.chips===0);
+  if(done)return nextStage();
+
+  if(players[turn].ai)setTimeout(aiAct,400);
+}
+
+function aiAct(){
+  const p=players[turn];
+  const strength=rankHand([...p.cards,...community])[0];
+  const maxBet=Math.max(...players.map(x=>x.bet));
+
+  if(strength<2&&Math.random()<.5){
+    p.active=false;log(`${p.name} folds`);
+  }else{
+    const d=Math.min(maxBet-p.bet,p.chips);
+    p.chips-=d;p.bet+=d;pot+=d;
+    log(`${p.name} calls`);
+  }
+  nextTurn();
+}
+
+/* ================== RENDER ================== */
+function render(){
+  communityDiv.innerHTML="";
+  let show=stage===0?0:stage===1?3:stage===2?4:5;
+  community.slice(0,show).forEach(c=>{
+    communityDiv.innerHTML+=`<span>${c.r}${c.s}</span>`;
+  });
+
+  playersDiv.innerHTML="";
+  players.forEach((p,i)=>{
+    playersDiv.innerHTML+=`
+    <div class="player ${i===0?'me':''}">
+      <strong>${p.name}</strong><br>
+      Chips:${p.chips}<br>
+      Bet:${p.bet}<br>
+      <div class="cards">
+      ${p.cards.map(c=>i===0||stage===4?`<span>${c.r}${c.s}</span>`:`<span>??</span>`).join("")}
+      </div>
+      ${!p.active?"(Folded)":""}
+    </div>`;
+  });
+}
+
+/* ================== DOM ================== */
+const playersDiv=document.getElementById("players");
+const communityDiv=document.getElementById("community");
+const logDiv=document.getElementById("log");
+const numPlayers=document.getElementById("numPlayers");
+const startChips=document.getElementById("startChips");
+const sbInput=document.getElementById("sb");
+const bbInput=document.getElementById("bb");
+</script>
+
+</body>
+</html>
