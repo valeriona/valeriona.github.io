@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Net</title>
+<style>
+  body {
+    margin: 0;
+    background: #101010;
+    color: #eaeaea;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px 20px;
+  }
+
+  #net {
+    font-size: 60px;
+    font-weight: 600;
+    margin-bottom: 50px;
+    transition: color 0.2s ease;
+  }
+
+  .positive { color: #3ddc84; }
+  .negative { color: #ff5c5c; }
+  .neutral  { color: #888; }
+
+  input {
+    width: 100%;
+    max-width: 320px;
+    padding: 18px;
+    font-size: 22px;
+    text-align: center;
+    border-radius: 12px;
+    border: none;
+    background: #1b1b1b;
+    color: white;
+    margin-bottom: 30px;
+  }
+
+  .controls {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    max-width: 320px;
+  }
+
+  button {
+    flex: 1;
+    padding: 20px;
+    font-size: 18px;
+    border-radius: 14px;
+    border: none;
+    background: #2a2a2a;
+    color: white;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+  button:active {
+    background: #3a3a3a;
+  }
+
+  .reset {
+    margin-top: 35px;
+    width: 100%;
+    max-width: 320px;
+    padding: 14px;
+    font-size: 14px;
+    background: #222;
+    border-radius: 10px;
+  }
+</style>
+</head>
+<body>
+
+<div id="net"></div>
+
+<input type="number" id="amount" placeholder="Amount">
+
+<div class="controls">
+  <button onclick="win()">WIN</button>
+  <button onclick="loss()">LOSS</button>
+</div>
+
+<button class="reset" onclick="reset()">RESET</button>
+
+<script>
+let net = parseFloat(localStorage.getItem("net")) || 0;
+
+function save() {
+  localStorage.setItem("net", net);
+}
+
+function update() {
+  const el = document.getElementById("net");
+  el.textContent = net.toFixed(2);
+
+  if (net > 0) el.className = "positive";
+  else if (net < 0) el.className = "negative";
+  else el.className = "neutral";
+}
+
+function getAmount() {
+  const input = document.getElementById("amount");
+  const value = parseFloat(input.value);
+  input.value = "";
+  return value;
+}
+
+function win() {
+  const amount = getAmount();
+  if (!amount) return;
+  net += amount;
+  save();
+  update();
+}
+
+function loss() {
+  const amount = getAmount();
+  if (!amount) return;
+  net -= amount;
+  save();
+  update();
+}
+
+function reset() {
+  net = 0;
+  save();
+  update();
+}
+
+update();
+</script>
+
+</body>
+</html>
