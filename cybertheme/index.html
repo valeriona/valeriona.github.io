@@ -224,5 +224,188 @@ function copyText(id){
 }
 </script>
 
+<script>
+
+(function () {
+  if (window.__ct_full) return;
+  window.__ct_full = true;
+
+  /* ---------------- CLEAN OLD EFFECTS ---------------- */
+  const cleanup = document.createElement("style");
+  cleanup.textContent = `
+    * {
+      background-image: none !important;
+    }
+  `;
+  document.head.appendChild(cleanup);
+
+  /* ---------------- BASE STYLE ---------------- */
+  const style = document.createElement("style");
+  style.textContent = `
+    :root {
+      --ct-accent: #00f0ff;
+      --ct-secondary: #ff2bd6;
+    }
+
+    body {
+      background: #05070d !important;
+      color: #e6fbff !important;
+    }
+
+    * {
+      border-color: rgba(0,255,255,0.2) !important;
+      text-shadow: 0 0 2px rgba(0,255,255,0.15);
+    }
+
+    button, .btn {
+      background: #0c1224 !important;
+      border: 1px solid rgba(0,255,255,0.4) !important;
+      color: var(--ct-accent) !important;
+      box-shadow: 0 0 6px rgba(0,255,255,0.2);
+    }
+
+    button:hover, .btn:hover {
+      box-shadow:
+        0 0 10px rgba(0,255,255,0.35),
+        0 0 20px rgba(255,0,255,0.15);
+    }
+
+    input, select, textarea {
+      background: #0c1224 !important;
+      border: 1px solid rgba(0,255,255,0.4) !important;
+      color: #e6fbff !important;
+    }
+
+    a {
+      color: var(--ct-secondary) !important;
+    }
+
+    a:hover {
+      text-shadow: 0 0 6px var(--ct-secondary);
+    }
+
+    img {
+      filter: contrast(1.1) saturate(1.1);
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #ff2bd6;
+    }
+  `;
+  document.head.appendChild(style);
+
+  /* ---------------- GLOBAL BACKGROUND ---------------- */
+  const bg = document.createElement("div");
+  bg.style.position = "fixed";
+  bg.style.inset = "0";
+  bg.style.zIndex = "-1";
+  bg.style.pointerEvents = "none";
+
+  bg.style.background = `
+    radial-gradient(circle at 50% 20%,
+      rgba(0,255,255,0.08),
+      transparent 60%),
+    radial-gradient(circle at 50% 80%,
+      rgba(255,0,255,0.06),
+      transparent 70%),
+    #05070d
+  `;
+
+  document.body.appendChild(bg);
+
+  /* ---------------- VIGNETTE ---------------- */
+  const vignette = document.createElement("div");
+  vignette.style.position = "fixed";
+  vignette.style.inset = "0";
+  vignette.style.pointerEvents = "none";
+  vignette.style.zIndex = "999999";
+  vignette.style.background = `
+    radial-gradient(circle at center,
+      transparent 60%,
+      rgba(0,0,0,0.4) 85%,
+      rgba(0,0,0,0.7) 100%)
+  `;
+  document.body.appendChild(vignette);
+
+  /* ---------------- LIGHT ---------------- */
+  const light = document.createElement("div");
+  light.style.position = "fixed";
+  light.style.inset = "0";
+  light.style.pointerEvents = "none";
+  light.style.zIndex = "999998";
+  light.style.opacity = "0.4";
+  document.body.appendChild(light);
+
+  window.addEventListener("mousemove", (e) => {
+    const x = e.clientX / window.innerWidth * 100;
+    const y = e.clientY / window.innerHeight * 100;
+
+    light.style.background = `
+      radial-gradient(circle at ${x}% ${y}%,
+        rgba(0,255,255,0.15),
+        transparent 70%)
+    `;
+  });
+
+  /* ---------------- SCANLINES ---------------- */
+  const canvas = document.createElement("canvas");
+  canvas.style.position = "fixed";
+  canvas.style.inset = "0";
+  canvas.style.pointerEvents = "none";
+  canvas.style.zIndex = "999997";
+  document.body.appendChild(canvas);
+
+  const ctx = canvas.getContext("2d");
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener("resize", resize);
+
+  let t = 0;
+
+  function animate() {
+    t += 0.004;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let y = 0; y < canvas.height; y += 6) {
+      const wave = Math.sin(y * 0.007 + t) * 2;
+
+      ctx.fillStyle = "rgba(0,255,255,0.06)";
+      ctx.fillRect(wave, y, canvas.width, 2);
+
+      ctx.fillStyle = "rgba(0,255,255,0.025)";
+      ctx.fillRect(wave, y + 2, canvas.width, 1);
+    }
+
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+
+  /* ---------------- GLOBAL CYAN TINT ---------------- */
+  const tint = document.createElement("div");
+  tint.style.position = "fixed";
+  tint.style.inset = "0";
+  tint.style.pointerEvents = "none";
+  tint.style.zIndex = "999996";
+  tint.style.background = "rgba(0,255,255,0.06)";
+  tint.style.mixBlendMode = "screen";
+  document.body.appendChild(tint);
+
+  /* ---------------- COLOR BOOST ---------------- */
+  document.documentElement.style.filter = "contrast(1.15) saturate(1.2)";
+
+})();
+
+</script>
+
 </body>
 </html>
